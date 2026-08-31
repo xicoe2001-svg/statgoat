@@ -1,10 +1,9 @@
 name: Rebuild STATGOAT
 
 on:
+  workflow_dispatch:
   schedule:
-    # cada lunes a las 04:00 UTC
     - cron: '0 4 * * 1'
-  workflow_dispatch:        # botón para lanzarlo a mano
   push:
     branches: [main]
     paths:
@@ -17,65 +16,39 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: rebuild
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-
     steps:
-      - name: Descargar el repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Preparar Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
 
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
+      - run: pip install -r requirements.txt
 
-      - name: Descargar fuentes
-        run: python fetch_sources.py
+      - run: python fetch_sources.py
 
-      - name: Calcular z-scores por temporada
-        run: python statgoat_pipeline.py
+      - run: python statgoat_pipeline.py
 
-      - name: Componer el índice
-        run: python statgoat_compose.py
+      - run: python statgoat_compose.py
 
-      - name: Exportar datos de la web
-        run: python export_web.py
+      - run: python export_web.py
 
-      - name: Ensamblar el sitio
-        run: python build_site.py
+      - run: python build_site.py
 
-      - name: Verificar antes de publicar
-        run: python verify_build.py
+      - run: python verify_build.py
 
       - name: Publicar si algo ha cambiado
         run: |
-          git config user.name  "statgoat-bot"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data.json build_info.json robots.txt .nojekyll
+          git config user.name "statgoat-bot"
+          git config user.email "actions@github.com"
+          git add index.html data.json build_info.json robots.txt
           if git diff --staged --quiet; then
-            echo "Sin cambios en los datos esta semana."
+            echo "Sin cambios esta semana."
           else
-            git commit -m "rebuild automatico $(date -u +'%Y-%m-%d')"
+            git commit -m "rebuild automatico"
             git push
-            echo "Publicado."
           fi
-
-      - name: Guardar el build como artefacto
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: statgoat-build
-          path: |
-            index.html
-            build_info.json
-          retention-days: 30

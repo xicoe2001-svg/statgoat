@@ -97,3 +97,5 @@ Si reutilizas esto, cita las tres.
 ## Aviso
 
 STATGOAT no está afiliado ni respaldado por la NBA, la NBPA, Basketball-Reference ni FiveThirtyEight. Es un análisis histórico bajo una ponderación concreta: no es predicción, ni recomendación de apuestas, ni una verdad establecida.
+
+

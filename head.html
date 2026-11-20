@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>STATGOAT · índice histórico NBA 1947–2026</title>
-<meta name="description" content="Índice compuesto de 2.908 jugadores de BAA, NBA y ABA entre 1947 y 2026. Pesos ajustables en vivo.">
+<title>STATGOAT · NBA 1947–today</title>
+<meta name="description" content="STATGOAT: índice histórico de jugadores NBA, ABA y BAA ajustado por época, con pesos ajustables en vivo. Era-adjusted all-time index of NBA, ABA and BAA players with live adjustable weights.">
+<link rel="alternate" hreflang="es" href="https://xicoe2001-svg.github.io/statgoat/?lang=es">
+<link rel="alternate" hreflang="en" href="https://xicoe2001-svg.github.io/statgoat/?lang=en">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
@@ -25,14 +27,18 @@ h1,h2,h3,h4,.num,button,label,th,dt,.mono{font-family:Archivo,"Helvetica Neue",s
 .num,td,dd{font-variant-numeric:tabular-nums}
 a{color:var(--key)}
 
-header{border-bottom:3px solid var(--ink);padding-bottom:16px;margin-bottom:22px}
-h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacing:-.03em;margin:0}
+header{position:relative;border-bottom:3px solid var(--ink);padding-bottom:16px;margin-bottom:22px}
+h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacing:-.03em;margin:0;padding-right:96px}
+.lang{position:absolute;top:2px;right:0;display:flex;border:1px solid var(--ink)}
+.lang button{border:0;padding:6px 10px;font-size:12px;letter-spacing:.06em}
+.lang button+button{border-left:1px solid var(--ink)}
+.lang button[aria-pressed=true]{background:var(--ink);color:var(--line)}
 .sub{max-width:64ch;margin:12px 0 0;font-size:16.5px;color:var(--ink-soft)}
 .sub b{color:var(--ink);font-weight:500}
 .stats-strip{display:flex;flex-wrap:wrap;gap:0;margin-top:16px;border-top:1px solid var(--grain)}
 .stats-strip div{flex:1 1 110px;padding:9px 12px 9px 0;border-right:1px solid var(--grain)}
 .stats-strip div:last-child{border-right:0}
-.stats-strip b{display:block;font-family:Archivo;font-weight:800;font-size:21px;line-height:1.1}
+.stats-strip b{display:block;font-family:Archivo;font-weight:800;font-size:21px;line-height:1.1;white-space:nowrap}
 .stats-strip span{font-family:Archivo;font-size:10.5px;letter-spacing:.06em;color:var(--ink-soft)}
 
 /* ---------- infografía de eras ---------- */
@@ -52,6 +58,7 @@ h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacin
 @media(max-width:840px){.console{grid-template-columns:1fr}}
 .chead{display:flex;justify-content:space-between;align-items:baseline;
   font-family:Archivo;font-weight:600;font-size:12.5px;letter-spacing:.06em;margin-bottom:11px}
+.chead b{font-weight:inherit}
 .chead span{color:var(--ink-soft);font-weight:400;letter-spacing:0;font-family:Newsreader}
 .sl{display:grid;grid-template-columns:126px 1fr 42px;align-items:center;gap:9px;margin-bottom:8px}
 .sl label{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:help}
@@ -106,7 +113,7 @@ td.nm{font-size:17px;line-height:1.2}
 td.nm small{display:block;font-family:Archivo;font-size:10px;letter-spacing:.05em;color:var(--ink-soft);margin-top:2px}
 td.sc{font-family:Archivo;font-weight:800;font-size:16px;text-align:right;width:62px}
 td.bar{width:38%;min-width:130px}
-@media(max-width:640px){td.bar{display:none}}
+@media(max-width:640px){td.bar,th.bar{display:none}}
 .stack{display:flex;height:14px;background:var(--maple-deep)}
 .stack i{display:block;height:100%}
 .flag{display:inline-block;font-family:Archivo;font-size:9px;font-weight:600;letter-spacing:.05em;
@@ -168,78 +175,82 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 
 <header>
   <h1>STATGOAT</h1>
-  <p class="sub">Índice compuesto de jugadores de BAA, NBA y ABA. Ninguna estadística se compara en bruto entre épocas: todo se convierte a desviaciones típicas dentro de su propia temporada. <b>El orden no lo deciden los datos, lo deciden los pesos.</b></p>
+  <div class="lang" role="group" aria-label="Idioma / Language">
+    <button type="button" data-lang="es" lang="es" aria-label="Español">ES</button>
+    <button type="button" data-lang="en" lang="en" aria-label="English">EN</button>
+  </div>
+  <p class="sub" data-i18n="sub">Índice compuesto de jugadores de BAA, NBA y ABA. Ninguna estadística se compara en bruto entre épocas: todo se convierte a desviaciones típicas dentro de su propia temporada. <b>El orden no lo deciden los datos, lo deciden los pesos.</b></p>
   <div class="stats-strip">
-    <div><b>2.908</b><span>JUGADORES</span></div>
-    <div><b>1947–2026</b><span>TEMPORADAS</span></div>
-    <div><b>27.011</b><span>TEMPORADAS INDIVIDUALES</span></div>
-    <div><b>7</b><span>BLOQUES PONDERABLES</span></div>
-    <div><b>4</b><span>FUENTES DE DATOS</span></div>
+    <div><b id="n_players">—</b><span data-i18n="st_players">JUGADORES</span></div>
+    <div><b id="n_years">1947</b><span data-i18n="st_years">TEMPORADAS</span></div>
+    <div id="ps_cell"><b id="n_ps">—</b><span data-i18n="st_ps">TEMPORADAS INDIVIDUALES</span></div>
+    <div><b>7</b><span data-i18n="st_blocks">BLOQUES PONDERABLES</span></div>
+    <div><b>4</b><span data-i18n="st_sources">FUENTES DE DATOS</span></div>
   </div>
 </header>
 
 <section class="infograph">
-  <h2>Qué datos existían en cada época</h2>
-  <p class="info-sub">A cada jugador se le puntúa solo con lo que su época registró, renormalizando los pesos disponibles. No se le castiga con ceros, pero sus bloques descansan sobre menos indicadores.</p>
+  <h2 data-i18n="info_h">Qué datos existían en cada época</h2>
+  <p class="info-sub" data-i18n="info_sub">A cada jugador se le puntúa solo con lo que su época registró, renormalizando los pesos disponibles. No se le castiga con ceros, pero sus bloques descansan sobre menos indicadores.</p>
   <div class="eras">
-    <div class="era"><span class="year">1947–1951</span><span class="metrics">Pts · Reb · As · TC · TL</span><span class="note">Solo box score básico</span></div>
-    <div class="era"><span class="year">1952–1967</span><span class="metrics">+ Minutos · PER · WS/48</span><span class="note">Primeras métricas derivadas</span></div>
-    <div class="era"><span class="year">1968–1971</span><span class="metrics">+ Pérdidas · USG% · TOV%</span><span class="note">Control ofensivo</span></div>
-    <div class="era"><span class="year">1972–1973</span><span class="metrics">+ Tapones · Robos</span><span class="note">La defensa empieza a medirse</span></div>
-    <div class="era"><span class="year">1974–1978</span><span class="metrics">+ BPM · VORP · DBPM</span><span class="note">Impacto estimado por posesión</span></div>
-    <div class="era"><span class="year">1979–1995</span><span class="metrics">+ Triple</span><span class="note">Transición al juego moderno</span></div>
-    <div class="era"><span class="year">1996–2012</span><span class="metrics">+ On/Off · Play-by-play</span><span class="note">Más/menos por quinteto</span></div>
-    <div class="era"><span class="year">2013–2026</span><span class="metrics">+ Tracking óptico</span><span class="note">Posición de jugador y balón</span></div>
+    <div class="era"><span class="year">1947–1951</span><span class="metrics" data-i18n="e1m">Pts · Reb · As · TC · TL</span><span class="note" data-i18n="e1n">Solo box score básico</span></div>
+    <div class="era"><span class="year">1952–1967</span><span class="metrics" data-i18n="e2m">+ Minutos · PER · WS/48</span><span class="note" data-i18n="e2n">Primeras métricas derivadas</span></div>
+    <div class="era"><span class="year">1968–1971</span><span class="metrics" data-i18n="e3m">+ Pérdidas · USG% · TOV%</span><span class="note" data-i18n="e3n">Control ofensivo</span></div>
+    <div class="era"><span class="year">1972–1973</span><span class="metrics" data-i18n="e4m">+ Tapones · Robos</span><span class="note" data-i18n="e4n">La defensa empieza a medirse</span></div>
+    <div class="era"><span class="year">1974–1978</span><span class="metrics" data-i18n="e5m">+ BPM · VORP · DBPM</span><span class="note" data-i18n="e5n">Impacto estimado por posesión</span></div>
+    <div class="era"><span class="year">1979–1995</span><span class="metrics" data-i18n="e6m">+ Triple</span><span class="note" data-i18n="e6n">Transición al juego moderno</span></div>
+    <div class="era"><span class="year">1996–2012</span><span class="metrics" data-i18n="e7m">+ On/Off · Play-by-play</span><span class="note" data-i18n="e7n">Más/menos por quinteto</span></div>
+    <div class="era"><span class="year" data-i18n="e8y">2013–hoy</span><span class="metrics" data-i18n="e8m">+ Tracking óptico</span><span class="note" data-i18n="e8n">Posición de jugador y balón</span></div>
   </div>
 </section>
 
 <section class="console">
   <div>
-    <div class="chead">PESOS<span id="wsum"></span></div>
+    <div class="chead"><b data-i18n="c_weights">PESOS</b><span id="wsum"></span></div>
     <div id="sliders"></div>
     <div class="presets" id="presets"></div>
-    <label class="tog"><input type="checkbox" id="bonus" checked> Sumar bonus por totales extraordinarios (máx. 3 pts)</label>
+    <label class="tog"><input type="checkbox" id="bonus" checked> <span data-i18n="bonus">Sumar bonus por totales extraordinarios (máx. 3 pts)</span></label>
   </div>
   <div class="live">
-    <div class="chead">CON ESTOS PESOS<span id="movers"></span></div>
+    <div class="chead"><b data-i18n="c_live">CON ESTOS PESOS</b><span id="movers"></span></div>
     <div id="live"></div>
   </div>
 </section>
 
 <div class="toolbar">
-  <input id="q" type="search" placeholder="Buscar jugador…" autocomplete="off">
+  <input id="q" type="search" placeholder="Buscar jugador…" data-i18n-ph="search" autocomplete="off">
   <div class="filters" id="filters"></div>
   <span class="count" id="count"></span>
 </div>
 
 <table>
-  <thead><tr><th style="width:52px">#</th><th>Jugador</th><th>De dónde sale la puntuación</th><th class="r">Punt.</th></tr></thead>
+  <thead><tr><th style="width:52px">#</th><th data-i18n="th_player">Jugador</th><th class="bar" data-i18n="th_bar">De dónde sale la puntuación</th><th class="r" data-i18n="th_score">Punt.</th></tr></thead>
   <tbody id="tb"></tbody>
 </table>
-<button id="more" hidden>Ver más jugadores</button>
+<button id="more" hidden></button>
 
 <section id="glosario"></section>
 
 <section class="credits">
-  <h2>Fuentes y atribución</h2>
+  <h2 data-i18n="cr_h">Fuentes y atribución</h2>
   <div class="cgrid">
     <article><h4>Basketball-Reference</h4>
-      <p>Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star. 1947–2026, temporada regular. Anotación de playoffs de carrera del leaderboard público.</p>
+      <p data-i18n="cr_br">Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, temporada regular. Anotación de playoffs de carrera del leaderboard público.</p>
       <p><a href="https://www.basketball-reference.com" target="_blank" rel="noopener">basketball-reference.com</a></p></article>
     <article><h4>FiveThirtyEight</h4>
-      <p>RAPTOR histórico y moderno: impacto ofensivo y defensivo combinando box score con más/menos por quinteto. Cobertura 1977–2022.</p>
+      <p data-i18n="cr_538">RAPTOR histórico y moderno: impacto ofensivo y defensivo combinando box score con más/menos por quinteto. Cobertura 1977–2022.</p>
       <p><a href="https://github.com/fivethirtyeight/data" target="_blank" rel="noopener">github.com/fivethirtyeight/data</a> · CC BY 4.0</p></article>
     <article><h4>NBA</h4>
-      <p>Campeones por temporada y Finals MVP 1947–2026, con verificación independiente para las temporadas 2023 a 2026.</p>
+      <p data-i18n="cr_nba">Campeones por temporada y Finals MVP 1947–2026, con verificación independiente para las temporadas 2023 a 2026.</p>
       <p><a href="https://www.nba.com" target="_blank" rel="noopener">nba.com</a></p></article>
-    <article><h4>Índice STATGOAT</h4>
-      <p>La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, ponderación de anillos por rol real y composición de los siete bloques.</p>
-      <p>La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.</p></article>
+    <article><h4 data-i18n="cr_sg_h">Índice STATGOAT</h4>
+      <p data-i18n="cr_sg1">La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, ponderación de anillos por rol real y composición de los siete bloques.</p>
+      <p data-i18n="cr_sg2">La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.</p></article>
   </div>
   <div class="legal">
-    <p><b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference, FiveThirtyEight y NBA.com.</p>
-    <p><b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA, Basketball-Reference ni FiveThirtyEight.</p>
-    <p><b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.</p>
+    <p data-i18n="lg_attr"><b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference, FiveThirtyEight y NBA.com.</p>
+    <p data-i18n="lg_aff"><b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA, Basketball-Reference ni FiveThirtyEight.</p>
+    <p data-i18n="lg_war"><b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.</p>
   </div>
 </section>
 

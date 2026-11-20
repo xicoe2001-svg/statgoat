@@ -256,7 +256,7 @@ def main():
     S = B[['player']].copy()
     for nm, ww in scen.items():
         r = sum(B[k] * v for k, v in ww.items()) + 0.03 * B['BONUS_TOTALES']
-        S[nm] = r.rank(ascending=False).astype('Int64')
+        S[nm] = r.rank(ascending=False).round().astype('int64')
     S = S.sort_values('BASE').head(25)
     print('\n--- sensibilidad (posicion segun ponderacion) ---')
     print(S.to_string(index=False))

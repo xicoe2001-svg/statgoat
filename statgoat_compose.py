@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+from statgoat_pipeline import ts_added
+
 ROOT = Path(__file__).resolve().parent
 BREF = ROOT / '_raw' / 'bref'
 CACHE = ROOT / 'cache'
@@ -22,7 +24,7 @@ SHRINK_K = 600          # minutos de playoffs que "valen" lo mismo que la previs
 PEAK_MIN = 4000         # se mide a cada uno por sus mejores 4.000 minutos de playoffs (≈ 4-5 rondas largas)
 PO_SUBDIMS = {
     'PROD': {'pts_pg_z': .40, 'trb_pg_z': .20, 'ast_pg_z': .20, 'stl_pg_z': .10, 'blk_pg_z': .10},
-    'EFIC': {'ts_z': .70, 'tov_neg_z': .30},
+    'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
     'IMP': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
 }
 PO_DIM_W = {'PROD': .30, 'EFIC': .15, 'IMP': .55}
@@ -106,7 +108,8 @@ def playoff_seasons():
     ps['ws_f'] = ps['ws'].fillna(ps['pts'] * ratio)
 
     qual = (ps['g'] >= 3) & ((ps['mp'] >= 60) | ps['mp'].isna())
-    zc = ['pts_pg', 'trb_pg', 'ast_pg', 'stl_pg', 'blk_pg', 'ts', 'tov_neg', 'per', 'ws_48', 'bpm']
+    ps['tsa'] = ts_added(ps, 'pts_pg', 'ts', qual)      # mismo criterio que en liga regular
+    zc = ['pts_pg', 'trb_pg', 'ast_pg', 'stl_pg', 'blk_pg', 'ts', 'tsa', 'tov_neg', 'per', 'ws_48', 'bpm']
     ps = pd.concat([ps, season_z(ps, [c for c in zc if c in ps], qual)], axis=1)
     for d, w in PO_SUBDIMS.items():
         ps['PO_' + d] = wmean(ps, {k: v for k, v in w.items() if k in ps})

@@ -75,6 +75,10 @@ Ninguna estadística se compara en bruto entre épocas. Todo se convierte a z-sc
 
 Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 13%, Playoffs 20%, Títulos 15%, Premios 10%. Los pesos se cambian en vivo desde la web.
 
+**Carrera:** cada bloque se resume como 40 % media de las 3 mejores temporadas + 40 % de las 7 mejores + 20 % acumulado. Antes de sumarlo, el acumulado se pasa a la misma escala que el pico a partir de su percentil histórico, para que cada porcentaje pese lo que dice (en bruto, el «20 %» llegaba a pesar la mitad en las carreras largas). Si un jugador tiene menos de 3 o de 7 temporadas computables, las que faltan cuentan como 0 (jugador medio de la liga).
+
+**Eficiencia:** puntos añadidos por eficiencia, `(TS% propio − TS% de su liga) × intentos` (70 %), y control de pérdidas (30 %). Mide eficiencia y volumen a la vez; se usa igual en liga regular y en playoffs.
+
 El glosario completo está en la propia página.
 
 **Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto). El bloque combina el nivel en sus mejores 4.000 minutos de playoffs (55 %), el plus de playoffs —si crece o se encoge frente a su liga regular de ese mismo año— (25 %) y el volumen de Win Shares (20 %). Con pocos minutos de playoffs, el nivel se acerca a lo que predice su temporada regular y el plus, a 0.

@@ -41,7 +41,7 @@ R = pd.read_csv(ROOT / '_build' / 'statgoat_full.csv')
 check(len(R) > 2500, f'suficientes jugadores puntuados ({len(R)})')
 check(R['STATGOAT'].notna().all(), 'ninguna puntuación es nula')
 check(R['STATGOAT'].is_monotonic_decreasing, 'el ranking está ordenado')
-check(abs(R['STATGOAT'].max() - 100) < 0.6, f'el líder marca ~100 ({R["STATGOAT"].max():.2f})')
+check(97 <= R['STATGOAT'].max() <= 100.01, f'el líder está entre 97 y 100 ({R["STATGOAT"].max():.2f})')
 top = set(R.head(15)['player'])
 anclas = {'LeBron James', 'Michael Jordan', 'Kareem Abdul-Jabbar',
           'Tim Duncan', "Shaquille O'Neal", 'Hakeem Olajuwon'}

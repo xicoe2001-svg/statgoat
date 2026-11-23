@@ -15,6 +15,7 @@ cualificados de esa temporada. Se mide dominancia relativa, no produccion bruta.
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from statistics import NormalDist
 
 ROOT = Path(__file__).resolve().parent
 D = ROOT / '_raw'
@@ -52,6 +53,19 @@ def dedupe_multiteam(df):
 
 
 # ------------------------------------------------- z-scores intra-temporada
+def ts_added(df, pts, ts, qual_mask):
+    """Puntos por partido añadidos por eficiencia frente al TS% de su liga ese año.
+
+    TS% de la liga = puntos / intentos de los jugadores cualificados, donde
+    intentos = puntos / TS%. Resultado: pts x (1 - TS% liga / TS% propio)."""
+    t = df[ts].where(df[ts] > 0)
+    ok = qual_mask & t.notna() & df[pts].notna()
+    key = [df['season'], df['lg']]
+    lg_ts = (df[pts].where(ok).groupby(key).transform('sum')
+             / (df[pts] / t).where(ok).groupby(key).transform('sum'))
+    return df[pts] * (1 - lg_ts / t)
+
+
 def season_z(df, cols, qual_mask, cap=Z_CAP):
     """z-score de cada columna dentro de (season, lg), usando como referencia
     la media/sd del grupo cualificado de esa temporada."""
@@ -106,8 +120,13 @@ def build():
     qual = ((s['mp'] >= 500) |
             (s['mp'].isna() & (s['g'] >= 0.4 * s['season_g'])))
 
+    # Eficiencia con volumen: puntos por partido añadidos por anotar por encima
+    # del True Shooting de la liga = (TS% propio - TS% liga) x intentos.
+    # Con el TS% a secas, un pívot que tira 5 veces al 65 % "valía" más que
+    # alguien que tira 20 al 63 %.
+    s['tsa'] = ts_added(s, 'pts_per_game', 'ts_percent', qual)
     zcols = ['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game',
-             'blk_per_game', 'ts_percent', 'tov_neg', 'per', 'ws_48', 'bpm',
+             'blk_per_game', 'ts_percent', 'tsa', 'tov_neg', 'per', 'ws_48', 'bpm',
              'obpm', 'dbpm', 'dws_48', 'stl_percent', 'blk_percent',
              'drb_percent', 'usg_percent']
     Z = season_z(s, zcols, qual)
@@ -117,7 +136,7 @@ def build():
     dims = {
         'PROD': {'pts_per_game_z': .40, 'trb_per_game_z': .20, 'ast_per_game_z': .20,
                  'stl_per_game_z': .10, 'blk_per_game_z': .10},
-        'EFIC': {'ts_percent_z': .70, 'tov_neg_z': .30},
+        'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
         'IMPACTO': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
         'DEF': {'dbpm_z': .40, 'dws_48_z': .30, 'stl_percent_z': .10,
                 'blk_percent_z': .10, 'drb_percent_z': .10},
@@ -151,9 +170,11 @@ def build():
             v = gr[col].dropna().sort_values(ascending=False)
         if len(v) == 0:
             return pd.Series({'peak3': np.nan, 'prime7': np.nan, 'sustain': np.nan})
+        # La media de las 3 y de las 7 mejores exige 3 y 7 temporadas: las que
+        # faltan cuentan como 0 (jugador medio de la liga), no se ignoran.
         return pd.Series({
-            'peak3': v.head(3).mean(),
-            'prime7': v.head(7).mean(),
+            'peak3': v.head(3).sum() / 3,
+            'prime7': v.head(7).sum() / 7,
             'sustain': v.clip(lower=0).sum() / 12.0,
         })
 
@@ -182,9 +203,23 @@ def build():
         rows.append(rec)
     C = pd.DataFrame(rows)
 
+    # El acumulado se pasa a la misma escala que el pico antes de sumarlo, para
+    # que cada porcentaje pese lo que dice. En bruto es una suma muy asimétrica
+    # (casi todos los jugadores cerca de 0, las carreras largas a +15) y el
+    # "20 %" llegaba a pesar la mitad de la nota. Se usa su percentil:
+    # percentil -> puntuación normal -> mismo centro y dispersión que el pico.
+    # Referencia: los jugadores que entran en el índice (1+ temporada computable).
+    nd = NormalDist()
+    ref = C['seasons'] >= 1
     for name in dims:
-        C[name + '_sustain_z'] = ((C[name + '_sustain'] - C[name + '_sustain'].mean())
-                                  / C[name + '_sustain'].std())
+        pk = C.loc[ref, name + '_peak']
+        pool = np.sort(C.loc[ref, name + '_sustain'].dropna().values)
+        n = len(pool)
+        v = C[name + '_sustain'].values
+        pct = (np.searchsorted(pool, v, 'left') + np.searchsorted(pool, v, 'right')) / (2 * n)
+        pct = np.clip(pct, 0.5 / n, 1 - 0.5 / n)
+        ns = np.array([nd.inv_cdf(q) if np.isfinite(x) else np.nan for q, x in zip(pct, v)])
+        C[name + '_sustain_z'] = pk.mean() + pk.std() * ns
         C[name + '_career'] = (0.40 * C[name + '_peak'] + 0.40 * C[name + '_prime']
                                + 0.20 * C[name + '_sustain_z'])
 

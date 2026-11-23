@@ -27,7 +27,7 @@ es:{
   e7m:'+ On/Off · Play-by-play', e7n:'Más/menos por quinteto',
   e8y:'2013–hoy', e8m:'+ Tracking óptico', e8n:'Posición de jugador y balón',
   c_weights:'PESOS', c_live:'CON ESTOS PESOS',
-  bonus:'Sumar bonus por totales extraordinarios (máx. 3 pts)',
+  bonus:'Sumar bonus por estar en el top 5 histórico de una estadística (máx. 3 pts)',
   search:'Buscar jugador…', th_player:'Jugador', th_bar:'De dónde sale la puntuación', th_score:'Punt.',
   tab_players:'Jugadores', tab_seasons:'Mejores temporadas', th_season:'Temporada',
   sfilters:{all:'Todas',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
@@ -62,7 +62,8 @@ es:{
   more:n=>`Ver más jugadores (${n} restantes)`,
   record:'RÉCORD', partial:'DATOS PARCIALES', seasonsShort:'temp.',
   card:{career:'CARRERA',active:'ACTIVO',seasons:'temporadas',games:'PARTIDOS',minutes:'MINUTOS',perGame:'partido',
-    teams:'EQUIPOS',league:'LIGA',pg:'POR PARTIDO',pts:'PUNTOS',reb:'REBOTES',ast:'ASISTENCIAS',stl:'ROBOS',blk:'TAPONES',tov:'PÉRDIDAS',
+    teams:'EQUIPOS',league:'LIGA',pg:'POR PARTIDO',pts:'PUNTOS',reb:'REBOTES',ast:'ASISTENCIAS',stl:'ROBOS',blk:'TAPONES',tov:'PÉRDIDAS',tpm:'TRIPLES',top5:'TOP 5 HISTÓRICO',withBonus:'con el bonus',
+    cat:{pts:'puntos',trb:'rebotes',ast:'asistencias',stl:'robos',blk:'tapones',x3p:'triples'},
     po:'PLAYOFFS',poNone:'Nunca jugó playoffs.',poRuns:'temporadas',vsReg:'vs. liga regular',poPlus:'PLUS',plusUp:'crece en playoffs',plusDown:'baja en playoffs',plusEq:'rinde igual',
     effImp:'EFICIENCIA E IMPACTO',perAvg:'media liga 15,0',wsAvg:'media 0,100',off:'of.',def:'def.',
     pct:'PORCENTAJES EN PISTA',stlP:'ROBO %',blkP:'TAPÓN %',drbP:'REB. DEF. %',orbP:'REB. OF. %',astP:'ASIST. %',
@@ -98,7 +99,7 @@ es:{
 <dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0. Se muestra en la ficha pero no suma ni resta: el nivel en playoffs ya recoge lo que rindió de verdad, y contar aparte la diferencia con lo esperado restaba nota a quien hacía una gran liga regular y premiaba a quien partía de una floja.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión de nivel y sin volumen acumulado.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West. Quien estaba en la plantilla pero no jugó esos playoffs se lleva un crédito mínimo; quien fue traspasado antes, ninguno.</dd>
-<dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma hasta 3 puntos a quien esté por encima del percentil 95 histórico en puntos, rebotes, asistencias, robos o tapones de carrera. No va en la nota por defecto porque compara totales en bruto entre épocas (antes de 1974 no se contaban robos ni tapones y las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque.</dd>
+<dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma puntos a quien esté en el top 5 histórico de una estadística de carrera: puntos, rebotes, asistencias, robos, tapones o triples (NBA, ABA y BAA juntas). El 1.º se lleva 3 puntos, el 2.º 2,4, el 3.º 1,8, el 4.º 1,2 y el 5.º 0,6. Cuenta solo su mejor categoría: dos terceros puestos no valen lo mismo que un récord. No va en la nota por defecto porque compara totales en bruto entre épocas (los robos y tapones se cuentan desde 1974, los triples desde 1980 y antes las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque. Los puestos se actualizan cada lunes.</dd>
 <dt>Mejores temporadas</dt><dd>La misma fórmula del índice aplicada a un solo año: liga regular (producción, eficiencia, impacto y defensa), los playoffs de ese año, el anillo según su aportación y los premios de esa temporada (MVP, DPOY, All-NBA, All-Star). Cada bloque se compara con todas las temporadas medibles y se pondera con los pesos que tengas puestos. Títulos y premios se pasan a la misma escala que la estadística a partir de su percentil: en un solo año casi todo son ceros, y sin esto un anillo pesaba más que la mejor temporada estadística de la historia. Solo entran temporadas desde 1951-52, cuando empiezan los minutos: antes no se pueden medir ni el impacto ni la defensa.</dd>
 <dt>Escala de los bloques</dt><dd>Para que cada peso signifique lo que dice, todos los bloques tienen que estar en la misma escala. Los estadísticos ya lo están (z-score, con las colas comprimidas por encima de 2 desviaciones). Títulos y premios no: tres de cada cuatro jugadores tienen 0 y unos pocos se disparan, y en la cima pesaban un 34% de la nota en vez de su 25%. Por eso se pasan a la escala de la estadística a partir de su percentil: tener más anillos que nadie vale lo mismo que ser el mejor de la historia en producción, no el doble. La escala es continua: quien no tiene nada queda en el centro de su grupo y los demás suben desde ahí, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada, sin saltos de varios puntos.</dd>
 <dt>Datos parciales</dt><dd>Marca a los jugadores cuya época no registraba parte de las métricas. Se les puntúa solo con lo disponible, renormalizando los pesos presentes.</dd>
@@ -121,7 +122,7 @@ en:{
   e7m:'+ On/Off · Play-by-play', e7n:'Lineup plus/minus',
   e8y:'2013–today', e8m:'+ Optical tracking', e8n:'Player and ball position',
   c_weights:'WEIGHTS', c_live:'WITH THESE WEIGHTS',
-  bonus:'Add a bonus for extraordinary career totals (max. 3 pts)',
+  bonus:'Add a bonus for being in the all-time top 5 of a stat (max. 3 pts)',
   search:'Search player…', th_player:'Player', th_bar:'Where the score comes from', th_score:'Score',
   tab_players:'Players', tab_seasons:'Best seasons', th_season:'Season',
   sfilters:{all:'All',ring:'Title seasons',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
@@ -156,7 +157,8 @@ en:{
   more:n=>`Show more players (${n} left)`,
   record:'RECORD', partial:'PARTIAL DATA', seasonsShort:'seasons',
   card:{career:'CAREER',active:'ACTIVE',seasons:'seasons',games:'GAMES',minutes:'MINUTES',perGame:'game',
-    teams:'TEAMS',league:'LEAGUE',pg:'PER GAME',pts:'POINTS',reb:'REBOUNDS',ast:'ASSISTS',stl:'STEALS',blk:'BLOCKS',tov:'TURNOVERS',
+    teams:'TEAMS',league:'LEAGUE',pg:'PER GAME',pts:'POINTS',reb:'REBOUNDS',ast:'ASSISTS',stl:'STEALS',blk:'BLOCKS',tov:'TURNOVERS',tpm:'3-POINTERS',top5:'ALL-TIME TOP 5',withBonus:'with the bonus',
+    cat:{pts:'points',trb:'rebounds',ast:'assists',stl:'steals',blk:'blocks',x3p:'threes'},
     po:'PLAYOFFS',poNone:'Never played in the playoffs.',poRuns:'seasons',vsReg:'vs. regular season',poPlus:'PLUS',plusUp:'rises in the playoffs',plusDown:'drops in the playoffs',plusEq:'holds steady',
     effImp:'EFFICIENCY & IMPACT',perAvg:'league avg 15.0',wsAvg:'avg 0.100',off:'off.',def:'def.',
     pct:'ON-COURT PERCENTAGES',stlP:'STEAL %',blkP:'BLOCK %',drbP:'DEF. REB. %',orbP:'OFF. REB. %',astP:'ASSIST %',
@@ -192,7 +194,7 @@ en:{
 <dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0. It’s shown on the player card but doesn’t add or subtract: playoff level already reflects what he really did, and counting the gap to expectations on top of it took points away from players with a great regular season and rewarded those starting from a weak one.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that predicted level, with no accumulated volume.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West. A player on the roster who didn’t play in those playoffs gets a minimal credit; one traded away earlier, none.</dd>
-<dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds up to 3 points for anyone above the all-time 95th percentile in career points, rebounds, assists, steals or blocks. It isn’t in the default score because it compares raw totals across eras (steals and blocks weren’t counted before 1974 and seasons were shorter) and because longevity already counts for 20% in every block.</dd>
+<dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds points for anyone in the all-time top 5 of a career stat: points, rebounds, assists, steals, blocks or threes (NBA, ABA and BAA combined). 1st place gets 3 points, 2nd 2.4, 3rd 1.8, 4th 1.2 and 5th 0.6. Only his best category counts: two third places aren’t worth a record. It isn’t in the default score because it compares raw totals across eras (steals and blocks have been counted since 1974, threes since 1980, and seasons used to be shorter) and because longevity already counts for 20% in every block. Rankings update every Monday.</dd>
 <dt>Best seasons</dt><dd>The index formula applied to a single year: regular season (production, efficiency, impact and defense), that year’s playoffs, the ring weighted by contribution and that season’s awards (MVP, DPOY, All-NBA, All-Star). Each block is compared with every measurable season and weighted with the weights you have set. Titles and awards are put on the same scale as the stats through their percentile: in a single year almost everything is zero, and without this a ring outweighed the best statistical season ever. Only seasons from 1951-52 on are included, when minutes start being recorded: before that, impact and defense can’t be measured.</dd>
 <dt>Block scale</dt><dd>For each weight to mean what it says, every block has to be on the same scale. The statistical blocks already are (z-scores, with the tails compressed above 2 standard deviations). Titles and awards aren’t: three in four players have 0 and a few shoot off the chart, so at the top they made up 34% of the score instead of their 25%. That’s why they’re put on the stats scale through their percentile: having more rings than anyone is worth the same as being the best ever in production, not twice as much. The scale is continuous: players with nothing sit in the middle of their group and everyone else climbs from there, so a token ring or a single All-Star selection is worth almost the same as nothing, with no jumps of several points.</dd>
 <dt>Partial data</dt><dd>Flags players whose era didn’t record some of the metrics. They’re scored only on what exists, re-weighting the blocks that are available.</dd>
@@ -258,6 +260,8 @@ function basePos(fid){
 
 const nf=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
 const mil=v=>v==null?'—':Number(v).toLocaleString(loc());
+const recs=p=>String(get(p,'rec')||'').split(',').filter(x=>x.includes(':')).map(x=>{const [k,r]=x.split(':');return {k,r:+r};});
+const ord=r=>LANG==='en'?r+(['th','st','nd','rd'][r]||'th'):r+'.º';
 const pc=v=>v==null?'—':(Number(v)*100).toFixed(1)+'%';
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const NAMES=P.map(p=>norm(get(p,'n')));
@@ -480,7 +484,8 @@ function renderTable(){
     const sum=parts.reduce((s,x)=>s+x.v,0)||1;
     const bar=`<div class="stack" style="width:${Math.max(4,100*o.s/maxS)}%">`+
       parts.map(x=>`<i style="width:${100*x.v/sum}%;background:${x.c}" title="${x.n}"></i>`).join('')+'</div>';
-    const fl=(get(p,'rec')?`<span class="flag">${t.record} ${get(p,'rec')}</span>`:'')+
+    const rec1=recs(p).filter(x=>x.r===1).map(x=>t.card.cat[x.k].toUpperCase()).join(', ');
+    const fl=(rec1?`<span class="flag">${t.record} ${rec1}</span>`:'')+
       (get(p,'cov')<0.75?`<span class="flag warn">${t.partial}</span>`:'');
     const op=openRk===o.rk;
     return `<tr class="main${op?' open':''}" data-rk="${o.rk}">
@@ -569,6 +574,8 @@ function detail(p,o){
       <dt>${c.ast}</dt><dd>${mil(g('tast'))}</dd>
       <dt>${c.stl}</dt><dd>${mil(g('tstl'))}</dd>
       <dt>${c.blk}</dt><dd>${mil(g('tblk'))}</dd>
+      <dt>${c.tpm}</dt><dd>${mil(g('tx3p'))}</dd>
+      ${recs(p).length?`<dt>${c.top5}</dt><dd>${recs(p).map(x=>`${c.cat[x.k]} ${ord(x.r)}`).join(' · ')} <small>(+${nf(g('bt'))} ${c.withBonus})</small></dd>`:''}
     </dl></div>
 
     <div class="card"><h4>${c.honors}</h4><dl class="kv">

@@ -46,6 +46,11 @@ top = set(R.head(15)['player'])
 anclas = {'LeBron James', 'Michael Jordan', 'Kareem Abdul-Jabbar',
           'Tim Duncan', "Shaquille O'Neal", 'Hakeem Olajuwon'}
 check(len(top & anclas) >= 5, f'el top 15 sigue siendo plausible ({len(top & anclas)}/6 anclas presentes)')
+bt = R.set_index('player_id')['BONUS_TOTALES']
+check(all(bt.get(p, 0) == 3 for p in ['jamesle01', 'curryst01', 'stockjo01']),
+      'bonus: LeBron (puntos), Curry (triples) y Stockton (asistencias) tienen récord')
+check(set(bt.round(1).unique()) <= {0.0, 0.6, 1.2, 1.8, 2.4, 3.0},
+      'bonus: solo hay valores de puesto en el top 5')
 
 # ---------------------------------------------------------------- frescura
 info = json.loads((ROOT / 'build_info.json').read_text(encoding='utf-8'))

@@ -420,15 +420,18 @@ def main():
                      + 0.20 * z(P['allstar']))
 
     # ------------------------------------------------- bonus de totales
-    tot_cols = ['pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total']
-    exc = pd.DataFrame(index=P.index)
-    for c in tot_cols:
-        v = P[c].astype(float)
-        q95, mx = v.quantile(0.95), v.max()
-        exc[c] = ((v - q95) / (mx - q95)).clip(lower=0).fillna(0)
-    B['BONUS_TOTALES'] = 3.0 * exc.max(axis=1)          # 0-3 puntos, solo outliers
-    B['_records'] = [', '.join([c.replace('_total', '').upper()
-                                for c in tot_cols if P.loc[i, c] == P[c].max()])
+    # Opcional en la web. Puesto histórico en totales de carrera (NBA, ABA y BAA
+    # juntas): 1.º = 3 puntos, 2.º = 2,4, 3.º = 1,8, 4.º = 1,2, 5.º = 0,6.
+    # Cuenta solo la mejor categoría de cada jugador, no la suma: dos terceros
+    # puestos no valen lo mismo que un récord.
+    tot_cols = ['pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total']
+    RANK_PTS = {1: 3.0, 2: 2.4, 3: 1.8, 4: 1.2, 5: 0.6}
+    rk = pd.DataFrame({c: P[c].astype(float).rank(ascending=False, method='min')
+                       for c in tot_cols}, index=P.index)
+    B['BONUS_TOTALES'] = rk.apply(lambda col: col.map(RANK_PTS)).fillna(0).max(axis=1)
+    # puestos de top 5 para la ficha, p. ej. "pts:1,ast:4"
+    B['_records'] = [','.join(f"{c.replace('_total', '')}:{int(rk.loc[i, c])}"
+                              for c in tot_cols if rk.loc[i, c] <= 5)
                      for i in P.index]
 
     # ------------------------------------------------- score final
@@ -455,7 +458,7 @@ def main():
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
               'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',
               'po_ws', 'po_bpm', 'po_runs', 'po_w', 'po_plus',
-              'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total',
+              'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total',
               'rings', 'rings_as_best', 'ring_credit', 'fmvp', 'mvps',
               'mvp_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar',
               'PROD_cov', 'IMPACTO_cov', 'DEF_cov', 'lg_main']].copy()

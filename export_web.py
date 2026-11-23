@@ -74,7 +74,8 @@ FIELDS = ['rk', 'n', 'sc',                                     # 0-2
           'tpts', 'trb', 'tast', 'tstl', 'tblk',               # 38-42
           'po', 'pog', 'pomp', 'porpg', 'poapg', 'pots', 'poper', 'pows', 'pobpm', 'poruns', 'poplus',  # playoffs
           'ring', 'best', 'fmvp', 'mvp', 'mvps_v', 'dpoy', 'anba', 'adef', 'ast',  # 45-53
-          'cov', 'rec', 'lg', 'seas', 'tm']                     # 54-58
+          'cov', 'rec', 'lg', 'seas', 'tm',                    # 54-58
+          'tx3p']                                              # 59
 
 r2 = lambda v, d=2: None if v is None or (isinstance(v, float) and np.isnan(v)) else round(float(v), d)
 i0 = lambda v: None if pd.isna(v) else int(v)
@@ -105,6 +106,7 @@ for _, r in R.iterrows():
         r2(r['alldef_pts'], 1), i0(r['allstar']),
         r2(r['cov_min'], 2), ('' if pd.isna(r['_records']) else str(r['_records'])),
         r['lg_main'], seas, teams,
+        i0(r['x3p_total']),
     ])
 
 # --------------------------------------------------- mejores temporadas completas

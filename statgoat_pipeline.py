@@ -101,8 +101,8 @@ def build():
     pgc = ['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game',
            'blk_per_game', 'tov_per_game', 'mp_per_game']
     s = adv.merge(pg[key + [c for c in pgc if c in pg.columns]], on=key, how='left')
-    s = s.merge(tot[key + ['pts', 'trb', 'ast', 'stl', 'blk']].rename(
-        columns={c: c + '_tot' for c in ['pts', 'trb', 'ast', 'stl', 'blk']}),
+    s = s.merge(tot[key + ['pts', 'trb', 'ast', 'stl', 'blk', 'x3p']].rename(
+        columns={c: c + '_tot' for c in ['pts', 'trb', 'ast', 'stl', 'blk', 'x3p']}),
         on=key, how='left')
 
     # numero de partidos de la temporada (para escalar umbrales)
@@ -195,6 +195,7 @@ def build():
         rec['ast_total'] = gr['ast_tot'].sum()
         rec['stl_total'] = gr['stl_tot'].sum()
         rec['blk_total'] = gr['blk_tot'].sum()
+        rec['x3p_total'] = gr['x3p_tot'].sum(min_count=1)   # sin dato antes de existir la línea de 3
         w = gr['g'].fillna(0)
         rec['rs_ppg'] = np.average(gr['pts_per_game'].fillna(0), weights=w) if w.sum() else np.nan
         rec['first'] = gr['season'].min()

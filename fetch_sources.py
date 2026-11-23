@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Descarga las fuentes externas y deja constancia de qué versión se usó.
+"""Descarga el volcado de temporada regular de Basketball-Reference y deja constancia de qué versión se usó.
+
+Los playoffs y los premios recientes los completa fetch_bref_extra.py.
 
 Se ejecuta cada semana desde GitHub Actions. Si una fuente falla o llega
 corrupta, aborta con error: es preferible que la web se quede con los datos
@@ -20,7 +22,6 @@ RAW = ROOT / '_raw'
 RAW.mkdir(parents=True, exist_ok=True)
 
 BREF_TAR = 'https://codeload.github.com/sumitrodatta/bball-reference-datasets/tar.gz/refs/heads/master'
-RAPTOR = 'https://raw.githubusercontent.com/fivethirtyeight/data/master/nba-raptor/historical_RAPTOR_by_player.csv'
 
 REQUIRED = ['Advanced.csv', 'Player Per Game.csv', 'Player Totals.csv',
             'Player Award Shares.csv', 'End of Season Teams.csv',
@@ -73,18 +74,9 @@ def main():
     info['season_min'], info['season_max'] = min(seasons), max(seasons)
     print(f'  {len(members)} ficheros · temporadas {min(seasons)}–{max(seasons)}')
 
-    print('Descargando RAPTOR de FiveThirtyEight…')
-    rap = fetch(RAPTOR)
-    if len(rap) < 500_000:
-        raise SystemExit('ABORTA: RAPTOR llegó demasiado pequeño, posible error de red')
-    (RAW / 'raptor_hist.csv').write_bytes(rap)
-    info['raptor_bytes'] = len(rap)
-    print(f'  {len(rap)//1024} KB')
-
-    for f in ('champions.csv', 'playoff_ppg_career.csv'):
+    for f in ('champions.csv', 'finals_mvp.csv'):
         if not (ROOT / f).exists():
-            raise SystemExit(f'ABORTA: falta el fichero estático {f}')
-    info['static_ok'] = True
+            raise SystemExit(f'ABORTA: falta el fichero {f}')
 
     (ROOT / 'build_info.json').write_text(
         json.dumps(info, indent=2, ensure_ascii=False), encoding='utf-8')

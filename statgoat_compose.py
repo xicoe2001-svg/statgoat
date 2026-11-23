@@ -1,38 +1,30 @@
 #!/usr/bin/env python3
-"""STATGOAT - capa 2: postemporada, premios, anillos, bonus de totales y score final."""
+"""STATGOAT - capa 2: playoffs, premios, anillos, bonus de totales y score final.
+
+Todo sale de datos que se actualizan solos:
+  - temporada regular y premios históricos: volcado de Basketball-Reference (_raw/bref)
+  - playoffs de cada temporada, premios recientes: cache/ (fetch_bref_extra.py)
+  - campeones y Finals MVP: champions.csv y finals_mvp.csv (se amplían solos)
+"""
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-D = ROOT
+BREF = ROOT / '_raw' / 'bref'
+CACHE = ROOT / 'cache'
 OUT = ROOT / '_build'
 
-# ---- Finals MVP 1969-2026 (Bill Russell Trophy). 2023-2026 verificado por busqueda web.
-FMVP = {
-    1969: 'Jerry West', 1970: 'Willis Reed', 1971: 'Kareem Abdul-Jabbar',
-    1972: 'Wilt Chamberlain', 1973: 'Willis Reed', 1974: 'John Havlicek',
-    1975: 'Rick Barry', 1976: 'Jo Jo White', 1977: 'Bill Walton',
-    1978: 'Wes Unseld', 1979: 'Dennis Johnson', 1980: 'Magic Johnson',
-    1981: 'Cedric Maxwell', 1982: 'Magic Johnson', 1983: 'Moses Malone',
-    1984: 'Larry Bird', 1985: 'Kareem Abdul-Jabbar', 1986: 'Larry Bird',
-    1987: 'Magic Johnson', 1988: 'James Worthy', 1989: 'Joe Dumars',
-    1990: 'Isiah Thomas', 1991: 'Michael Jordan', 1992: 'Michael Jordan',
-    1993: 'Michael Jordan', 1994: 'Hakeem Olajuwon', 1995: 'Hakeem Olajuwon',
-    1996: 'Michael Jordan', 1997: 'Michael Jordan', 1998: 'Michael Jordan',
-    1999: 'Tim Duncan', 2000: "Shaquille O'Neal", 2001: "Shaquille O'Neal",
-    2002: "Shaquille O'Neal", 2003: 'Tim Duncan', 2004: 'Chauncey Billups',
-    2005: 'Tim Duncan', 2006: 'Dwyane Wade', 2007: 'Tony Parker',
-    2008: 'Paul Pierce', 2009: 'Kobe Bryant', 2010: 'Kobe Bryant',
-    2011: 'Dirk Nowitzki', 2012: 'LeBron James', 2013: 'LeBron James',
-    2014: 'Kawhi Leonard', 2015: 'Andre Iguodala', 2016: 'LeBron James',
-    2017: 'Kevin Durant', 2018: 'Kevin Durant', 2019: 'Kawhi Leonard',
-    2020: 'LeBron James', 2021: 'Giannis Antetokounmpo', 2022: 'Stephen Curry',
-    2023: 'Nikola Jokić', 2024: 'Jaylen Brown', 2025: 'Shai Gilgeous-Alexander',
-    2026: 'Jalen Brunson',
+Z_CAP = 4.0
+ABA_DISCOUNT = 0.90
+SHRINK_K = 600          # minutos de playoffs que "valen" lo mismo que la previsión por liga regular
+PO_SUBDIMS = {
+    'PROD': {'pts_pg_z': .40, 'trb_pg_z': .20, 'ast_pg_z': .20, 'stl_pg_z': .10, 'blk_pg_z': .10},
+    'EFIC': {'ts_z': .70, 'tov_neg_z': .30},
+    'IMP': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
 }
-MVP_2026 = 'Shai Gilgeous-Alexander'   # dataset de premios llega a 2025
+PO_DIM_W = {'PROD': .30, 'EFIC': .15, 'IMP': .55}
 
 
 def z(x):
@@ -53,71 +45,185 @@ def soft(x, k=2.0):
     return sgn * np.where(a <= k, a, k + k * np.log1p((a - k) / k))
 
 
+def wmean(frame, weights):
+    """Media ponderada ignorando NaN y renormalizando los pesos disponibles."""
+    w = pd.Series(weights)
+    sub = frame[list(w.index)]
+    wm = sub.notna().mul(w, axis=1)
+    den = wm.sum(axis=1).replace(0, np.nan)
+    return sub.fillna(0).mul(w, axis=1).sum(axis=1) / den
+
+
+def season_z(df, cols, qual):
+    out = pd.DataFrame(index=df.index)
+    g = df[qual].groupby(['season', 'lg'])
+    for c in cols:
+        st = g[c].agg(['mean', 'std'])
+        j = df[['season', 'lg']].merge(st, left_on=['season', 'lg'], right_index=True, how='left')
+        zz = (df[c].values - j['mean'].values) / j['std'].replace(0, np.nan).values
+        out[c + '_z'] = np.clip(zz, -Z_CAP, Z_CAP)
+    return out
+
+
+def merge_extra(dump, extra, keys):
+    """Añade al volcado solo las combinaciones (temporada, premio/equipo) que no trae."""
+    if extra is None or extra.empty:
+        return dump
+    have = set(map(tuple, dump[keys].drop_duplicates().values))
+    add = extra[[tuple(r) not in have for r in extra[keys].values]]
+    if len(add):
+        print(f'  + {len(add)} filas recientes que el volcado aún no trae ({sorted(add.season.unique())})')
+    return pd.concat([dump, add], ignore_index=True)
+
+
+def read(path):
+    return pd.read_csv(path) if path.exists() and path.stat().st_size > 0 else pd.DataFrame()
+
+
+# ------------------------------------------------------------------ playoffs
+def playoff_seasons():
+    tot, adv = read(CACHE / 'playoffs_totals.csv'), read(CACHE / 'playoffs_advanced.csv')
+    if tot.empty:
+        raise SystemExit('ABORTA: no hay estadísticas de playoffs en cache/. Ejecuta antes fetch_bref_extra.py')
+    keep = ['season', 'lg', 'player_id', 'per', 'ts_percent', 'tov_percent', 'usg_percent', 'ows', 'dws',
+            'ws', 'ws_48', 'obpm', 'dbpm', 'bpm', 'vorp']
+    adv = adv[[c for c in keep if c in adv.columns]] if not adv.empty else pd.DataFrame(columns=keep[:3])
+    ps = tot.merge(adv.drop_duplicates(['season', 'lg', 'player_id']), on=['season', 'lg', 'player_id'], how='left')
+    ps = ps[ps['g'].fillna(0) > 0].copy()
+    for c in ['pts', 'trb', 'ast', 'stl', 'blk']:
+        ps[c + '_pg'] = ps[c] / ps['g']
+    den = 2 * (ps['fga'].fillna(0) + 0.44 * ps['fta'].fillna(0))
+    ps['ts'] = np.where(den > 0, ps['pts'] / den, np.nan)
+    ps['ts'] = ps['ts'].fillna(ps.get('ts_percent'))
+    ps['tov_neg'] = -ps['tov_percent'] if 'tov_percent' in ps else np.nan
+    # peso de cada temporada: minutos jugados; antes de 1952 no hay minutos -> 30 por partido
+    ps['w'] = ps['mp'].where(ps['mp'].notna(), ps['g'] * 30.0)
+    # Win Shares de playoffs: donde la fuente no las da (primeros años) se estiman
+    # con la relación WS/punto de todo el histórico
+    have = ps['ws'].notna() & (ps['pts'] > 0)
+    ratio = (ps.loc[have, 'ws'] / ps.loc[have, 'pts']).median() if have.any() else 0.0
+    ps['ws_f'] = ps['ws'].fillna(ps['pts'] * ratio)
+
+    qual = (ps['g'] >= 3) & ((ps['mp'] >= 60) | ps['mp'].isna())
+    zc = ['pts_pg', 'trb_pg', 'ast_pg', 'stl_pg', 'blk_pg', 'ts', 'tov_neg', 'per', 'ws_48', 'bpm']
+    ps = pd.concat([ps, season_z(ps, [c for c in zc if c in ps], qual)], axis=1)
+    for d, w in PO_SUBDIMS.items():
+        ps['PO_' + d] = wmean(ps, {k: v for k, v in w.items() if k in ps})
+    ps['PO_SEASON'] = wmean(ps, {'PO_' + k: v for k, v in PO_DIM_W.items()})
+    ps.loc[ps['lg'].eq('ABA'), 'PO_SEASON'] *= ABA_DISCOUNT
+    return ps
+
+
+def playoff_career(ps, C):
+    g = ps.dropna(subset=['PO_SEASON']).assign(wx=lambda d: d['w'] * d['PO_SEASON'])
+    q = g.groupby('player_id').agg(po_w=('w', 'sum'), wx=('wx', 'sum'))
+    q['Q_raw'] = q['wx'] / q['po_w']
+
+    def wavg(col):
+        d = ps.dropna(subset=[col])
+        return (d[col] * d['w']).groupby(d['player_id']).sum() / d.groupby('player_id')['w'].sum()
+
+    agg = ps.groupby('player_id').agg(po_g=('g', 'sum'), po_mp=('mp', 'sum'), po_pts=('pts', 'sum'),
+                                      po_trb=('trb', 'sum'), po_ast=('ast', 'sum'),
+                                      po_fga=('fga', 'sum'), po_fta=('fta', 'sum'),
+                                      po_ws=('ws', lambda s: s.sum(min_count=1)), po_ws_f=('ws_f', 'sum'),
+                                      po_runs=('season', 'nunique'))
+    agg['po_ppg'] = agg['po_pts'] / agg['po_g']
+    agg['po_rpg'] = agg['po_trb'] / agg['po_g']
+    agg['po_apg'] = agg['po_ast'] / agg['po_g']
+    den = 2 * (agg['po_fga'] + 0.44 * agg['po_fta'])
+    agg['po_ts'] = np.where(den > 0, agg['po_pts'] / den, np.nan)
+    agg['po_per'] = wavg('per')
+    agg['po_bpm'] = wavg('bpm')
+    agg['po_mp'] = agg['po_mp'].replace(0, np.nan)
+    agg = agg.join(q[['po_w', 'Q_raw']])
+
+    C = C.merge(agg.reset_index(), on='player_id', how='left')
+    C['po_w'] = C['po_w'].fillna(0)
+    # previsión de su nivel en playoffs a partir de su carrera en liga regular
+    X = C[['PROD_career', 'EFIC_career', 'IMPACTO_career']].copy()
+    X = X.fillna(X.median())
+    fit = (C['po_w'] >= 1500) & C['Q_raw'].notna()
+    A = np.column_stack([np.ones(fit.sum()), X[fit].values])
+    beta, *_ = np.linalg.lstsq(A, C.loc[fit, 'Q_raw'].values, rcond=None)
+    C['po_prior'] = np.column_stack([np.ones(len(C)), X.values]) @ beta
+    r2 = 1 - ((C.loc[fit, 'Q_raw'] - C.loc[fit, 'po_prior']) ** 2).sum() / \
+        ((C.loc[fit, 'Q_raw'] - C.loc[fit, 'Q_raw'].mean()) ** 2).sum()
+    print(f'  playoffs: previsión desde liga regular ajustada con {int(fit.sum())} jugadores (R²={r2:.2f})')
+    # contracción: con pocos minutos manda la previsión; con muchos, lo que hizo de verdad
+    C['po_quality'] = ((C['po_w'] * C['Q_raw'].fillna(0) + SHRINK_K * C['po_prior'])
+                       / (C['po_w'] + SHRINK_K))
+    C['po_volume'] = np.log1p(C['po_ws_f'].fillna(0).clip(lower=0))
+    return C
+
+
+def titles(ps, ch, adv_rs, s):
+    """Crédito de cada anillo según la aportación real en esa carrera al título."""
+    ch = ch.rename(columns={'abbrev': 'team'})[['season', 'lg', 'team']]
+    po = ps.merge(ch, on=['season', 'lg', 'team'])
+    po['wsp'] = po['ws_f'].clip(lower=0)
+    tot = po.groupby(['season', 'team'])['wsp'].transform('sum')
+    po['share'] = np.where(tot > 0, po['wsp'] / tot, np.nan)
+    po['is_best'] = po.groupby(['season', 'team'])['wsp'].transform('max').eq(po['wsp']) & (po['wsp'] > 0)
+    best_share = po.loc[po['is_best'], 'share'].median()
+    po['credit'] = np.clip(1.6 * po['share'] / best_share, 0.05, 2.2)
+    print(f'  anillos: parte mediana del mejor jugador de cada campeón = {best_share:.0%} de los WS de su playoff')
+
+    # temporadas de campeones sin datos de playoffs: método anterior (minutos en liga regular)
+    covered = set(map(tuple, po[['season', 'team']].drop_duplicates().values))
+    rs = adv_rs[~adv_rs['team'].astype(str).str.contains('TM')].merge(ch, on=['season', 'lg', 'team'])
+    fb = rs[[(a, b) not in covered for a, b in rs[['season', 'team']].values]].copy()
+    if len(fb):
+        print(f'  anillos: {fb[["season", "team"]].drop_duplicates().shape[0]} campeones sin datos de playoffs, método por minutos')
+        fb['mpg'] = fb['mp'] / fb['g']
+        fb['credit'] = np.clip(fb['mpg'] / 30.0, 0.15, 1.0)
+        b = fb.groupby(['season', 'team'])['ws'].transform('max').eq(fb['ws'])
+        fb['is_best'] = b
+        fb.loc[b, 'credit'] *= 1.6
+    # en la plantilla en liga regular pero sin jugar esos playoffs (lesión, etc.)
+    rs_only = rs[[(a, b) in covered for a, b in rs[['season', 'team']].values]]
+    rs_only = rs_only[~rs_only.set_index(['season', 'player_id']).index.isin(
+        po.set_index(['season', 'player_id']).index)].copy()
+    rs_only['credit'] = 0.05
+    rs_only['is_best'] = False
+
+    allr = pd.concat([po[['season', 'player_id', 'credit', 'is_best']],
+                      fb[['season', 'player_id', 'credit', 'is_best']] if len(fb) else None,
+                      rs_only[['season', 'player_id', 'credit', 'is_best']]], ignore_index=True)
+    allr = allr.sort_values('credit', ascending=False).drop_duplicates(['season', 'player_id'])
+    allr['best_i'] = allr['is_best'].astype(int)
+    return allr.groupby('player_id').agg(rings=('season', 'nunique'), ring_credit=('credit', 'sum'),
+                                         rings_as_best=('best_i', 'sum')).reset_index()
+
+
+# ------------------------------------------------------------------ principal
 def main():
     s = pd.read_pickle(OUT / 'seasons.pkl')
     C = pd.read_pickle(OUT / 'careers_raw.pkl')
-    aw = pd.read_csv(D / '_raw' / 'bref' / 'Player Award Shares.csv')
-    eos = pd.read_csv(D / '_raw' / 'bref' / 'End of Season Teams.csv')
-    astar = pd.read_csv(D / '_raw' / 'bref' / 'All-Star Selections.csv')
-    tpg = pd.read_csv(D / '_raw' / 'bref' / 'Team Stats Per Game.csv')
-    ch = pd.read_csv(D / 'champions.csv')
-    tabb = pd.read_csv(D / '_raw' / 'bref' / 'Team Abbrev.csv')
-    po = pd.read_csv(D / 'playoff_ppg_career.csv')
+    adv_rs = pd.read_csv(BREF / 'Advanced.csv', usecols=['season', 'lg', 'team', 'player_id', 'g', 'mp', 'ws'])
+    aw = merge_extra(pd.read_csv(BREF / 'Player Award Shares.csv'), read(CACHE / 'awards_extra.csv'), ['season', 'award'])
+    eos = merge_extra(pd.read_csv(BREF / 'End of Season Teams.csv'), read(CACHE / 'eos_extra.csv'), ['season', 'type'])
+    astar = pd.read_csv(BREF / 'All-Star Selections.csv')
+    ch = pd.read_csv(ROOT / 'champions.csv')
+    fmv = pd.read_csv(ROOT / 'finals_mvp.csv')
 
-    name2id = (s.sort_values('g', ascending=False)
-                 .drop_duplicates('player')[['player', 'player_id']]
-                 .set_index('player')['player_id'].to_dict())
+    # ------------------------------------------------------------ PLAYOFFS
+    ps = playoff_seasons()
+    ps.to_pickle(OUT / 'playoff_seasons.pkl')
+    print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
+          f'hasta {int(ps.season.max())}')
+    C = playoff_career(ps, C)
 
-    # ------------------------------------------------------------ ANILLOS
-    champ = ch[['season', 'abbrev']].rename(columns={'abbrev': 'team'}).copy()
-    champ['champ'] = True
-    r = s.merge(champ, on=['season', 'team'], how='left')
-    r['champ'] = r['champ'].fillna(False)
-    won = r[r['champ']].copy()
-    # peso del anillo por rol: minutos por partido esa temporada (tope en 30 mpg)
-    won['mpg'] = np.where(won['g'] > 0, won['mp'] / won['g'], np.nan)
-    won['role'] = np.clip(won['mpg'].fillna(won['mp_per_game']) / 30.0, 0.15, 1.0)
-    # bonus si fue el mejor jugador del equipo campeon (mayor WS del roster)
-    best = won.loc[won.groupby(['season', 'team'])['ws'].idxmax(), ['season', 'team', 'player_id']]
-    best['is_best'] = True
-    won = won.merge(best, on=['season', 'team', 'player_id'], how='left')
-    won['is_best'] = won['is_best'].fillna(False).astype(bool)
-    won['champ'] = won['champ'].astype(bool).astype(int)
-    won['best_i'] = won['is_best'].astype(int)
-    won['ring_credit'] = won['role'] * np.where(won['is_best'], 1.6, 1.0)
-    rings = won.groupby('player_id').agg(rings=('champ', 'sum'),
-                                         ring_credit=('ring_credit', 'sum'),
-                                         rings_as_best=('best_i', 'sum')).reset_index()
-    C = C.merge(rings, on='player_id', how='left')
-
-    # ------------------------------------------------------------ FMVP
-    fm = pd.Series(FMVP).value_counts().rename_axis('player').reset_index(name='fmvp')
-    fm['player_id'] = fm['player'].map(name2id)
-    missing = fm[fm.player_id.isna()]
-    if len(missing):
-        print('AVISO - FMVP sin id:', list(missing.player))
-    C = C.merge(fm[['player_id', 'fmvp']].dropna(), on='player_id', how='left')
+    # ------------------------------------------------------------ ANILLOS Y FMVP
+    C = C.merge(titles(ps, ch, adv_rs, s), on='player_id', how='left')
+    if fmv['player_id'].isna().any():
+        raise SystemExit('ABORTA: finals_mvp.csv tiene jugadores sin identificar')
+    C = C.merge(fmv.groupby('player_id').size().rename('fmvp').reset_index(), on='player_id', how='left')
 
     # ------------------------------------------------------------ PREMIOS
-    mvp = aw[aw.award.isin(['nba mvp', 'aba mvp'])].copy()
-    # Parche manual solo mientras la fuente no incluya la votacion de 2026.
-    # En cuanto el volcado la traiga, este bloque se desactiva solo.
-    already = ((aw.award.isin(['nba mvp'])) & (aw.season >= 2026)).any()
-    mvp_extra = pd.DataFrame([] if already else
-                             [{'player_id': name2id.get(MVP_2026), 'share': 1.0, 'winner': True}])
-    if already:
-        print('MVP 2026 ya presente en la fuente: parche manual desactivado')
-    m = (mvp.groupby('player_id')
-            .agg(mvp_share=('share', 'sum'), mvps=('winner', 'sum')).reset_index())
-    for _, row in mvp_extra.iterrows():
-        if row.player_id in set(m.player_id):
-            m.loc[m.player_id == row.player_id, 'mvp_share'] += 1.0
-            m.loc[m.player_id == row.player_id, 'mvps'] += 1
-        else:
-            m = pd.concat([m, pd.DataFrame([{'player_id': row.player_id,
-                                             'mvp_share': 1.0, 'mvps': 1}])])
+    m = (aw[aw.award.isin(['nba mvp', 'aba mvp'])].groupby('player_id')
+           .agg(mvp_share=('share', 'sum'), mvps=('winner', 'sum')).reset_index())
     C = C.merge(m, on='player_id', how='left')
-
     dpoy = (aw[aw.award == 'nba dpoy'].groupby('player_id')
               .agg(dpoy_share=('share', 'sum'), dpoys=('winner', 'sum')).reset_index())
     C = C.merge(dpoy, on='player_id', how='left')
@@ -131,52 +237,23 @@ def main():
     alldef = (e[e.type == 'All-Defense'].assign(val=lambda d: d.number_tm.map({'1st': 3.0, '2nd': 1.5}).fillna(1.5))
                 .groupby('player_id')['val'].sum().rename('alldef_pts').reset_index())
     C = C.merge(allnba, on='player_id', how='left').merge(alldef, on='player_id', how='left')
-
-    ast_ = astar.groupby('player_id').size().rename('allstar').reset_index()
-    C = C.merge(ast_, on='player_id', how='left')
-
-    # ------------------------------------------------------------ PLAYOFFS
-    lg_ppg = (tpg[~tpg.team.astype(str).str.contains('League Average', na=False)]
-                .groupby(['season', 'lg'])['pts_per_game'].mean().rename('lg_ppg'))
-    env = s.merge(lg_ppg, left_on=['season', 'lg'], right_index=True, how='left')
-    env['w'] = env['g'].fillna(0)
-    denom = env.groupby('player_id')['w'].sum()
-    envm = (env.assign(x=env['lg_ppg'] * env['w']).groupby('player_id')['x'].sum() / denom)
-    C['lg_ppg_env'] = C['player_id'].map(envm)
-    C = C.merge(po, on='player_id', how='left')
-    C['po_ppg_adj'] = C['po_ppg'] / C['lg_ppg_env'] * 100
-    C['po_lift'] = C['po_ppg'] - C['rs_ppg']
-
-    # RAPTOR postemporada (1977-2022), WAR de playoffs por temporada disputada
-    try:
-        rap = pd.read_csv(D / '_raw' / 'raptor_hist.csv')
-        rp = (rap.groupby('player_id')
-                 .agg(war_po=('war_playoffs', 'sum'),
-                      n=('season', 'nunique')).reset_index())
-        rp['war_po_per_season'] = rp['war_po'] / rp['n']
-        C = C.merge(rp[['player_id', 'war_po', 'war_po_per_season']], on='player_id', how='left')
-    except FileNotFoundError:
-        C['war_po'] = np.nan; C['war_po_per_season'] = np.nan
+    C = C.merge(astar.groupby('player_id').size().rename('allstar').reset_index(), on='player_id', how='left')
 
     # ------------------------------------------------------------ POOL
     for c in ['rings', 'ring_credit', 'rings_as_best', 'fmvp', 'mvp_share', 'mvps',
-              'dpoy_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar']:
+              'dpoy_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar', 'po_g', 'po_runs']:
         C[c] = C[c].fillna(0)
 
     # Universo: todo jugador con al menos una temporada de 1.000+ minutos.
-    # Por debajo de eso el modelo no tiene nada que medir.
     pool = C[C['seasons'] >= 1].copy()
     print('pool de candidatos:', len(pool))
 
-    # ------------------------------------------------- puntuaciones por bloque
-    B = pd.DataFrame({'player_id': pool['player_id'].values,
-                      'player': pool['player'].values})
+    B = pd.DataFrame({'player_id': pool['player_id'].values, 'player': pool['player'].values})
     P = pool.reset_index(drop=True)
 
     # Un bloque entero puede no existir para una epoca: antes de 1952 no hay
-    # minutos, asi que PER, WS/48 y BPM no se pueden calcular y el bloque de
-    # Impacto sale vacio para 202 jugadores. Se imputa la mediana del grupo
-    # (equivale a neutro) en vez de un cero, que seria un castigo inventado.
+    # minutos, asi que PER, WS/48 y BPM no se pueden calcular. Se imputa la
+    # mediana del grupo (neutro) en vez de un cero, que seria un castigo inventado.
     def blk(col):
         v = P[col]
         n_missing = int(v.isna().sum())
@@ -189,21 +266,9 @@ def main():
     B['IMPACTO'] = blk('IMPACTO_career')
     B['DEF'] = z(0.75 * blk('DEF_career')
                  + 0.25 * z(P['alldef_pts'] + 2.5 * P['dpoy_share']).fillna(0))
-
-    # Los jugadores fuera del top-250 de anotacion en playoffs no tienen dato.
-    # Imputar el minimo los hundiria (Rodman, Ben Wallace, Draymond). Se estima
-    # su anotacion de playoffs con la de temporada regular, que es el mejor
-    # predictor disponible, y se marca como estimada.
-    P['po_estimated'] = P['po_ppg'].isna()
-    po_fill = P['po_ppg'].fillna(P['rs_ppg'])
-    P['po_ppg_adj'] = po_fill / P['lg_ppg_env'] * 100
-    P['po_lift'] = po_fill - P['rs_ppg']
-    po_block = (0.55 * z(P['po_ppg_adj'])
-                + 0.20 * z(P['po_lift']).fillna(0)
-                + 0.25 * z(P['war_po_per_season']).fillna(0))
-    B['PLAYOFFS'] = z(po_block)
-    B['_po_est'] = P['po_estimated'].values
-
+    # Playoffs: 70 % nivel real (contraído hacia su previsión si jugó pocos minutos)
+    #           30 % volumen de aportación acumulada (Win Shares de playoffs)
+    B['PLAYOFFS'] = z(0.70 * z(P['po_quality']) + 0.30 * z(P['po_volume']))
     B['TITULOS'] = z(0.70 * z(P['ring_credit']) + 0.30 * z(P['fmvp']))
     B['PREMIOS'] = z(0.45 * z(P['mvp_share']) + 0.35 * z(P['allnba_pts'])
                      + 0.20 * z(P['allstar']))
@@ -230,9 +295,12 @@ def main():
     B['BASE'] = (97 * (B['raw'] - lo) / (hi - lo)).round(2)
     B['STATGOAT'] = (B['BASE'] + B['BONUS_TOTALES']).round(2)
 
-    meta = P[['player_id', 'po_estimated', 'first', 'last', 'seasons', 'g_total', 'mp_total',
-              'rs_ppg', 'po_ppg', 'po_lift', 'pts_total', 'trb_total', 'ast_total',
-              'stl_total', 'blk_total', 'rings', 'rings_as_best', 'fmvp', 'mvps',
+    P['po_lift'] = P['po_ppg'] - P['rs_ppg']
+    meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
+              'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',
+              'po_ws', 'po_bpm', 'po_runs', 'po_w',
+              'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total',
+              'rings', 'rings_as_best', 'ring_credit', 'fmvp', 'mvps',
               'mvp_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar',
               'PROD_cov', 'IMPACTO_cov', 'DEF_cov', 'lg_main']].copy()
     meta['cov_min'] = meta[['PROD_cov', 'IMPACTO_cov', 'DEF_cov']].fillna(0).min(axis=1)

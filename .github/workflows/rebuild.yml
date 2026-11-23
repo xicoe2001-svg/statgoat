@@ -3,7 +3,7 @@ name: Rebuild STATGOAT
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * 1'
+    - cron: '23 4 * * 1'
   push:
     branches: [main]
     paths:
@@ -11,15 +11,20 @@ on:
       - 'head.html'
       - 'app.js'
       - 'champions.csv'
-      - 'playoff_ppg_career.csv'
+      - 'finals_mvp.csv'
+      - 'requirements.txt'
 
 permissions:
   contents: write
 
+concurrency:
+  group: rebuild-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +34,11 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python fetch_sources.py
+      - name: Temporada regular (volcado de Basketball-Reference)
+        run: python fetch_sources.py
+
+      - name: Playoffs, campeones y premios recientes (Basketball-Reference)
+        run: python fetch_bref_extra.py
 
       - run: python statgoat_pipeline.py
 
@@ -45,10 +54,27 @@ jobs:
         run: |
           git config user.name "statgoat-bot"
           git config user.email "actions@github.com"
-          git add index.html data.json build_info.json robots.txt
+          git add index.html data.json build_info.json robots.txt cache/ champions.csv finals_mvp.csv
           if git diff --staged --quiet; then
             echo "Sin cambios esta semana."
           else
             git commit -m "rebuild automatico"
+            git pull --rebase
+            git push
+          fi
+
+      # Si algo falla, la web no se toca, pero lo ya descargado se guarda
+      # para no tener que pedirlo otra vez la semana siguiente.
+      - name: Guardar descargas aunque falle la build
+        if: failure()
+        run: |
+          git config user.name "statgoat-bot"
+          git config user.email "actions@github.com"
+          git add cache/ || true
+          if git diff --staged --quiet; then
+            echo "Nada nuevo en la caché."
+          else
+            git commit -m "cache de playoffs (build fallida, web sin tocar)"
+            git pull --rebase
             git push
           fi

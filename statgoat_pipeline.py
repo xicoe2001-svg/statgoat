@@ -4,10 +4,8 @@ STATGOAT - indice compuesto de valor historico de jugadores NBA/BAA/ABA.
 
 Fuente de datos: volcado publico de Basketball-Reference (1947-2026)
   https://github.com/sumitrodatta/bball-reference-datasets
-Complementos:
-  - RAPTOR historico y moderno (FiveThirtyEight, 1977-2022)
-  - PPG de playoffs de carrera (leaderboard Basketball-Reference, top 250)
-  - Campeones por temporada y Finals MVP (verificados 2023-2026 por busqueda web)
+Playoffs, campeones, Finals MVP y premios recientes: paginas de
+Basketball-Reference via fetch_bref_extra.py (se actualizan solos).
 
 Principio de diseno: ninguna metrica cruda se compara entre eras. Todo se
 convierte a z-score DENTRO de su temporada-liga, contra el grupo de jugadores

@@ -15,7 +15,7 @@ es:{
   locale:'es-ES', dec:',',
   title:`STATGOAT · índice histórico NBA 1947–${SMAX}`,
   sub:'Índice compuesto de jugadores de BAA, NBA y ABA. Ninguna estadística se compara en bruto entre épocas: todo se convierte a desviaciones típicas dentro de su propia temporada. <b>El orden no lo deciden los datos, lo deciden los pesos.</b>',
-  st_players:'JUGADORES', st_years:'TEMPORADAS', st_ps:'TEMPORADAS INDIVIDUALES', st_blocks:'BLOQUES PONDERABLES', st_sources:'FUENTES DE DATOS',
+  st_players:'JUGADORES', st_years:'TEMPORADAS', st_ps:'TEMPORADAS INDIVIDUALES', st_blocks:'BLOQUES PONDERABLES', st_po:'TEMPORADAS DE PLAYOFFS',
   info_h:'Qué datos existían en cada época',
   info_sub:'A cada jugador se le puntúa solo con lo que su época registró, renormalizando los pesos disponibles. No se le castiga con ceros, pero sus bloques descansan sobre menos indicadores.',
   e1m:'Pts · Reb · As · TC · TL', e1n:'Solo box score básico',
@@ -30,33 +30,34 @@ es:{
   bonus:'Sumar bonus por totales extraordinarios (máx. 3 pts)',
   search:'Buscar jugador…', th_player:'Jugador', th_bar:'De dónde sale la puntuación', th_score:'Punt.',
   cr_h:'Fuentes y atribución',
-  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star. 1947–${SMAX}, temporada regular. Anotación de playoffs de carrera del leaderboard público.`,
-  cr_538:'RAPTOR histórico y moderno: impacto ofensivo y defensivo combinando box score con más/menos por quinteto. Cobertura 1977–2022.',
-  cr_nba:'Campeones por temporada y Finals MVP 1947–2026, con verificación independiente para las temporadas 2023 a 2026.',
+  cr_br_h:'Basketball-Reference · temporada regular',
+  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, 1947–${SMAX}, a través del volcado público de Sumitro Datta.`,
+  cr_po_h:'Basketball-Reference · playoffs y premios',
+  cr_po:`Estadísticas de playoffs de cada temporada (totales y avanzadas), campeones, Finals MVP y las votaciones de premios más recientes, descargadas directamente cada lunes. Playoffs hasta ${BI.playoff_max||'—'}.`,
   cr_sg_h:'Índice STATGOAT',
-  cr_sg1:'La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, ponderación de anillos por rol real y composición de los siete bloques.',
+  cr_sg1:'La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, anillos según la aportación real en cada playoff y composición de los siete bloques.',
   cr_sg2:'La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.',
-  lg_attr:'<b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference, FiveThirtyEight y NBA.com.',
-  lg_aff:'<b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA, Basketball-Reference ni FiveThirtyEight.',
+  lg_attr:'<b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference.',
+  lg_aff:'<b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference.',
   lg_war:'<b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.',
   blocks:{PROD:'Producción',EFIC:'Eficiencia',IMPACTO:'Impacto',DEF:'Defensa',PLAYOFFS:'Playoffs',TITULOS:'Títulos',PREMIOS:'Premios'},
   tips:{PROD:'Pts, reb, as, robos y tapones por partido en z-score de su temporada',
     EFIC:'True Shooting relativo a la liga y control de pérdidas',
     IMPACTO:'PER, Win Shares por 48 y Box Plus/Minus',
     DEF:'DBPM, DWS/48, %robo, %tapón, %rebote defensivo, All-Defensivo y DPOY',
-    PLAYOFFS:'Anotación de playoffs ajustada a la época, diferencia vs. su liga regular y RAPTOR de postemporada',
-    TITULOS:'Anillos ponderados por rol real y Finals MVP',
+    PLAYOFFS:'Producción, eficiencia e impacto en cada playoff, comparados con los demás jugadores de esos mismos playoffs',
+    TITULOS:'Anillos según la aportación real en cada carrera al título, y Finals MVP',
     PREMIOS:'Votos al MVP, All-NBA por nivel y All-Star'},
   presets:{base:'Base',imp:'Solo impacto',notit:'Sin títulos',po2:'Playoffs ×2',def2:'Defensa ×2',reg:'Solo temp. regular',hon:'Solo palmarés'},
   filters:{all:'Todos',g400:'≥ 400 partidos',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',active:'En activo'},
   noWeights:'sin pesos', normalized:'normalizado a 100%',
-  movers:n=>`${n} cambios de 3+ puestos en el top 25`, baseOrder:'orden base',
+  movers:n=>`${n} cambios de 3+ puestos en el top 25`, baseOrder:'orden base', overall:'general',
   count:(a,b)=>`${a} de ${b} jugadores`,
   more:n=>`Ver más jugadores (${n} restantes)`,
   record:'RÉCORD', partial:'DATOS PARCIALES', seasonsShort:'temp.',
   card:{career:'CARRERA',active:'ACTIVO',seasons:'temporadas',games:'PARTIDOS',minutes:'MINUTOS',perGame:'partido',
     teams:'EQUIPOS',league:'LIGA',pg:'POR PARTIDO',pts:'PUNTOS',reb:'REBOTES',ast:'ASISTENCIAS',stl:'ROBOS',blk:'TAPONES',tov:'PÉRDIDAS',
-    poPts:'PTS PLAYOFFS',vsReg:'vs. liga regular',poEst:'fuera del top 250 anotador; estimado con su liga regular',
+    po:'PLAYOFFS',poNone:'Nunca jugó playoffs.',poRuns:'temporadas',vsReg:'vs. liga regular',
     effImp:'EFICIENCIA E IMPACTO',perAvg:'media liga 15,0',wsAvg:'media 0,100',off:'of.',def:'def.',
     pct:'PORCENTAJES EN PISTA',stlP:'ROBO %',blkP:'TAPÓN %',drbP:'REB. DEF. %',orbP:'REB. OF. %',astP:'ASIST. %',
     totals:'TOTALES DE CARRERA',honors:'PALMARÉS',rings:'ANILLOS',asBest:'como mejor de su equipo',
@@ -66,7 +67,7 @@ es:{
     partialNote:'<b>Datos parciales:</b> su época no registraba parte de las métricas del modelo, así que estos bloques descansan sobre menos indicadores.',
     best3:'SUS TRES MEJORES TEMPORADAS',cols:['AÑO','EQUIPO','PTS','REB','AST','PER','WS/48','BPM'],
     best3Note:'Ordenadas por un compuesto de producción, eficiencia, impacto y defensa medido en z-score de su propio año, no por puntos.'},
-  footer:(s,d)=>`Datos hasta la temporada ${s}. Última actualización: ${d}.`,
+  footer:(s,d)=>`Datos hasta la temporada ${s}, playoffs hasta ${BI.playoff_max||'—'}. Se actualiza cada lunes; última vez: ${d}.`,
   gloss:n=>`<h2>Qué es exactamente cada cosa</h2>
 <p class="lead">Los colores son los mismos en los cuadraditos de los pesos y en la barra de cada jugador, así que la barra se lee directamente como el reparto de su puntuación.</p>
 <h3>LOS SIETE BLOQUES</h3><dl class="gl">${glossBlocks('en la ponderación base')}</dl>
@@ -82,16 +83,16 @@ es:{
 <dt>VORP</dt><dd>Value Over Replacement Player. El BPM traducido a valor acumulado sobre un jugador de reemplazo (−2,0) y prorrateado a 82 partidos.</dd>
 <dt>ROBO %, TAPÓN %, REB %</dt><dd>Porcentaje de posesiones rivales que termina robando, de tiros de dos rivales que tapona y de rebotes disponibles que captura, siempre mientras está en pista. Al ser porcentajes, no premian jugar más minutos.</dd>
 <dt>ASIST. %</dt><dd>Porcentaje de canastas de compañeros que asiste mientras está en pista.</dd>
-<dt>RAPTOR</dt><dd>Métrica de FiveThirtyEight que combina box score con más/menos por quinteto. Aquí solo se usa su versión de postemporada: victorias sobre reemplazo en playoffs por temporada disputada. Existe entre 1977 y 2022.</dd>
 </dl>
 <h3>LO QUE CALCULA ESTE ÍNDICE Y NO VIENE DE NINGUNA FUENTE</h3><dl class="gl">
 <dt>Puntuación</dt><dd>Suma de los siete bloques por sus pesos, reescalada de 0 a 97 dentro del grupo, más el bonus por totales. El primero marca 100. Es una escala relativa: dice quién está por delante y por cuánto, no un valor absoluto.</dd>
 <dt>Carrera</dt><dd>Cada bloque se resume como <code>40% media de las 3 mejores temporadas + 40% media de las 7 mejores + 20% acumulado</code>. Prioriza el rendimiento por partido: nadie sube por acumular temporadas mediocres. Solo cuentan las temporadas de 1.000+ minutos.</dd>
-<dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. El crédito es proporcional a los minutos por partido de ese jugador esa temporada, con tope en 30, y lleva un recargo de 1,6× si fue el jugador con más Win Shares de la plantilla campeona. Sin esto, un suplente con seis anillos superaría a Jerry West.</dd>
+<dt>Bloque de Playoffs</dt><dd>Cada temporada de playoffs se mide contra los demás jugadores de esos mismos playoffs: producción, eficiencia e impacto (PER, WS/48 y BPM). La nota de carrera es la media ponderada por minutos jugados (70%) más el volumen de Win Shares acumuladas en playoffs (30%).</dd>
+<dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión.</dd>
+<dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West.</dd>
 <dt>Bonus por totales</dt><dd>Hasta 3 puntos fuera de la ponderación para quien esté por encima del percentil 95 histórico en puntos, rebotes, asistencias, robos o tapones de carrera. Es la única vía por la que los acumulados entran en el índice.</dd>
 <dt>Compresión de colas</dt><dd>Por encima de 2 desviaciones los bloques se comprimen logarítmicamente. Sin esto, los 11 anillos de Russell y los 6 Finals MVP de Jordan generaban valores de +11 y el bloque de Títulos se comía el peso nominal de los otros seis.</dd>
 <dt>Datos parciales</dt><dd>Marca a los jugadores cuya época no registraba parte de las métricas. Se les puntúa solo con lo disponible, renormalizando los pesos presentes.</dd>
-<dt>Estimado en playoffs</dt><dd>Los jugadores fuera del top 250 anotador de playoffs no tienen dato publicado. Se les estima con su anotación de liga regular. Imputarles el mínimo hundiría injustamente a especialistas defensivos.</dd>
 <dt>Quién entra</dt><dd>Los ${n} jugadores con al menos una temporada de 1.000+ minutos. Por debajo de eso el modelo no tiene nada que medir.</dd>
 </dl>`
 },
@@ -99,7 +100,7 @@ en:{
   locale:'en-US', dec:'.',
   title:`STATGOAT · all-time NBA player index 1947–${SMAX}`,
   sub:'A composite index of BAA, NBA and ABA players. No stat is compared raw across eras: everything is converted into standard deviations within its own season. <b>The order isn’t set by the data. It’s set by the weights.</b>',
-  st_players:'PLAYERS', st_years:'SEASONS', st_ps:'PLAYER-SEASONS', st_blocks:'ADJUSTABLE BLOCKS', st_sources:'DATA SOURCES',
+  st_players:'PLAYERS', st_years:'SEASONS', st_ps:'PLAYER-SEASONS', st_blocks:'ADJUSTABLE BLOCKS', st_po:'PLAYOFF SEASONS',
   info_h:'What data existed in each era',
   info_sub:'Each player is scored only on what his era recorded, re-weighting the blocks that exist. Nobody is punished with zeros, but some players’ blocks rest on fewer indicators.',
   e1m:'Pts · Reb · Ast · FG · FT', e1n:'Basic box score only',
@@ -114,33 +115,34 @@ en:{
   bonus:'Add a bonus for extraordinary career totals (max. 3 pts)',
   search:'Search player…', th_player:'Player', th_bar:'Where the score comes from', th_score:'Score',
   cr_h:'Sources and attribution',
-  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections. 1947–${SMAX}, regular season. Career playoff scoring from the public leaderboard.`,
-  cr_538:'Historical and modern RAPTOR: offensive and defensive impact combining box score with lineup plus/minus. Coverage 1977–2022.',
-  cr_nba:'Champions by season and Finals MVPs 1947–2026, independently verified for the 2023 to 2026 seasons.',
+  cr_br_h:'Basketball-Reference · regular season',
+  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections, 1947–${SMAX}, through Sumitro Datta’s public data dump.`,
+  cr_po_h:'Basketball-Reference · playoffs and awards',
+  cr_po:`Playoff stats for every season (totals and advanced), champions, Finals MVPs and the latest award voting, downloaded directly every Monday. Playoffs through ${BI.playoff_max||'—'}.`,
   cr_sg_h:'STATGOAT index',
-  cr_sg1:'The transformation is our own: within-season z-scores, logarithmic tail compression, rings weighted by actual role and the composition of the seven blocks.',
+  cr_sg1:'The transformation is our own: within-season z-scores, logarithmic tail compression, rings weighted by real contribution in each playoff run and the composition of the seven blocks.',
   cr_sg2:'The weighting is a formalized opinion, which is why you can change it above.',
-  lg_attr:'<b>Attribution.</b> The original data keeps its source licenses. If you reuse this index, credit Basketball-Reference, FiveThirtyEight and NBA.com.',
-  lg_aff:'<b>No affiliation.</b> STATGOAT is not affiliated with or endorsed by the NBA, the NBPA, Basketball-Reference or FiveThirtyEight.',
+  lg_attr:'<b>Attribution.</b> The original data keeps its source licenses. If you reuse this index, credit Basketball-Reference.',
+  lg_aff:'<b>No affiliation.</b> STATGOAT is not affiliated with or endorsed by the NBA, the NBPA or Basketball-Reference.',
   lg_war:'<b>No warranty.</b> This is a historical analysis under one specific weighting. It is not a prediction, betting advice or settled truth.',
   blocks:{PROD:'Production',EFIC:'Efficiency',IMPACTO:'Impact',DEF:'Defense',PLAYOFFS:'Playoffs',TITULOS:'Titles',PREMIOS:'Awards'},
   tips:{PROD:'Points, rebounds, assists, steals and blocks per game, as a z-score within their season',
     EFIC:'True Shooting relative to the league, plus ball security',
     IMPACTO:'PER, Win Shares per 48 and Box Plus/Minus',
     DEF:'DBPM, DWS/48, steal %, block %, defensive rebound %, All-Defensive teams and DPOY votes',
-    PLAYOFFS:'Era-adjusted playoff scoring, the gap vs. his regular season, and postseason RAPTOR',
-    TITULOS:'Rings weighted by the player’s actual role, plus Finals MVPs',
+    PLAYOFFS:'Production, efficiency and impact in each postseason, compared with the other players in those same playoffs',
+    TITULOS:'Rings weighted by real contribution to each title run, plus Finals MVPs',
     PREMIOS:'MVP votes, All-NBA selections by tier and All-Star nods'},
   presets:{base:'Default',imp:'Impact only',notit:'No titles',po2:'Playoffs ×2',def2:'Defense ×2',reg:'Regular season only',hon:'Honors only'},
   filters:{all:'All',g400:'≥ 400 games',ring:'Champions',mvp:'MVP winners',pre80:'Before 1980',active:'Active'},
   noWeights:'no weights', normalized:'normalized to 100%',
-  movers:n=>`${n} moves of 3+ spots in the top 25`, baseOrder:'default order',
+  movers:n=>`${n} moves of 3+ spots in the top 25`, baseOrder:'default order', overall:'overall',
   count:(a,b)=>`${a} of ${b} players`,
   more:n=>`Show more players (${n} left)`,
   record:'RECORD', partial:'PARTIAL DATA', seasonsShort:'seasons',
   card:{career:'CAREER',active:'ACTIVE',seasons:'seasons',games:'GAMES',minutes:'MINUTES',perGame:'game',
     teams:'TEAMS',league:'LEAGUE',pg:'PER GAME',pts:'POINTS',reb:'REBOUNDS',ast:'ASSISTS',stl:'STEALS',blk:'BLOCKS',tov:'TURNOVERS',
-    poPts:'PLAYOFF PTS',vsReg:'vs. regular season',poEst:'outside the top-250 playoff scorers; estimated from his regular season',
+    po:'PLAYOFFS',poNone:'Never played in the playoffs.',poRuns:'seasons',vsReg:'vs. regular season',
     effImp:'EFFICIENCY & IMPACT',perAvg:'league avg 15.0',wsAvg:'avg 0.100',off:'off.',def:'def.',
     pct:'ON-COURT PERCENTAGES',stlP:'STEAL %',blkP:'BLOCK %',drbP:'DEF. REB. %',orbP:'OFF. REB. %',astP:'ASSIST %',
     totals:'CAREER TOTALS',honors:'HONORS',rings:'RINGS',asBest:'as his team’s best player',
@@ -150,7 +152,7 @@ en:{
     partialNote:'<b>Partial data:</b> his era didn’t record some of the model’s metrics, so these blocks rest on fewer indicators.',
     best3:'HIS THREE BEST SEASONS',cols:['YEAR','TEAM','PTS','REB','AST','PER','WS/48','BPM'],
     best3Note:'Ranked by a composite of production, efficiency, impact and defense measured as a z-score within his own year, not by points.'},
-  footer:(s,d)=>`Data through the ${s} season. Last updated: ${d}.`,
+  footer:(s,d)=>`Data through the ${s} season, playoffs through ${BI.playoff_max||'—'}. Updated every Monday; last update: ${d}.`,
   gloss:n=>`<h2>What everything means</h2>
 <p class="lead">The colors match the little squares next to the weights and each player’s bar, so the bar reads directly as the breakdown of his score.</p>
 <h3>THE SEVEN BLOCKS</h3><dl class="gl">${glossBlocks('in the default weighting')}</dl>
@@ -166,16 +168,16 @@ en:{
 <dt>VORP</dt><dd>Value Over Replacement Player. BPM turned into cumulative value over a replacement-level player (−2.0), prorated to 82 games.</dd>
 <dt>STEAL %, BLOCK %, REB %</dt><dd>Share of opponent possessions he ends with a steal, of opponent two-point shots he blocks and of available rebounds he grabs, always while on the floor. As percentages, they don’t reward playing more minutes.</dd>
 <dt>ASSIST %</dt><dd>Share of teammates’ baskets he assists while on the floor.</dd>
-<dt>RAPTOR</dt><dd>A FiveThirtyEight metric combining box score with lineup plus/minus. Only its postseason version is used here: wins above replacement in the playoffs per season played. Available from 1977 to 2022.</dd>
 </dl>
 <h3>WHAT THIS INDEX CALCULATES ON ITS OWN</h3><dl class="gl">
 <dt>Score</dt><dd>The sum of the seven blocks times their weights, rescaled from 0 to 97 within the group, plus the totals bonus. The leader scores 100. It’s a relative scale: it tells you who’s ahead and by how much, not an absolute value.</dd>
 <dt>Career</dt><dd>Each block is summarized as <code>40% average of the 3 best seasons + 40% average of the 7 best + 20% cumulative</code>. Per-game performance comes first: nobody climbs by piling up mediocre seasons. Only seasons with 1,000+ minutes count.</dd>
-<dt>Ring credit</dt><dd>Not every ring is worth the same. The credit is proportional to the player’s minutes per game that season, capped at 30, with a 1.6× boost if he had the most Win Shares on the championship roster. Without this, a bench player with six rings would outrank Jerry West.</dd>
+<dt>Playoffs block</dt><dd>Each postseason is measured against the other players in those same playoffs: production, efficiency and impact (PER, WS/48 and BPM). The career mark is the minutes-weighted average (70%) plus the volume of playoff Win Shares accumulated (30%).</dd>
+<dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that prediction.</dd>
+<dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West.</dd>
 <dt>Totals bonus</dt><dd>Up to 3 points outside the weighting for anyone above the all-time 95th percentile in career points, rebounds, assists, steals or blocks. It’s the only way career totals enter the index.</dd>
 <dt>Tail compression</dt><dd>Above 2 standard deviations the blocks are compressed logarithmically. Without it, Russell’s 11 rings and Jordan’s 6 Finals MVPs produced values of +11 and the Titles block swallowed the nominal weight of the other six.</dd>
 <dt>Partial data</dt><dd>Flags players whose era didn’t record some of the metrics. They’re scored only on what exists, re-weighting the blocks that are available.</dd>
-<dt>Estimated playoffs</dt><dd>Players outside the top 250 playoff scorers have no published figure. Their playoff scoring is estimated from the regular season. Assigning them the minimum would unfairly sink defensive specialists.</dd>
 <dt>Who’s included</dt><dd>The ${n} players with at least one season of 1,000+ minutes. Below that, the model has nothing to measure.</dd>
 </dl>`
 }};
@@ -223,7 +225,17 @@ const FILTERS={
 const $=s=>document.querySelector(s);
 const CHUNK=60;
 let W={...PRESETS.base}, useBonus=true, openRk=null, shown=CHUNK,
-    query='', filter='all', baseRank={}, scored=[], view=[];
+    query='', filter='all', scored=[], view=[];
+// orden con los pesos base: sirve de referencia para las flechas ▲▼ del top en vivo
+let BASE_ORDER=[]; const BASE_POS={};
+function basePos(fid){
+  if(!BASE_POS[fid]){
+    const m=new Map(); let k=0;
+    for(const i of BASE_ORDER) if(FILTERS[fid](P[i])) m.set(i,++k);
+    BASE_POS[fid]=m;
+  }
+  return BASE_POS[fid];
+}
 
 const nf=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
 const mil=v=>v==null?'—':Number(v).toLocaleString(loc());
@@ -264,6 +276,8 @@ function applyStatic(){
   $('#n_years').textContent=`1947–${SMAX}`;
   if(BI.player_seasons) $('#n_ps').textContent=Number(BI.player_seasons).toLocaleString(loc(),{useGrouping:true});
   else $('#ps_cell').hidden=true;
+  if(BI.playoff_seasons) $('#n_po').textContent=Number(BI.playoff_seasons).toLocaleString(loc(),{useGrouping:true});
+  else $('#po_cell').hidden=true;
   let d=BI.built||'';
   if(BI.built_iso){
     try{d=new Date(BI.built_iso+'T12:00:00Z').toLocaleDateString(loc(),{year:'numeric',month:'long',day:'numeric'});}catch(e){}
@@ -291,7 +305,7 @@ function buildControls(){
   $('#filters').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
     filter=btn.dataset.f;
     $('#filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===filter));
-    shown=CHUNK; applyView(); renderTable();});
+    shown=CHUNK; openRk=null; applyView(); renderTop(); renderTable();});
   syncP();
 }
 function bindOnce(){
@@ -318,17 +332,23 @@ function renderTop(){
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   BLOCKS.forEach(b=>$('#o_'+b.k).textContent=Math.round(100*W[b.k]/tot)+'%');
   $('#wsum').textContent=BLOCKS.reduce((s,b)=>s+W[b.k],0)===0?t.noWeights:t.normalized;
-  $('#live').innerHTML=scored.slice(0,8).map(o=>{
-    const d=baseRank[get(o.p,'n')]-o.rk;
+  // el top en vivo respeta el filtro activo (no la búsqueda por nombre)
+  const f=FILTERS[filter], pool=scored.filter(o=>f(o.p)), bp=basePos(filter), all=filter==='all';
+  const lab=document.querySelector('[data-i18n="c_live"]');
+  if(lab) lab.textContent=t.c_live+(all?'':' · '+t.filters[filter].toUpperCase());
+  $('#live').innerHTML=pool.slice(0,8).map((o,k)=>{
+    const pos=k+1, d=(bp.get(o.i)||pos)-pos;
     const m=d>0?`<span class="delta up">▲${d}</span>`:d<0?`<span class="delta down">▼${-d}</span>`:'';
-    return `<div class="lrow" data-go="${o.rk}"><span class="lr num">${o.rk}</span>
-      <span class="ln">${get(o.p,'n')}${m}</span><span class="ls num">${o.s.toFixed(1)}</span></div>`;}).join('');
+    const gr=all?'':`<span style="font-family:Archivo;font-size:10.5px;font-weight:600;color:var(--ink-soft);margin-left:6px">#${o.rk} ${t.overall}</span>`;
+    return `<div class="lrow" data-go="${o.rk}"><span class="lr num">${pos}</span>
+      <span class="ln">${get(o.p,'n')}${m}${gr}</span><span class="ls num">${o.s.toFixed(1)}</span></div>`;}).join('');
   $('#live').querySelectorAll('.lrow').forEach(el=>el.onclick=()=>{
-    const o=scored[+el.dataset.go-1]; query=''; $('#q').value=''; filter='all';
-    $('#filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f==='all'));
-    openRk=o.rk; shown=Math.max(shown,o.rk+5); applyView(); renderTable();
+    const o=scored[+el.dataset.go-1];
+    query=''; $('#q').value=''; applyView();
+    const idx=view.indexOf(o);
+    openRk=o.rk; shown=Math.max(shown,idx+5); renderTable();
     document.querySelector('tr.open')?.scrollIntoView({block:'center'});});
-  const moved=scored.slice(0,25).filter(o=>Math.abs(baseRank[get(o.p,'n')]-o.rk)>=3).length;
+  const moved=pool.slice(0,25).filter((o,k)=>Math.abs((bp.get(o.i)||k+1)-(k+1))>=3).length;
   $('#movers').textContent=moved?t.movers(moved):t.baseOrder;
 }
 
@@ -369,9 +389,20 @@ function detail(p,o){
     <td>${nf(s[3])}</td><td>${nf(s[4])}</td><td>${nf(s[5])}</td><td>${s[6]==null?'—':s[6].toFixed(3)}</td>
     <td>${nf(s[7])}</td></tr>`).join('');
 
-  const poTxt = g('poe')
-    ? `<dt>PLAYOFFS</dt><dd><small>${c.poEst}</small></dd>`
-    : `<dt>${c.poPts}</dt><dd>${nf(g('po'))} <small>(${(g('po')-g('ppg'))>=0?'+':''}${nf(g('po')-g('ppg'))} ${c.vsReg})</small></dd>`;
+  const lift = g('po')!=null&&g('ppg')!=null ? g('po')-g('ppg') : null;
+  const poCard = !g('pog')
+    ? `<div class="card"><h4>${c.po}</h4><p class="pnote" style="margin-top:0">${c.poNone}</p></div>`
+    : `<div class="card"><h4>${c.po}</h4><dl class="kv">
+      <dt>${c.games}</dt><dd>${mil(g('pog'))} <small>(${g('poruns')} ${c.poRuns})</small></dd>
+      <dt>${c.minutes}</dt><dd>${mil(g('pomp'))}</dd>
+      <dt>${c.pts}</dt><dd>${nf(g('po'))}${lift==null?'':` <small>(${lift>=0?'+':''}${nf(lift)} ${c.vsReg})</small>`}</dd>
+      <dt>${c.reb}</dt><dd>${nf(g('porpg'))}</dd>
+      <dt>${c.ast}</dt><dd>${nf(g('poapg'))}</dd>
+      <dt>TS%</dt><dd>${pc(g('pots'))}</dd>
+      <dt>PER</dt><dd>${nf(g('poper'))}</dd>
+      <dt>WS</dt><dd>${nf(g('pows'))}</dd>
+      <dt>BPM</dt><dd>${nf(g('pobpm'))}</dd>
+    </dl></div>`;
 
   return `<tr class="det"><td colspan="4"><div class="dgrid">
 
@@ -390,8 +421,9 @@ function detail(p,o){
       <dt>${c.stl}</dt><dd>${nf(g('spg'))}</dd>
       <dt>${c.blk}</dt><dd>${nf(g('bpg'))}</dd>
       <dt>${c.tov}</dt><dd>${nf(g('topg'))}</dd>
-      ${poTxt}
     </dl></div>
+
+    ${poCard}
 
     <div class="card"><h4>${c.effImp}</h4><dl class="kv">
       <dt>TS%</dt><dd>${pc(g('ts'))}</dd>
@@ -447,5 +479,5 @@ function detail(p,o){
 bindOnce();
 applyStatic();
 buildControls();
-scored=score(); scored.forEach(o=>baseRank[get(o.p,'n')]=o.rk);
+scored=score(); BASE_ORDER=scored.map(o=>o.i);
 syncP(); recalc();

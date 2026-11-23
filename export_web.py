@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exporta el dataset completo de la web: 2.908 jugadores con toda su ficha.
+"""Exporta el dataset completo de la web: todos los jugadores con toda su ficha.
 
 Formato columnar (cabecera + filas como arrays) para reducir el peso del JSON
 embebido: sin repetir nombres de campo, el fichero baja de ~1,1 MB a ~600 KB.
@@ -72,7 +72,7 @@ FIELDS = ['rk', 'n', 'sc',                                     # 0-2
           'per', 'ts', 'ws48', 'ws', 'bpm', 'obpm', 'dbpm', 'vorp',  # 23-30
           'usg', 'tovp', 'stlp', 'blkp', 'drbp', 'orbp', 'astp',     # 31-37
           'tpts', 'trb', 'tast', 'tstl', 'tblk',               # 38-42
-          'po', 'poe',                                          # 43-44
+          'po', 'pog', 'pomp', 'porpg', 'poapg', 'pots', 'poper', 'pows', 'pobpm', 'poruns',  # playoffs
           'ring', 'best', 'fmvp', 'mvp', 'mvps_v', 'dpoy', 'anba', 'adef', 'ast',  # 45-53
           'cov', 'rec', 'lg', 'seas', 'tm']                     # 54-58
 
@@ -97,7 +97,8 @@ for _, r in R.iterrows():
         r2(g('drbp'), 1), r2(g('orbp'), 1), r2(g('astp'), 1),
         i0(r['pts_total']), i0(r['trb_total']), i0(r['ast_total']),
         i0(r['stl_total']), i0(r['blk_total']),
-        r2(r['po_ppg'], 1), 1 if r['po_estimated'] else 0,
+        r2(r['po_ppg'], 1), i0(r['po_g']), i0(r['po_mp']), r2(r['po_rpg'], 1), r2(r['po_apg'], 1),
+        r2(r['po_ts'], 3), r2(r['po_per'], 1), r2(r['po_ws'], 1), r2(r['po_bpm'], 1), i0(r['po_runs']),
         i0(r['rings']), i0(r['rings_as_best']), i0(r['fmvp']), i0(r['mvps']),
         r2(r['mvp_share'], 2), i0(r['dpoys']), r2(r['allnba_pts'], 1),
         r2(r['alldef_pts'], 1), i0(r['allstar']),

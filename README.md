@@ -12,17 +12,20 @@ La página es un único HTML estático. Todo el cálculo (pesos ajustables, busc
 
 El workflow `.github/workflows/rebuild.yml` se ejecuta:
 
-- **cada lunes a las 04:00 UTC**
+- **cada lunes hacia las 04:30 UTC**
 - cuando tocas un `.py`, `head.html`, `app.js` o uno de los CSV
 - a mano, desde la pestaña **Actions → Rebuild STATGOAT → Run workflow**
 
 El ciclo es: descargar fuentes → recalcular → verificar → si algo cambió, commit del `index.html`. GitHub Pages lo republica solo.
 
-Si una fuente falla o alguna de las 12 verificaciones no pasa, **el workflow aborta y la web se queda como estaba.** Nunca se publica un índice roto.
+Si una fuente falla o alguna verificación no pasa, **el workflow aborta y la web se queda como estaba.** Nunca se publica un índice roto ni con datos viejos: hay comprobaciones que fallan si los playoffs, el campeón, el Finals MVP, el MVP o los All-NBA no llegan a la última temporada terminada.
 
-### Cadencia real
+### De dónde sale cada dato
 
-El volcado de Basketball-Reference se refresca cada cierto tiempo, no en directo. El ciclo efectivo es: cuando la fuente publica datos nuevos, esta web los recoge el lunes siguiente. Un índice de carrera no se mueve en tiempo real: un partido suelto cambia la media de quince años en milésimas.
+- **Temporada regular:** volcado público de Basketball-Reference (`sumitrodatta/bball-reference-datasets`).
+- **Playoffs, campeones, Finals MVP y premios recientes:** directamente de las páginas de Basketball-Reference, con `fetch_bref_extra.py`. Va despacio a propósito (una petición cada 4 segundos, muy por debajo de su límite) y guarda todo en `cache/`, así que cada lunes solo vuelve a pedir la temporada en curso y la anterior.
+
+La primera ejecución descarga la historia entera de playoffs (unos 12 minutos). Las siguientes, menos de un minuto.
 
 ## Qué es cada fichero
 
@@ -33,40 +36,30 @@ El volcado de Basketball-Reference se refresca cada cierto tiempo, no en directo
 | `statgoat_compose.py` | Playoffs, premios, anillos, bonus y puntuación final |
 | `export_web.py` | Exporta los 2.908 jugadores a JSON columnar |
 | `build_site.py` | Ensambla `index.html` |
-| `verify_build.py` | 12 comprobaciones antes de publicar |
+| `fetch_bref_extra.py` | Playoffs, campeones, Finals MVP y premios recientes |
+| `verify_build.py` | Comprobaciones de integridad y frescura antes de publicar |
 | `head.html` | Estructura y estilos de la web |
 | `app.js` | Lógica del visor |
-| `champions.csv` | Campeones por temporada · **mantenimiento manual** |
-| `playoff_ppg_career.csv` | Anotación de playoffs de carrera · **mantenimiento manual** |
+| `champions.csv` | Campeones por temporada · se amplía solo |
+| `finals_mvp.csv` | Finals MVP por temporada · se amplía solo |
+| `cache/` | Lo descargado de Basketball-Reference · se actualiza solo |
 | `index.html` | La web · se regenera sola |
 | `data.json` | Los datos en crudo, por si alguien los quiere reutilizar |
 
 Las carpetas `_raw/` y `_build/` son temporales y están en el `.gitignore`.
 
-## Mantenimiento: una vez al año
+## Mantenimiento
 
-Al acabar cada temporada hay tres cosas que ninguna fuente abierta sirve en bruto:
+Ninguno. Campeón, Finals MVP, playoffs y premios se recogen solos cuando Basketball-Reference los publica.
 
-**1. `champions.csv`** — añade una fila con el campeón:
-```csv
-2027,NBA,XXX
-```
-`XXX` es la abreviatura del equipo tal como aparece en `_raw/bref/Team Abbrev.csv`.
-
-**2. `statgoat_compose.py`** — añade el Finals MVP al diccionario `FMVP`:
-```python
-2027: 'Nombre del jugador',
-```
-
-**3. `playoff_ppg_career.csv`** — refresca la anotación de playoffs desde el leaderboard de Basketball-Reference. Cubre el top 250; el resto se estima con la anotación de liga regular.
-
-El parche manual del MVP 2026 se desactiva solo en cuanto la fuente incluya esa votación. No hay que tocarlo.
+Si un lunes sale en rojo, abre el paso que falla en **Actions**: el mensaje dice qué dato falta o qué comprobación no cuadra.
 
 ## Ejecutar en local
 
 ```bash
 pip install -r requirements.txt
 python fetch_sources.py
+python fetch_bref_extra.py
 python statgoat_pipeline.py
 python statgoat_compose.py
 python export_web.py
@@ -74,7 +67,7 @@ python build_site.py
 python verify_build.py
 ```
 
-Unos 3 minutos, casi todo en la descarga.
+La primera vez, unos 15 minutos (la descarga de playoffs). Después, unos 3.
 
 ## Metodología
 
@@ -84,18 +77,18 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 El glosario completo está en la propia página.
 
-**Límite principal:** no existe fuente abierta y masiva de rebotes, asistencias y defensa de playoffs. El bloque de postemporada mide anotación, títulos e impacto parcial. Russell y Wilt salen penalizados por eso.
+**Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto por partido), se pondera por minutos y se suma el volumen de Win Shares. Con pocos minutos de playoffs, el resultado se acerca a lo que predice su temporada regular.
+
+**Límite:** antes de 1974 no hay BPM, y antes de 1952 no hay minutos. A cada jugador se le mide con lo que su época registró.
 
 ## Fuentes
 
-- Basketball-Reference, vía el volcado público de `sumitrodatta/bball-reference-datasets`
-- RAPTOR de FiveThirtyEight · CC BY 4.0
-- NBA.com para campeones y Finals MVP
+- Basketball-Reference: temporada regular vía el volcado público de `sumitrodatta/bball-reference-datasets`; playoffs, campeones y premios recientes, de sus páginas.
 
-Si reutilizas esto, cita las tres.
+Si reutilizas esto, cítala.
 
 ## Aviso
 
-STATGOAT no está afiliado ni respaldado por la NBA, la NBPA, Basketball-Reference ni FiveThirtyEight. Es un análisis histórico bajo una ponderación concreta: no es predicción, ni recomendación de apuestas, ni una verdad establecida.
+STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference. Es un análisis histórico bajo una ponderación concreta: no es predicción, ni recomendación de apuestas, ni una verdad establecida.
 
 

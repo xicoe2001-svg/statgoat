@@ -322,7 +322,7 @@ es:{
   presets:{base:'Base',imp:'Solo impacto',notit:'Sin títulos',po2:'Playoffs ×2',def2:'Defensa ×2',reg:'Solo temp. regular',hon:'Solo palmarés'},
   filters:{all:'Todos',g400:'≥ 400 partidos',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',active:'En activo'},
   noWeights:'sin pesos', normalized:'normalizado a 100%',
-  movers:n=>`${n} cambios de 3+ puestos en el top 25`, baseOrder:'orden base', overall:'general',
+  movers:n=>`${n} cambios de 3+ puestos en el top 25`,smovers:n=>`${n} temporadas del top 25 se mueven 3+ puestos`, baseOrder:'orden base', overall:'general',
   count:(a,b)=>`${a} de ${b} jugadores`,
   more:n=>`Ver más jugadores (${n} restantes)`,
   record:'RÉCORD', partial:'DATOS PARCIALES', seasonsShort:'temp.',
@@ -416,7 +416,7 @@ en:{
   presets:{base:'Default',imp:'Impact only',notit:'No titles',po2:'Playoffs ×2',def2:'Defense ×2',reg:'Regular season only',hon:'Honors only'},
   filters:{all:'All',g400:'≥ 400 games',ring:'Champions',mvp:'MVP winners',pre80:'Before 1980',active:'Active'},
   noWeights:'no weights', normalized:'normalized to 100%',
-  movers:n=>`${n} moves of 3+ spots in the top 25`, baseOrder:'default order', overall:'overall',
+  movers:n=>`${n} moves of 3+ spots in the top 25`,smovers:n=>`${n} seasons in the top 25 move 3+ spots`, baseOrder:'default order', overall:'overall',
   count:(a,b)=>`${a} of ${b} players`,
   more:n=>`Show more players (${n} left)`,
   record:'RECORD', partial:'PARTIAL DATA', seasonsShort:'seasons',
@@ -612,13 +612,13 @@ function buildFilters(){
     if(seas){ sFilter=btn.dataset.f; sShown=CHUNK; openS=null; }
     else { filter=btn.dataset.f; shown=CHUNK; openRk=null; }
     $('#filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===btn.dataset.f));
-    applyView(); if(!seas) renderTop(); renderTable();});
+    applyView(); renderTop(); renderTable();});
 }
 function setMode(m){
   if(m===mode) return;
   mode=m; query=''; $('#q').value='';
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===mode));
-  buildFilters(); applyView(); renderTable();
+  buildFilters(); applyView(); renderTop(); renderTable();
 }
 function bindOnce(){
   document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
@@ -641,10 +641,29 @@ function setLang(l){
 /* ---------- render ---------- */
 function recalc(){scored=score();sscored=scoreSeasons();applyView();renderTop();renderTable();}
 
+function renderTopSeasons(){
+  const t=T(), sf=SFILTERS[sFilter], pool=sscored.filter(o=>sf(o.r)), all=sFilter==='all';
+  // posición con los pesos por defecto (dentro del filtro activo) para las flechas
+  const base=new Map(); S.map((r,i)=>[sg(r,'srk'),i]).filter(([,i])=>sf(S[i])).sort((a,b)=>a[0]-b[0]).forEach(([,i],k)=>base.set(i,k+1));
+  const lab=document.querySelector('[data-i18n="c_live"]');
+  if(lab) lab.textContent=t.c_live+' · '+t.tab_seasons.toUpperCase()+(all?'':' · '+t.sfilters[sFilter].toUpperCase());
+  $('#live').innerHTML=pool.slice(0,8).map((o,k)=>{
+    const pos=k+1, d=(base.get(o.i)||pos)-pos;
+    const m=d>0?`<span class="delta up">▲${d}</span>`:d<0?`<span class="delta down">▼${-d}</span>`:'';
+    return `<div class="lrow" data-si="${o.i}"><span class="lr num">${pos}</span>
+      <span class="ln">${sg(o.r,'n')} <span style="font-family:Archivo;font-size:11px;font-weight:600;color:var(--ink-soft)">${seasonLabel(sg(o.r,'y'))}</span>${m}</span><span class="ls num">${o.s.toFixed(1)}</span></div>`;}).join('');
+  $('#live').querySelectorAll('.lrow').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.si; query=''; $('#q').value=''; applyView();
+    const idx=sview.findIndex(o=>o.i===i); openS=i; sShown=Math.max(sShown,idx+5); renderTable();
+    document.querySelector('tr.open')?.scrollIntoView({block:'center'});});
+  const moved=pool.slice(0,25).filter((o,k)=>Math.abs((base.get(o.i)||k+1)-(k+1))>=3).length;
+  $('#movers').textContent=moved?t.smovers(moved):t.baseOrder;
+}
 function renderTop(){
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   BLOCKS.forEach(b=>$('#o_'+b.k).textContent=Math.round(100*W[b.k]/tot)+'%');
   $('#wsum').textContent=BLOCKS.reduce((s,b)=>s+W[b.k],0)===0?t.noWeights:t.normalized;
+  if(mode==='seasons') return renderTopSeasons();
   // el top en vivo respeta el filtro activo (no la búsqueda por nombre)
   const f=FILTERS[filter], pool=scored.filter(o=>f(o.p)), bp=basePos(filter), all=filter==='all';
   const lab=document.querySelector('[data-i18n="c_live"]');

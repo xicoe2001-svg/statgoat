@@ -1,0 +1,919 @@
+{
+ "last_run": "2026-11-23T08:07:18+00:00",
+ "pages": {
+  "awards/2026": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 97,
+   "status": "ok"
+  },
+  "awards/2027": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "status": "missing"
+  },
+  "playoffs/ABA_1968_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 83,
+   "status": "ok"
+  },
+  "playoffs/ABA_1968_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 83,
+   "status": "ok"
+  },
+  "playoffs/ABA_1969_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 83,
+   "status": "ok"
+  },
+  "playoffs/ABA_1969_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 83,
+   "status": "ok"
+  },
+  "playoffs/ABA_1970_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 79,
+   "status": "ok"
+  },
+  "playoffs/ABA_1970_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 79,
+   "status": "ok"
+  },
+  "playoffs/ABA_1971_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 84,
+   "status": "ok"
+  },
+  "playoffs/ABA_1971_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 84,
+   "status": "ok"
+  },
+  "playoffs/ABA_1972_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 80,
+   "status": "ok"
+  },
+  "playoffs/ABA_1972_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 80,
+   "status": "ok"
+  },
+  "playoffs/ABA_1973_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 87,
+   "status": "ok"
+  },
+  "playoffs/ABA_1973_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 87,
+   "status": "ok"
+  },
+  "playoffs/ABA_1974_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 82,
+   "status": "ok"
+  },
+  "playoffs/ABA_1974_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 82,
+   "status": "ok"
+  },
+  "playoffs/ABA_1975_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 82,
+   "status": "ok"
+  },
+  "playoffs/ABA_1975_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 82,
+   "status": "ok"
+  },
+  "playoffs/ABA_1976_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 54,
+   "status": "ok"
+  },
+  "playoffs/ABA_1976_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 54,
+   "status": "ok"
+  },
+  "playoffs/BAA_1947_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 61,
+   "status": "ok"
+  },
+  "playoffs/BAA_1947_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 61,
+   "status": "ok"
+  },
+  "playoffs/BAA_1948_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/BAA_1948_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/BAA_1949_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 86,
+   "status": "ok"
+  },
+  "playoffs/BAA_1949_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 86,
+   "status": "ok"
+  },
+  "playoffs/NBA_1950_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 125,
+   "status": "ok"
+  },
+  "playoffs/NBA_1950_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 125,
+   "status": "ok"
+  },
+  "playoffs/NBA_1951_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 81,
+   "status": "ok"
+  },
+  "playoffs/NBA_1951_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 81,
+   "status": "ok"
+  },
+  "playoffs/NBA_1952_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 76,
+   "status": "ok"
+  },
+  "playoffs/NBA_1952_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 76,
+   "status": "ok"
+  },
+  "playoffs/NBA_1953_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 79,
+   "status": "ok"
+  },
+  "playoffs/NBA_1953_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 79,
+   "status": "ok"
+  },
+  "playoffs/NBA_1954_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 58,
+   "status": "ok"
+  },
+  "playoffs/NBA_1954_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 58,
+   "status": "ok"
+  },
+  "playoffs/NBA_1955_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1955_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1956_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1956_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1957_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/NBA_1957_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/NBA_1958_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1958_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1959_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1959_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1960_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1960_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 60,
+   "status": "ok"
+  },
+  "playoffs/NBA_1961_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/NBA_1961_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 59,
+   "status": "ok"
+  },
+  "playoffs/NBA_1962_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 64,
+   "status": "ok"
+  },
+  "playoffs/NBA_1962_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 64,
+   "status": "ok"
+  },
+  "playoffs/NBA_1963_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 63,
+   "status": "ok"
+  },
+  "playoffs/NBA_1963_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 63,
+   "status": "ok"
+  },
+  "playoffs/NBA_1964_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 65,
+   "status": "ok"
+  },
+  "playoffs/NBA_1964_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 65,
+   "status": "ok"
+  },
+  "playoffs/NBA_1965_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 65,
+   "status": "ok"
+  },
+  "playoffs/NBA_1965_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 65,
+   "status": "ok"
+  },
+  "playoffs/NBA_1966_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 64,
+   "status": "ok"
+  },
+  "playoffs/NBA_1966_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 64,
+   "status": "ok"
+  },
+  "playoffs/NBA_1967_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 91,
+   "status": "ok"
+  },
+  "playoffs/NBA_1967_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 91,
+   "status": "ok"
+  },
+  "playoffs/NBA_1968_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 88,
+   "status": "ok"
+  },
+  "playoffs/NBA_1968_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 88,
+   "status": "ok"
+  },
+  "playoffs/NBA_1969_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 85,
+   "status": "ok"
+  },
+  "playoffs/NBA_1969_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 85,
+   "status": "ok"
+  },
+  "playoffs/NBA_1970_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 89,
+   "status": "ok"
+  },
+  "playoffs/NBA_1970_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 89,
+   "status": "ok"
+  },
+  "playoffs/NBA_1971_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 85,
+   "status": "ok"
+  },
+  "playoffs/NBA_1971_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 85,
+   "status": "ok"
+  },
+  "playoffs/NBA_1972_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 88,
+   "status": "ok"
+  },
+  "playoffs/NBA_1972_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 88,
+   "status": "ok"
+  },
+  "playoffs/NBA_1973_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 91,
+   "status": "ok"
+  },
+  "playoffs/NBA_1973_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 91,
+   "status": "ok"
+  },
+  "playoffs/NBA_1974_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 89,
+   "status": "ok"
+  },
+  "playoffs/NBA_1974_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 89,
+   "status": "ok"
+  },
+  "playoffs/NBA_1975_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 113,
+   "status": "ok"
+  },
+  "playoffs/NBA_1975_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 113,
+   "status": "ok"
+  },
+  "playoffs/NBA_1976_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 116,
+   "status": "ok"
+  },
+  "playoffs/NBA_1976_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 116,
+   "status": "ok"
+  },
+  "playoffs/NBA_1977_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 133,
+   "status": "ok"
+  },
+  "playoffs/NBA_1977_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 133,
+   "status": "ok"
+  },
+  "playoffs/NBA_1978_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 128,
+   "status": "ok"
+  },
+  "playoffs/NBA_1978_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 128,
+   "status": "ok"
+  },
+  "playoffs/NBA_1979_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 127,
+   "status": "ok"
+  },
+  "playoffs/NBA_1979_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 127,
+   "status": "ok"
+  },
+  "playoffs/NBA_1980_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 129,
+   "status": "ok"
+  },
+  "playoffs/NBA_1980_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 129,
+   "status": "ok"
+  },
+  "playoffs/NBA_1981_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 130,
+   "status": "ok"
+  },
+  "playoffs/NBA_1981_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 130,
+   "status": "ok"
+  },
+  "playoffs/NBA_1982_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 138,
+   "status": "ok"
+  },
+  "playoffs/NBA_1982_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 138,
+   "status": "ok"
+  },
+  "playoffs/NBA_1983_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 140,
+   "status": "ok"
+  },
+  "playoffs/NBA_1983_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 140,
+   "status": "ok"
+  },
+  "playoffs/NBA_1984_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 183,
+   "status": "ok"
+  },
+  "playoffs/NBA_1984_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 183,
+   "status": "ok"
+  },
+  "playoffs/NBA_1985_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1985_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1986_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 184,
+   "status": "ok"
+  },
+  "playoffs/NBA_1986_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 184,
+   "status": "ok"
+  },
+  "playoffs/NBA_1987_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 184,
+   "status": "ok"
+  },
+  "playoffs/NBA_1987_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 184,
+   "status": "ok"
+  },
+  "playoffs/NBA_1988_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1988_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1989_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 183,
+   "status": "ok"
+  },
+  "playoffs/NBA_1989_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 183,
+   "status": "ok"
+  },
+  "playoffs/NBA_1990_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 186,
+   "status": "ok"
+  },
+  "playoffs/NBA_1990_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 186,
+   "status": "ok"
+  },
+  "playoffs/NBA_1991_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1991_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1992_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1992_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1993_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 187,
+   "status": "ok"
+  },
+  "playoffs/NBA_1993_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 187,
+   "status": "ok"
+  },
+  "playoffs/NBA_1994_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1994_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1995_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1995_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 185,
+   "status": "ok"
+  },
+  "playoffs/NBA_1996_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1996_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_1997_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_1997_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_1998_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 190,
+   "status": "ok"
+  },
+  "playoffs/NBA_1998_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 190,
+   "status": "ok"
+  },
+  "playoffs/NBA_1999_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_1999_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_2000_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 181,
+   "status": "ok"
+  },
+  "playoffs/NBA_2000_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 181,
+   "status": "ok"
+  },
+  "playoffs/NBA_2001_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 190,
+   "status": "ok"
+  },
+  "playoffs/NBA_2001_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 190,
+   "status": "ok"
+  },
+  "playoffs/NBA_2002_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 186,
+   "status": "ok"
+  },
+  "playoffs/NBA_2002_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 186,
+   "status": "ok"
+  },
+  "playoffs/NBA_2003_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 187,
+   "status": "ok"
+  },
+  "playoffs/NBA_2003_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 187,
+   "status": "ok"
+  },
+  "playoffs/NBA_2004_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_2004_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 189,
+   "status": "ok"
+  },
+  "playoffs/NBA_2005_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_2005_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 188,
+   "status": "ok"
+  },
+  "playoffs/NBA_2006_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 195,
+   "status": "ok"
+  },
+  "playoffs/NBA_2006_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 195,
+   "status": "ok"
+  },
+  "playoffs/NBA_2007_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 191,
+   "status": "ok"
+  },
+  "playoffs/NBA_2007_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 191,
+   "status": "ok"
+  },
+  "playoffs/NBA_2008_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 202,
+   "status": "ok"
+  },
+  "playoffs/NBA_2008_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 202,
+   "status": "ok"
+  },
+  "playoffs/NBA_2009_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 199,
+   "status": "ok"
+  },
+  "playoffs/NBA_2009_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 199,
+   "status": "ok"
+  },
+  "playoffs/NBA_2010_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 199,
+   "status": "ok"
+  },
+  "playoffs/NBA_2010_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 199,
+   "status": "ok"
+  },
+  "playoffs/NBA_2011_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 194,
+   "status": "ok"
+  },
+  "playoffs/NBA_2011_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 194,
+   "status": "ok"
+  },
+  "playoffs/NBA_2012_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 204,
+   "status": "ok"
+  },
+  "playoffs/NBA_2012_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 204,
+   "status": "ok"
+  },
+  "playoffs/NBA_2013_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 209,
+   "status": "ok"
+  },
+  "playoffs/NBA_2013_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 209,
+   "status": "ok"
+  },
+  "playoffs/NBA_2014_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 204,
+   "status": "ok"
+  },
+  "playoffs/NBA_2014_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 204,
+   "status": "ok"
+  },
+  "playoffs/NBA_2015_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 208,
+   "status": "ok"
+  },
+  "playoffs/NBA_2015_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 208,
+   "status": "ok"
+  },
+  "playoffs/NBA_2016_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 215,
+   "status": "ok"
+  },
+  "playoffs/NBA_2016_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 215,
+   "status": "ok"
+  },
+  "playoffs/NBA_2017_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 215,
+   "status": "ok"
+  },
+  "playoffs/NBA_2017_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 215,
+   "status": "ok"
+  },
+  "playoffs/NBA_2018_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 210,
+   "status": "ok"
+  },
+  "playoffs/NBA_2018_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 210,
+   "status": "ok"
+  },
+  "playoffs/NBA_2019_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 212,
+   "status": "ok"
+  },
+  "playoffs/NBA_2019_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 212,
+   "status": "ok"
+  },
+  "playoffs/NBA_2020_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2020_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2021_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 239,
+   "status": "ok"
+  },
+  "playoffs/NBA_2021_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 239,
+   "status": "ok"
+  },
+  "playoffs/NBA_2022_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2022_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2023_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2023_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 217,
+   "status": "ok"
+  },
+  "playoffs/NBA_2024_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 214,
+   "status": "ok"
+  },
+  "playoffs/NBA_2024_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 214,
+   "status": "ok"
+  },
+  "playoffs/NBA_2025_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 219,
+   "status": "ok"
+  },
+  "playoffs/NBA_2025_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 219,
+   "status": "ok"
+  },
+  "playoffs/NBA_2026_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 230,
+   "status": "ok"
+  },
+  "playoffs/NBA_2026_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "rows": 230,
+   "status": "ok"
+  },
+  "playoffs/NBA_2027": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "status": "missing"
+  },
+  "playoffs/NBA_2027_advanced": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "status": "missing"
+  },
+  "playoffs/NBA_2027_totals": {
+   "at": "2026-11-23T08:07:18+00:00",
+   "status": "missing"
+  }
+ },
+ "playoff_max_season": 2026,
+ "playoff_seasons_cached": 89,
+ "requests": 183
+}

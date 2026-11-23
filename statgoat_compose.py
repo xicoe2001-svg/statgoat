@@ -189,6 +189,83 @@ def playoff_career(ps, C, s):
     return C
 
 
+def season_ranking(s, ps, aw, eos, astar, ch, fmv):
+    """Mejores temporadas completas: los mismos siete bloques del índice, en un solo año.
+
+    Liga regular (producción, eficiencia, impacto, defensa), los playoffs de ese
+    año, el anillo según su aportación y los premios de esa temporada. Cada bloque
+    se estandariza contra todas las temporadas medibles y se comprime igual que en
+    el índice. Solo entran temporadas computables con los cuatro bloques de liga
+    regular medibles (desde 1951-52: antes no hay minutos, ni impacto ni defensa).
+    """
+    key = ['season', 'lg', 'player_id']
+    t = s[s['countable'] & s[['PROD', 'EFIC', 'IMPACTO', 'DEF']].notna().all(axis=1)].copy()
+    # premios de esa temporada
+    mvp = aw[aw.award.isin(['nba mvp', 'aba mvp'])].groupby(['season', 'player_id'])['share'].sum().rename('mvp_share')
+    dpoy = aw[aw.award == 'nba dpoy'].groupby(['season', 'player_id'])['share'].sum().rename('dpoy_share')
+    e = eos.copy()
+    e['val'] = e['number_tm'].map({'1st': 5.0, '2nd': 3.0, '3rd': 1.5}).fillna(1.5)
+    anba = e[e.type.isin(['All-NBA', 'All-ABA', 'All-BAA'])].groupby(['season', 'player_id'])['val'].sum().rename('anba')
+    tier = (e[e.type.isin(['All-NBA', 'All-ABA', 'All-BAA'])].groupby(['season', 'player_id'])['number_tm']
+            .first().rename('anba_tm'))
+    d = eos[eos.type == 'All-Defense'].copy()
+    d['val'] = d['number_tm'].map({'1st': 3.0, '2nd': 1.5}).fillna(1.5)
+    adef = d.groupby(['season', 'player_id'])['val'].sum().rename('adef')
+    asg = astar.groupby(['season', 'player_id']).size().rename('allstar')
+    for x in (mvp, dpoy, anba, tier, adef, asg):
+        t = t.merge(x.reset_index(), on=['season', 'player_id'], how='left')
+    for c in ['mvp_share', 'dpoy_share', 'anba', 'adef', 'allstar']:
+        t[c] = t[c].fillna(0)
+    best = t.groupby('season')[['mvp_share', 'dpoy_share']].transform('max')
+    t['mvp_win'] = ((t['mvp_share'] > 0) & t['mvp_share'].eq(best['mvp_share'])).astype(int)
+    t['dpoy_win'] = ((t['dpoy_share'] > 0) & t['dpoy_share'].eq(best['dpoy_share'])).astype(int)
+    # playoffs de esa temporada (mismo esquema que el bloque de carrera)
+    g = ps.dropna(subset=['PO_SEASON']).groupby(key).agg(
+        po=('PO_SEASON', 'mean'), pw=('w', 'sum'), pws=('ws_f', 'sum'),
+        po_g=('g', 'sum'), po_pts=('pts', 'sum')).reset_index()
+    t = t.merge(g, on=key, how='left')
+    t['pw'] = t['pw'].fillna(0)
+    t['pws'] = t['pws'].fillna(0)
+    rs = PO_DIM_W['PROD'] * t['PROD'] + PO_DIM_W['EFIC'] * t['EFIC'] + PO_DIM_W['IMP'] * t['IMPACTO']
+    ok = t['po'].notna()
+    sw = np.sqrt(t.loc[ok, 'pw'].values)
+    A = np.column_stack([np.ones(ok.sum()), rs[ok]])
+    b, *_ = np.linalg.lstsq(A * sw[:, None], t.loc[ok, 'po'].values * sw, rcond=None)
+    exp = b[0] + b[1] * rs
+    t['po_level'] = (t['pw'] * t['po'].fillna(0) + SHRINK_K * exp) / (t['pw'] + SHRINK_K)
+    t['po_plus'] = (t['pw'] * (t['po'] - exp)).fillna(0) / (t['pw'] + SHRINK_K)
+    t['po_vol'] = np.log1p(t['pws'].clip(lower=0))
+    # anillo según la aportación en esa carrera al título, y Finals MVP
+    chm = ch.rename(columns={'abbrev': 'team'})[['season', 'lg', 'team']]
+    po = ps.merge(chm, on=['season', 'lg', 'team'])
+    po['wsp'] = po['ws_f'].clip(lower=0)
+    tot = po.groupby(['season', 'team'])['wsp'].transform('sum')
+    po['share'] = np.where(tot > 0, po['wsp'] / tot, np.nan)
+    top_share = po.loc[po.groupby(['season', 'team'])['wsp'].transform('max').eq(po['wsp']) & (po['wsp'] > 0), 'share'].median()
+    po['ring'] = np.clip(1.6 * po['share'] / top_share, 0.05, 2.2)
+    t = t.merge(po.groupby(key)['ring'].max().reset_index(), on=key, how='left')
+    t['ring'] = t['ring'].fillna(0)
+    t = t.merge(fmv[['season', 'player_id']].drop_duplicates().assign(fmvp=1), on=['season', 'player_id'], how='left')
+    t['fmvp'] = t['fmvp'].fillna(0).astype(int)
+    t['champ'] = (t['ring'] > 0).astype(int)
+    # los siete bloques de una temporada
+    t['b_PROD'] = soft(z(t['PROD']))
+    t['b_EFIC'] = soft(z(t['EFIC']))
+    t['b_IMPACTO'] = soft(z(t['IMPACTO']))
+    t['b_DEF'] = soft(z(0.75 * z(t['DEF']) + 0.25 * z(t['adef'] + 2.5 * t['dpoy_share'])))
+    t['b_PLAYOFFS'] = soft(z(0.55 * z(t['po_level']) + 0.25 * z(t['po_plus']) + 0.20 * z(t['po_vol'])))
+    t['b_TITULOS'] = soft(z(0.70 * z(t['ring']) + 0.30 * z(t['fmvp'])))
+    t['b_PREMIOS'] = soft(z(0.45 * z(t['mvp_share']) + 0.35 * z(t['anba']) + 0.20 * z(t['allstar'])))
+    W = {'PROD': .15, 'EFIC': .07, 'IMPACTO': .20, 'DEF': .13, 'PLAYOFFS': .20, 'TITULOS': .15, 'PREMIOS': .10}
+    t['FULL'] = sum(t['b_' + k] * v for k, v in W.items())
+    t = t.sort_values('FULL', ascending=False).reset_index(drop=True)
+    t['srank'] = np.arange(1, len(t) + 1)
+    print(f'  temporadas completas medibles: {len(t)} (desde {int(t.season.min())})')
+    print('  mejores: ' + ' | '.join(f"{r.player} {int(r.season) - 1}-{str(int(r.season))[-2:]}"
+                                     for r in t.head(5).itertuples()))
+    return t
+
+
 def titles(ps, ch, adv_rs, s):
     """Crédito de cada anillo según la aportación real en esa carrera al título."""
     ch = ch.rename(columns={'abbrev': 'team'})[['season', 'lg', 'team']]
@@ -245,6 +322,7 @@ def main():
     print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
           f'hasta {int(ps.season.max())}')
     C = playoff_career(ps, C, s)
+    season_ranking(s, ps, aw, eos, astar, ch, fmv).to_pickle(OUT / 'seasons_full.pkl')
 
     # ------------------------------------------------------------ ANILLOS Y FMVP
     C = C.merge(titles(ps, ch, adv_rs, s), on='player_id', how='left')
@@ -325,8 +403,11 @@ def main():
         B[k] = soft(B[k])
     B['raw'] = sum(B[k] * v for k, v in W.items())
     lo, hi = B['raw'].min(), B['raw'].max()
-    B['BASE'] = (97 * (B['raw'] - lo) / (hi - lo)).round(2)
-    B['STATGOAT'] = (B['BASE'] + B['BONUS_TOTALES']).round(2)
+    # La nota por defecto no lleva el bonus por totales: los totales en bruto
+    # dependen de la época y la longevidad ya cuenta un 20 % en cada bloque.
+    # El bonus se exporta y la web lo suma solo si el usuario lo activa.
+    B['BASE'] = (100 * (B['raw'] - lo) / (hi - lo)).round(2)
+    B['STATGOAT'] = B['BASE']
 
     P['po_lift'] = P['po_ppg'] - P['rs_ppg']
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
@@ -356,7 +437,7 @@ def main():
     }
     S = B[['player']].copy()
     for nm, ww in scen.items():
-        r = sum(B[k] * v for k, v in ww.items()) + 0.03 * B['BONUS_TOTALES']
+        r = sum(B[k] * v for k, v in ww.items())
         S[nm] = r.rank(ascending=False).round().astype('int64')
     S = S.sort_values('BASE').head(25)
     print('\n--- sensibilidad (posicion segun ponderacion) ---')

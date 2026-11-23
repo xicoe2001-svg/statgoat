@@ -90,6 +90,13 @@ check(len(jok) == 1 and jok['team'].iloc[0] == 'DEN', 'Jokić aparece en los pla
 c25 = ch[ch.season == 2025]
 check(len(c25) == 1 and c25['abbrev'].iloc[0] == 'OKC', 'campeón 2025: OKC')
 
+# ---------------------------------------------------------------- mejores temporadas
+SF = pd.read_pickle(ROOT / '_build' / 'seasons_full.pkl')
+check(len(SF) > 10000, f'temporadas completas medibles ({len(SF)})')
+top25 = set(zip(SF.head(25)['player_id'], SF.head(25)['season']))
+anc = {('jordami01', 1991), ('jamesle01', 2012), ('onealsh01', 2000), ('duncati01', 2003), ('olajuha01', 1994)}
+check(len(top25 & anc) >= 3, f'el top 25 de temporadas es plausible ({len(top25 & anc)}/5 anclas)')
+
 print('\nTop 25 de esta build:')
 for i, r in enumerate(R.head(25).itertuples(), 1):
     print(f'  {i:>2}. {r.player:<28} {r.STATGOAT:6.1f}')

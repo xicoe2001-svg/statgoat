@@ -77,6 +77,10 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 **Carrera:** cada bloque se resume como 40 % media de las 3 mejores temporadas + 40 % de las 7 mejores + 20 % acumulado. Antes de sumarlo, el acumulado se pasa a la misma escala que el pico a partir de su percentil histórico, para que cada porcentaje pese lo que dice (en bruto, el «20 %» llegaba a pesar la mitad en las carreras largas). Si un jugador tiene menos de 3 o de 7 temporadas computables, las que faltan cuentan como 0 (jugador medio de la liga).
 
+**Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. El bonus por totales de carrera (hasta 3 puntos) es opcional y está desactivado por defecto: compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
+
+**Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
+
 **Eficiencia:** puntos añadidos por eficiencia, `(TS% propio − TS% de su liga) × intentos` (70 %), y control de pérdidas (30 %). Mide eficiencia y volumen a la vez; se usa igual en liga regular y en playoffs.
 
 El glosario completo está en la propia página.

@@ -107,7 +107,32 @@ for _, r in R.iterrows():
         r['lg_main'], seas, teams,
     ])
 
-payload = {'f': FIELDS, 'd': data}
+# --------------------------------------------------- mejores temporadas completas
+# Se exportan las 1.200 mejores con los pesos por defecto más las 150 mejores de
+# cada bloque, para que el ranking siga siendo correcto si el usuario mueve los pesos.
+T = pd.read_pickle(OUT / 'seasons_full.pkl')
+BK = ['PROD', 'EFIC', 'IMPACTO', 'DEF', 'PLAYOFFS', 'TITULOS', 'PREMIOS']
+keep = set(T.index[:1200])
+for k in BK:
+    keep |= set(T['b_' + k].nlargest(150).index)
+TS = T.loc[sorted(keep)]
+SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
+           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk']
+sdata = []
+for _, r in TS.iterrows():
+    sdata.append([
+        r['player'], int(r['season']), str(r['team']), r['lg'],
+        *[r2(r['b_' + k], 3) for k in BK],
+        r2(r['pts_per_game'], 1), r2(r['trb_per_game'], 1), r2(r['ast_per_game'], 1),
+        r2(r['ts_percent'], 3), r2(r['per'], 1), r2(r['bpm'], 1),
+        i0(r['po_g']), (r2(r['po_pts'] / r['po_g'], 1) if r['po_g'] and r['po_g'] == r['po_g'] else None),
+        int(r['mvp_win']), int(r['dpoy_win']), int(r['champ']), int(r['fmvp']),
+        r2(r['mvp_share'], 3), ('' if pd.isna(r['anba_tm']) else str(r['anba_tm'])), int(r['allstar'] > 0),
+        int(r['srank']),
+    ])
+SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
+
+payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn': int(len(T))}
 raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 open(OUT / 'all.min.json', 'w').write(raw)
-print('jugadores:', len(data), '| KB:', round(len(raw) / 1024, 1))
+print('jugadores:', len(data), '| temporadas exportadas:', len(sdata), 'de', len(T), '| KB:', round(len(raw) / 1024, 1))

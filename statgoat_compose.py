@@ -410,6 +410,14 @@ def main():
          'PLAYOFFS': .20, 'TITULOS': .15, 'PREMIOS': .10}
     for k in W:
         B[k] = soft(B[k])
+    # Títulos y premios: tres de cada cuatro jugadores tienen 0 y unos pocos se
+    # disparan (+6 desviaciones), así que en la cima pesaban un 34 % de la nota
+    # en vez de su 25 %. Se llevan a la misma escala que los bloques estadísticos:
+    # su percentil se convierte en el mismo percentil de esa distribución.
+    ref = np.concatenate([B[k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
+    for k in ['TITULOS', 'PREMIOS']:
+        pct = ((B[k].rank(method='average') - 0.5) / len(B)).clip(0, 1)
+        B[k] = np.quantile(ref, pct.values)
     B['raw'] = sum(B[k] * v for k, v in W.items())
     lo, hi = B['raw'].min(), B['raw'].max()
     # La nota por defecto no lleva el bonus por totales: los totales en bruto

@@ -19,6 +19,7 @@ OUT = ROOT / '_build'
 Z_CAP = 4.0
 ABA_DISCOUNT = 0.90
 SHRINK_K = 600          # minutos de playoffs que "valen" lo mismo que la previsión por liga regular
+PEAK_MIN = 4000         # se mide a cada uno por sus mejores 4.000 minutos de playoffs (≈ 4-5 rondas largas)
 PO_SUBDIMS = {
     'PROD': {'pts_pg_z': .40, 'trb_pg_z': .20, 'ast_pg_z': .20, 'stl_pg_z': .10, 'blk_pg_z': .10},
     'EFIC': {'ts_z': .70, 'tov_neg_z': .30},
@@ -114,10 +115,36 @@ def playoff_seasons():
     return ps
 
 
-def playoff_career(ps, C):
-    g = ps.dropna(subset=['PO_SEASON']).assign(wx=lambda d: d['w'] * d['PO_SEASON'])
-    q = g.groupby('player_id').agg(po_w=('w', 'sum'), wx=('wx', 'sum'))
-    q['Q_raw'] = q['wx'] / q['po_w']
+def playoff_career(ps, C, s):
+    """Nivel, plus y volumen de playoffs de cada jugador.
+
+    Nivel: media de sus mejores carreras de playoffs hasta sumar PEAK_MIN minutos,
+      igual que la liga regular se mide por las mejores temporadas. Con la media
+      de toda la carrera, quien solo tiene años de plenitud sale favorecido frente
+      a quien jugó playoffs con 38-40 años.
+    Plus: cuánto rindió en cada playoff frente a lo esperable por SU liga regular
+      de esa misma temporada (residuo de una recta común: los playoffs son más
+      duros que la liga). Media por minutos, contraída hacia 0 con pocos minutos.
+    """
+    g = ps.dropna(subset=['PO_SEASON']).sort_values('PO_SEASON', ascending=False)
+    g['prev'] = g.groupby('player_id')['w'].cumsum() - g['w']
+    g['take'] = np.minimum(g['w'], (PEAK_MIN - g['prev']).clip(lower=0))
+    g['tx'] = g['take'] * g['PO_SEASON']
+    q = g.groupby('player_id').agg(po_w=('w', 'sum'), po_wp=('take', 'sum'), tx=('tx', 'sum'))
+    q['Q_peak'] = q['tx'] / q['po_wp']
+
+    # plus frente a la liga regular de la misma temporada
+    rs = s[['season', 'lg', 'player_id', 'PROD', 'EFIC', 'IMPACTO']].copy()
+    rs['RS_SEASON'] = (PO_DIM_W['PROD'] * rs['PROD'] + PO_DIM_W['EFIC'] * rs['EFIC']
+                       + PO_DIM_W['IMP'] * rs['IMPACTO'])
+    m = g.merge(rs[['season', 'lg', 'player_id', 'RS_SEASON']], on=['season', 'lg', 'player_id']).dropna(subset=['RS_SEASON'])
+    sw = np.sqrt(m['w'].values)
+    A = np.column_stack([np.ones(len(m)), m['RS_SEASON']])
+    b, *_ = np.linalg.lstsq(A * sw[:, None], m['PO_SEASON'].values * sw, rcond=None)
+    m['res'] = m['PO_SEASON'] - A @ b
+    pl = m.assign(wr=m['w'] * m['res']).groupby('player_id').agg(w=('w', 'sum'), wr=('wr', 'sum'))
+    pl['po_plus'] = pl['wr'] / (pl['w'] + SHRINK_K)
+    print(f'  playoffs: esperado = {b[0]:.2f} + {b[1]:.2f} × liga regular de esa temporada ({len(m)} temporadas)')
 
     def wavg(col):
         d = ps.dropna(subset=[col])
@@ -136,23 +163,25 @@ def playoff_career(ps, C):
     agg['po_per'] = wavg('per')
     agg['po_bpm'] = wavg('bpm')
     agg['po_mp'] = agg['po_mp'].replace(0, np.nan)
-    agg = agg.join(q[['po_w', 'Q_raw']])
+    agg = agg.join(q[['po_w', 'po_wp', 'Q_peak']]).join(pl[['po_plus']])
 
     C = C.merge(agg.reset_index(), on='player_id', how='left')
     C['po_w'] = C['po_w'].fillna(0)
+    C['po_wp'] = C['po_wp'].fillna(0)
+    C['po_plus'] = C['po_plus'].fillna(0)
     # previsión de su nivel en playoffs a partir de su carrera en liga regular
     X = C[['PROD_career', 'EFIC_career', 'IMPACTO_career']].copy()
     X = X.fillna(X.median())
-    fit = (C['po_w'] >= 1500) & C['Q_raw'].notna()
+    fit = (C['po_w'] >= 1500) & C['Q_peak'].notna()
     A = np.column_stack([np.ones(fit.sum()), X[fit].values])
-    beta, *_ = np.linalg.lstsq(A, C.loc[fit, 'Q_raw'].values, rcond=None)
+    beta, *_ = np.linalg.lstsq(A, C.loc[fit, 'Q_peak'].values, rcond=None)
     C['po_prior'] = np.column_stack([np.ones(len(C)), X.values]) @ beta
-    r2 = 1 - ((C.loc[fit, 'Q_raw'] - C.loc[fit, 'po_prior']) ** 2).sum() / \
-        ((C.loc[fit, 'Q_raw'] - C.loc[fit, 'Q_raw'].mean()) ** 2).sum()
+    r2 = 1 - ((C.loc[fit, 'Q_peak'] - C.loc[fit, 'po_prior']) ** 2).sum() / \
+        ((C.loc[fit, 'Q_peak'] - C.loc[fit, 'Q_peak'].mean()) ** 2).sum()
     print(f'  playoffs: previsión desde liga regular ajustada con {int(fit.sum())} jugadores (R²={r2:.2f})')
     # contracción: con pocos minutos manda la previsión; con muchos, lo que hizo de verdad
-    C['po_quality'] = ((C['po_w'] * C['Q_raw'].fillna(0) + SHRINK_K * C['po_prior'])
-                       / (C['po_w'] + SHRINK_K))
+    C['po_quality'] = ((C['po_wp'] * C['Q_peak'].fillna(0) + SHRINK_K * C['po_prior'])
+                       / (C['po_wp'] + SHRINK_K))
     C['po_volume'] = np.log1p(C['po_ws_f'].fillna(0).clip(lower=0))
     return C
 
@@ -212,7 +241,7 @@ def main():
     ps.to_pickle(OUT / 'playoff_seasons.pkl')
     print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
           f'hasta {int(ps.season.max())}')
-    C = playoff_career(ps, C)
+    C = playoff_career(ps, C, s)
 
     # ------------------------------------------------------------ ANILLOS Y FMVP
     C = C.merge(titles(ps, ch, adv_rs, s), on='player_id', how='left')
@@ -266,9 +295,10 @@ def main():
     B['IMPACTO'] = blk('IMPACTO_career')
     B['DEF'] = z(0.75 * blk('DEF_career')
                  + 0.25 * z(P['alldef_pts'] + 2.5 * P['dpoy_share']).fillna(0))
-    # Playoffs: 70 % nivel real (contraído hacia su previsión si jugó pocos minutos)
-    #           30 % volumen de aportación acumulada (Win Shares de playoffs)
-    B['PLAYOFFS'] = z(0.70 * z(P['po_quality']) + 0.30 * z(P['po_volume']))
+    # Playoffs: 55 % nivel en sus mejores 4.000 minutos (contraído si jugó pocos)
+    #           25 % plus: si crece o se encoge frente a su liga regular de ese año
+    #           20 % volumen de aportación acumulada (Win Shares de playoffs)
+    B['PLAYOFFS'] = z(0.55 * z(P['po_quality']) + 0.25 * z(P['po_plus']) + 0.20 * z(P['po_volume']))
     B['TITULOS'] = z(0.70 * z(P['ring_credit']) + 0.30 * z(P['fmvp']))
     B['PREMIOS'] = z(0.45 * z(P['mvp_share']) + 0.35 * z(P['allnba_pts'])
                      + 0.20 * z(P['allstar']))
@@ -298,7 +328,7 @@ def main():
     P['po_lift'] = P['po_ppg'] - P['rs_ppg']
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
               'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',
-              'po_ws', 'po_bpm', 'po_runs', 'po_w',
+              'po_ws', 'po_bpm', 'po_runs', 'po_w', 'po_plus',
               'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total',
               'rings', 'rings_as_best', 'ring_credit', 'fmvp', 'mvps',
               'mvp_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar',

@@ -77,7 +77,7 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 El glosario completo está en la propia página.
 
-**Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto por partido), se pondera por minutos y se suma el volumen de Win Shares. Con pocos minutos de playoffs, el resultado se acerca a lo que predice su temporada regular.
+**Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto). El bloque combina el nivel en sus mejores 4.000 minutos de playoffs (55 %), el plus de playoffs —si crece o se encoge frente a su liga regular de ese mismo año— (25 %) y el volumen de Win Shares (20 %). Con pocos minutos de playoffs, el nivel se acerca a lo que predice su temporada regular y el plus, a 0.
 
 **Límite:** antes de 1974 no hay BPM, y antes de 1952 no hay minutos. A cada jugador se le mide con lo que su época registró.
 

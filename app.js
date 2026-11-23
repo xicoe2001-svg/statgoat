@@ -45,7 +45,7 @@ es:{
     EFIC:'True Shooting relativo a la liga y control de pérdidas',
     IMPACTO:'PER, Win Shares por 48 y Box Plus/Minus',
     DEF:'DBPM, DWS/48, %robo, %tapón, %rebote defensivo, All-Defensivo y DPOY',
-    PLAYOFFS:'Producción, eficiencia e impacto en cada playoff, comparados con los demás jugadores de esos mismos playoffs',
+    PLAYOFFS:'Nivel en sus mejores 4.000 minutos de playoffs frente a los demás jugadores de esos playoffs, si crece o se encoge respecto a su liga regular, y aportación acumulada',
     TITULOS:'Anillos según la aportación real en cada carrera al título, y Finals MVP',
     PREMIOS:'Votos al MVP, All-NBA por nivel y All-Star'},
   presets:{base:'Base',imp:'Solo impacto',notit:'Sin títulos',po2:'Playoffs ×2',def2:'Defensa ×2',reg:'Solo temp. regular',hon:'Solo palmarés'},
@@ -57,7 +57,7 @@ es:{
   record:'RÉCORD', partial:'DATOS PARCIALES', seasonsShort:'temp.',
   card:{career:'CARRERA',active:'ACTIVO',seasons:'temporadas',games:'PARTIDOS',minutes:'MINUTOS',perGame:'partido',
     teams:'EQUIPOS',league:'LIGA',pg:'POR PARTIDO',pts:'PUNTOS',reb:'REBOTES',ast:'ASISTENCIAS',stl:'ROBOS',blk:'TAPONES',tov:'PÉRDIDAS',
-    po:'PLAYOFFS',poNone:'Nunca jugó playoffs.',poRuns:'temporadas',vsReg:'vs. liga regular',
+    po:'PLAYOFFS',poNone:'Nunca jugó playoffs.',poRuns:'temporadas',vsReg:'vs. liga regular',poPlus:'PLUS',plusUp:'crece en playoffs',plusDown:'baja en playoffs',plusEq:'rinde igual',
     effImp:'EFICIENCIA E IMPACTO',perAvg:'media liga 15,0',wsAvg:'media 0,100',off:'of.',def:'def.',
     pct:'PORCENTAJES EN PISTA',stlP:'ROBO %',blkP:'TAPÓN %',drbP:'REB. DEF. %',orbP:'REB. OF. %',astP:'ASIST. %',
     totals:'TOTALES DE CARRERA',honors:'PALMARÉS',rings:'ANILLOS',asBest:'como mejor de su equipo',
@@ -87,7 +87,8 @@ es:{
 <h3>LO QUE CALCULA ESTE ÍNDICE Y NO VIENE DE NINGUNA FUENTE</h3><dl class="gl">
 <dt>Puntuación</dt><dd>Suma de los siete bloques por sus pesos, reescalada de 0 a 97 dentro del grupo, más el bonus por totales. El primero marca 100. Es una escala relativa: dice quién está por delante y por cuánto, no un valor absoluto.</dd>
 <dt>Carrera</dt><dd>Cada bloque se resume como <code>40% media de las 3 mejores temporadas + 40% media de las 7 mejores + 20% acumulado</code>. Prioriza el rendimiento por partido: nadie sube por acumular temporadas mediocres. Solo cuentan las temporadas de 1.000+ minutos.</dd>
-<dt>Bloque de Playoffs</dt><dd>Cada temporada de playoffs se mide contra los demás jugadores de esos mismos playoffs: producción, eficiencia e impacto (PER, WS/48 y BPM). La nota de carrera es la media ponderada por minutos jugados (70%) más el volumen de Win Shares acumuladas en playoffs (30%).</dd>
+<dt>Bloque de Playoffs</dt><dd>Cada temporada de playoffs se mide contra los demás jugadores de esos mismos playoffs: producción, eficiencia e impacto (PER, WS/48 y BPM). La nota combina tres cosas: el nivel en sus mejores 4.000 minutos de playoffs (55%), igual que en liga regular cuentan las mejores temporadas; el plus de playoffs (25%); y las Win Shares acumuladas en playoffs (20%).</dd>
+<dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West.</dd>
 <dt>Bonus por totales</dt><dd>Hasta 3 puntos fuera de la ponderación para quien esté por encima del percentil 95 histórico en puntos, rebotes, asistencias, robos o tapones de carrera. Es la única vía por la que los acumulados entran en el índice.</dd>
@@ -130,7 +131,7 @@ en:{
     EFIC:'True Shooting relative to the league, plus ball security',
     IMPACTO:'PER, Win Shares per 48 and Box Plus/Minus',
     DEF:'DBPM, DWS/48, steal %, block %, defensive rebound %, All-Defensive teams and DPOY votes',
-    PLAYOFFS:'Production, efficiency and impact in each postseason, compared with the other players in those same playoffs',
+    PLAYOFFS:'Level over his best 4,000 playoff minutes against the other players in those playoffs, whether he rises or shrinks versus his regular season, and total contribution',
     TITULOS:'Rings weighted by real contribution to each title run, plus Finals MVPs',
     PREMIOS:'MVP votes, All-NBA selections by tier and All-Star nods'},
   presets:{base:'Default',imp:'Impact only',notit:'No titles',po2:'Playoffs ×2',def2:'Defense ×2',reg:'Regular season only',hon:'Honors only'},
@@ -142,7 +143,7 @@ en:{
   record:'RECORD', partial:'PARTIAL DATA', seasonsShort:'seasons',
   card:{career:'CAREER',active:'ACTIVE',seasons:'seasons',games:'GAMES',minutes:'MINUTES',perGame:'game',
     teams:'TEAMS',league:'LEAGUE',pg:'PER GAME',pts:'POINTS',reb:'REBOUNDS',ast:'ASSISTS',stl:'STEALS',blk:'BLOCKS',tov:'TURNOVERS',
-    po:'PLAYOFFS',poNone:'Never played in the playoffs.',poRuns:'seasons',vsReg:'vs. regular season',
+    po:'PLAYOFFS',poNone:'Never played in the playoffs.',poRuns:'seasons',vsReg:'vs. regular season',poPlus:'PLUS',plusUp:'rises in the playoffs',plusDown:'drops in the playoffs',plusEq:'holds steady',
     effImp:'EFFICIENCY & IMPACT',perAvg:'league avg 15.0',wsAvg:'avg 0.100',off:'off.',def:'def.',
     pct:'ON-COURT PERCENTAGES',stlP:'STEAL %',blkP:'BLOCK %',drbP:'DEF. REB. %',orbP:'OFF. REB. %',astP:'ASSIST %',
     totals:'CAREER TOTALS',honors:'HONORS',rings:'RINGS',asBest:'as his team’s best player',
@@ -172,7 +173,8 @@ en:{
 <h3>WHAT THIS INDEX CALCULATES ON ITS OWN</h3><dl class="gl">
 <dt>Score</dt><dd>The sum of the seven blocks times their weights, rescaled from 0 to 97 within the group, plus the totals bonus. The leader scores 100. It’s a relative scale: it tells you who’s ahead and by how much, not an absolute value.</dd>
 <dt>Career</dt><dd>Each block is summarized as <code>40% average of the 3 best seasons + 40% average of the 7 best + 20% cumulative</code>. Per-game performance comes first: nobody climbs by piling up mediocre seasons. Only seasons with 1,000+ minutes count.</dd>
-<dt>Playoffs block</dt><dd>Each postseason is measured against the other players in those same playoffs: production, efficiency and impact (PER, WS/48 and BPM). The career mark is the minutes-weighted average (70%) plus the volume of playoff Win Shares accumulated (30%).</dd>
+<dt>Playoffs block</dt><dd>Each postseason is measured against the other players in those same playoffs: production, efficiency and impact (PER, WS/48 and BPM). The mark combines three things: level over his best 4,000 playoff minutes (55%), just as the regular season counts his best seasons; the playoff plus (25%); and total playoff Win Shares (20%).</dd>
+<dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that prediction.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West.</dd>
 <dt>Totals bonus</dt><dd>Up to 3 points outside the weighting for anyone above the all-time 95th percentile in career points, rebounds, assists, steals or blocks. It’s the only way career totals enter the index.</dd>
@@ -390,6 +392,7 @@ function detail(p,o){
     <td>${nf(s[7])}</td></tr>`).join('');
 
   const lift = g('po')!=null&&g('ppg')!=null ? g('po')-g('ppg') : null;
+  const plus = g('poplus');
   const poCard = !g('pog')
     ? `<div class="card"><h4>${c.po}</h4><p class="pnote" style="margin-top:0">${c.poNone}</p></div>`
     : `<div class="card"><h4>${c.po}</h4><dl class="kv">
@@ -402,6 +405,7 @@ function detail(p,o){
       <dt>PER</dt><dd>${nf(g('poper'))}</dd>
       <dt>WS</dt><dd>${nf(g('pows'))}</dd>
       <dt>BPM</dt><dd>${nf(g('pobpm'))}</dd>
+      ${plus==null?'':`<dt>${c.poPlus}</dt><dd>${plus>=0?'+':'−'}${Math.abs(plus).toFixed(2)} <small>(${plus>=.1?c.plusUp:plus<=-.1?c.plusDown:c.plusEq})</small></dd>`}
     </dl></div>`;
 
   return `<tr class="det"><td colspan="4"><div class="dgrid">

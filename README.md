@@ -79,7 +79,7 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 **Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. El bonus por totales de carrera (hasta 3 puntos) es opcional y está desactivado por defecto: compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 
-**Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
+**Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. Títulos y premios se llevan a la escala de los bloques estadísticos por percentil, para que pesen lo que dicen sus porcentajes. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
 
 **Eficiencia:** puntos añadidos por eficiencia, `(TS% propio − TS% de su liga) × intentos` (70 %), y control de pérdidas (30 %). Mide eficiencia y volumen a la vez; se usa igual en liga regular y en playoffs.
 

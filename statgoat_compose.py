@@ -256,6 +256,15 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     t['b_PLAYOFFS'] = soft(z(0.55 * z(t['po_level']) + 0.25 * z(t['po_plus']) + 0.20 * z(t['po_vol'])))
     t['b_TITULOS'] = soft(z(0.70 * z(t['ring']) + 0.30 * z(t['fmvp'])))
     t['b_PREMIOS'] = soft(z(0.45 * z(t['mvp_share']) + 0.35 * z(t['anba']) + 0.20 * z(t['allstar'])))
+    # Títulos y premios: en una sola temporada casi todo son ceros y unos pocos
+    # valores enormes (un anillo salía a +6 desviaciones, más que la mejor
+    # temporada estadística de la historia). Así el palmarés pesaba un 37 % de la
+    # nota en el top 25 en vez de su 25 %. Se pasan a la misma escala que los
+    # bloques estadísticos: su percentil se lleva a esa misma distribución.
+    ref = np.concatenate([t['b_' + k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
+    for k in ['TITULOS', 'PREMIOS']:
+        pct = ((t['b_' + k].rank(method='average') - 0.5) / len(t)).clip(0, 1)
+        t['b_' + k] = np.quantile(ref, pct.values)
     W = {'PROD': .15, 'EFIC': .07, 'IMPACTO': .20, 'DEF': .13, 'PLAYOFFS': .20, 'TITULOS': .15, 'PREMIOS': .10}
     t['FULL'] = sum(t['b_' + k] * v for k, v in W.items())
     t = t.sort_values('FULL', ascending=False).reset_index(drop=True)

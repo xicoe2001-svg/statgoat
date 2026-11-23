@@ -77,7 +77,7 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 **Carrera:** cada bloque se resume como 40 % media de las 3 mejores temporadas + 40 % de las 7 mejores + 20 % acumulado. Antes de sumarlo, el acumulado se pasa a la misma escala que el pico a partir de su percentil histórico, para que cada porcentaje pese lo que dice (en bruto, el «20 %» llegaba a pesar la mitad en las carreras largas). Si un jugador tiene menos de 3 o de 7 temporadas computables, las que faltan cuentan como 0 (jugador medio de la liga).
 
-**Escala:** títulos y premios se llevan por percentil a la escala de los bloques estadísticos, para que los pesos signifiquen lo que dicen (antes el palmarés pesaba un 34 % en el top 10 en vez de su 25 %).
+**Escala:** títulos y premios se llevan por percentil a la escala de los bloques estadísticos, para que los pesos signifiquen lo que dicen (antes el palmarés pesaba un 34 % en el top 10 en vez de su 25 %). La escala es continua: el 0 queda en el percentil medio de su grupo y los demás se reparten desde ahí hasta arriba, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada. El anillo no cuenta para quien fue traspasado antes de los playoffs.
 
 **Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. El bonus por totales de carrera (hasta 3 puntos) es opcional y está desactivado por defecto: compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 
@@ -87,7 +87,7 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 El glosario completo está en la propia página.
 
-**Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto). El bloque combina el nivel en sus mejores 4.000 minutos de playoffs (55 %), el plus de playoffs —si crece o se encoge frente a su liga regular de ese mismo año— (25 %) y el volumen de Win Shares (20 %). Con pocos minutos de playoffs, el nivel se acerca a lo que predice su temporada regular y el plus, a 0.
+**Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto). El bloque combina el nivel en sus mejores 4.000 minutos de playoffs (80 %) y el volumen de Win Shares (20 %). Con pocos minutos de playoffs, el nivel se acerca a lo que predice su temporada regular. El plus de playoffs —si crece o se encoge frente a su liga regular de ese mismo año— se muestra en la ficha pero no puntúa: el nivel ya lo recoge, y sumarlo aparte castigaba a quien hacía una gran liga regular.
 
 **Límite:** antes de 1974 no hay BPM, y antes de 1952 no hay minutos. A cada jugador se le mide con lo que su época registró.
 

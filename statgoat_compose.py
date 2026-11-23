@@ -84,6 +84,25 @@ def read(path):
 
 
 # ------------------------------------------------------------------ playoffs
+def palmares_scale(v, ref):
+    """Lleva un bloque de palmarés a la escala de los bloques estadísticos, sin escalones.
+
+    Tres de cada cuatro jugadores tienen 0 en títulos o premios. Si se pasa todo
+    por percentil tal cual, el grupo del 0 queda en su percentil medio y el primer
+    valor por encima salta de golpe más de una desviación: un anillo sin jugar los
+    playoffs valía ~3 puntos de nota. Aquí el 0 sigue en su percentil medio y los
+    que tienen algo se reparten desde ahí hasta lo más alto: la escala es continua
+    (casi nada vale casi lo mismo que nada) y el máximo sigue arriba del todo.
+    """
+    v = pd.Series(np.asarray(v, dtype=float))
+    zero = np.isclose(v, v.min())
+    p0 = zero.mean()
+    pct = pd.Series(p0 / 2, index=v.index)
+    h = (v[~zero].rank(method='average') - 0.5) / max(int((~zero).sum()), 1)
+    pct[~zero] = p0 / 2 + h * (1 - p0 / 2)
+    return np.quantile(ref, pct.values)
+
+
 def playoff_seasons():
     tot, adv = read(CACHE / 'playoffs_totals.csv'), read(CACHE / 'playoffs_advanced.csv')
     if tot.empty:
@@ -253,7 +272,7 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     t['b_EFIC'] = soft(z(t['EFIC']))
     t['b_IMPACTO'] = soft(z(t['IMPACTO']))
     t['b_DEF'] = soft(z(0.75 * z(t['DEF']) + 0.25 * z(t['adef'] + 2.5 * t['dpoy_share'])))
-    t['b_PLAYOFFS'] = soft(z(0.55 * z(t['po_level']) + 0.25 * z(t['po_plus']) + 0.20 * z(t['po_vol'])))
+    t['b_PLAYOFFS'] = soft(z(0.80 * z(t['po_level']) + 0.20 * z(t['po_vol'])))
     t['b_TITULOS'] = soft(z(0.70 * z(t['ring']) + 0.30 * z(t['fmvp'])))
     t['b_PREMIOS'] = soft(z(0.45 * z(t['mvp_share']) + 0.35 * z(t['anba']) + 0.20 * z(t['allstar'])))
     # Títulos y premios: en una sola temporada casi todo son ceros y unos pocos
@@ -263,8 +282,7 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     # bloques estadísticos: su percentil se lleva a esa misma distribución.
     ref = np.concatenate([t['b_' + k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
     for k in ['TITULOS', 'PREMIOS']:
-        pct = ((t['b_' + k].rank(method='average') - 0.5) / len(t)).clip(0, 1)
-        t['b_' + k] = np.quantile(ref, pct.values)
+        t['b_' + k] = palmares_scale(t['b_' + k].values, ref)
     W = {'PROD': .15, 'EFIC': .07, 'IMPACTO': .20, 'DEF': .13, 'PLAYOFFS': .20, 'TITULOS': .15, 'PREMIOS': .10}
     t['FULL'] = sum(t['b_' + k] * v for k, v in W.items())
     t = t.sort_values('FULL', ascending=False).reset_index(drop=True)
@@ -302,6 +320,11 @@ def titles(ps, ch, adv_rs, s):
     rs_only = rs[[(a, b) in covered for a, b in rs[['season', 'team']].values]]
     rs_only = rs_only[~rs_only.set_index(['season', 'player_id']).index.isin(
         po.set_index(['season', 'player_id']).index)].copy()
+    # quien se fue traspasado a mitad de temporada no se lleva el anillo de ese equipo
+    rows = adv_rs[~adv_rs['team'].astype(str).str.contains('TM')]
+    last_team = rows.groupby(['season', 'player_id'])['team'].last()
+    rs_only = rs_only[[last_team.get((a, b)) == c
+                       for a, b, c in rs_only[['season', 'player_id', 'team']].values]].copy()
     rs_only['credit'] = 0.05
     rs_only['is_best'] = False
 
@@ -385,10 +408,13 @@ def main():
     B['IMPACTO'] = blk('IMPACTO_career')
     B['DEF'] = z(0.75 * blk('DEF_career')
                  + 0.25 * z(P['alldef_pts'] + 2.5 * P['dpoy_share']).fillna(0))
-    # Playoffs: 55 % nivel en sus mejores 4.000 minutos (contraído si jugó pocos)
-    #           25 % plus: si crece o se encoge frente a su liga regular de ese año
+    # Playoffs: 80 % nivel en sus mejores 4.000 minutos (contraído si jugó pocos)
     #           20 % volumen de aportación acumulada (Win Shares de playoffs)
-    B['PLAYOFFS'] = z(0.55 * z(P['po_quality']) + 0.25 * z(P['po_plus']) + 0.20 * z(P['po_volume']))
+    # El plus (crece o se encoge frente a su liga regular) se muestra en la ficha
+    # pero no puntúa: el nivel ya incluye lo que rindió de verdad, y sumar además
+    # la diferencia con lo esperado restaba nota a quien hacía una gran liga regular
+    # y premiaba a quien partía de una liga regular floja.
+    B['PLAYOFFS'] = z(0.80 * z(P['po_quality']) + 0.20 * z(P['po_volume']))
     B['TITULOS'] = z(0.70 * z(P['ring_credit']) + 0.30 * z(P['fmvp']))
     B['PREMIOS'] = z(0.45 * z(P['mvp_share']) + 0.35 * z(P['allnba_pts'])
                      + 0.20 * z(P['allstar']))
@@ -416,8 +442,7 @@ def main():
     # su percentil se convierte en el mismo percentil de esa distribución.
     ref = np.concatenate([B[k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
     for k in ['TITULOS', 'PREMIOS']:
-        pct = ((B[k].rank(method='average') - 0.5) / len(B)).clip(0, 1)
-        B[k] = np.quantile(ref, pct.values)
+        B[k] = palmares_scale(B[k].values, ref)
     B['raw'] = sum(B[k] * v for k, v in W.items())
     lo, hi = B['raw'].min(), B['raw'].max()
     # La nota por defecto no lleva el bonus por totales: los totales en bruto

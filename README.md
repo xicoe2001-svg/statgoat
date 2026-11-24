@@ -79,7 +79,9 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 **Escala:** títulos y premios se llevan por percentil a la escala de los bloques estadísticos, para que los pesos signifiquen lo que dicen (antes el palmarés pesaba un 34 % en el top 10 en vez de su 25 %). La escala es continua: el 0 queda en el percentil medio de su grupo y los demás se reparten desde ahí hasta arriba, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada. El anillo no cuenta para quien fue traspasado antes de los playoffs.
 
-**Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. Margen de puesto: 2.000 sorteos de pesos alrededor de los de base (Dirichlet de concentración 50) dan el rango de puestos (percentiles 10-90) de cada jugador, que se muestra en su ficha.
+**Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. Ficha desplegable: `export_web.py` escribe un archivo por jugador en `det/` (temporadas bloque a bloque, playoffs, anillos con su valor y premios año a año) que la web descarga al abrir la ficha, para que la página siga pesando lo mismo.
+
+Margen de puesto: 2.000 sorteos de pesos alrededor de los de base (Dirichlet de concentración 50) dan el rango de puestos (percentiles 10-90) de cada jugador, que se muestra en su ficha.
 
 El bonus por totales de carrera es opcional y está desactivado por defecto. Da puntos por el puesto histórico en puntos, rebotes, asistencias, robos, tapones o triples (1.º = 3 · 2.º = 2,4 · 3.º = 1,8 · 4.º = 1,2 · 5.º = 0,6; cuenta solo la mejor categoría). No va en la nota por defecto porque compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 

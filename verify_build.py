@@ -54,6 +54,13 @@ check(pos.isin(['PG', 'SG', 'SF', 'PF', 'C']).mean() > 0.9, f"posiciones: {pos.i
 mg = R.set_index('player_id')
 check(mg.loc['jordami01', 'rank_p10'] == 1 and (mg['rank_p10'] <= mg['rank']).all() and (mg['rank_p90'] >= mg['rank']).all(),
       f"margen de puesto coherente (Jordan n.º 1 en el {mg.loc['jordami01', 'rank_top1']:.0%} de las ponderaciones)")
+DETD = ROOT / 'det'
+nd = len(list(DETD.glob('*.json'))) if DETD.exists() else 0
+check(nd == len(R), f'detalle de ficha: {nd} archivos en det/ para {len(R)} jugadores')
+if (DETD / 'jordami01.json').exists():
+    jd = json.loads((DETD / 'jordami01.json').read_text())
+    check(len(jd.get('r', [])) == 6 and sum(x[5] for x in jd['r']) == 6 and len(jd.get('s', [])) >= 15,
+          'detalle de Jordan: 6 anillos, 6 MVP de las Finales y sus 15 temporadas')
 bt = R.set_index('player_id')['BONUS_TOTALES']
 check(all(bt.get(p, 0) == 3 for p in ['jamesle01', 'curryst01', 'stockjo01']),
       'bonus: LeBron (puntos), Curry (triples) y Stockton (asistencias) tienen récord')

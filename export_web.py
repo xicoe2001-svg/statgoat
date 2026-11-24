@@ -140,3 +140,98 @@ payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn
 raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 open(OUT / 'all.min.json', 'w').write(raw)
 print('jugadores:', len(data), '| temporadas exportadas:', len(sdata), 'de', len(T), '| KB:', round(len(raw) / 1024, 1))
+
+# ------------------------------------------------------------ detalle por jugador
+# Un archivo pequeño por jugador (det/<id>.json) que la web descarga al abrir su
+# ficha: temporadas bloque a bloque, playoffs, anillos y premios año a año.
+# Solo lleva datos estables (temporadas, crédito de cada anillo, votaciones), así
+# que cada lunes cambian los archivos de los jugadores en activo, no todos.
+DET = ROOT / 'det'
+DET.mkdir(exist_ok=True)
+C0 = pd.read_pickle(OUT / 'careers_raw.pkl').set_index('player_id')
+PS = pd.read_pickle(OUT / 'playoff_seasons.pkl')
+RG = pd.read_pickle(OUT / 'rings.pkl')
+SRC = pd.read_pickle(OUT / 'awards_src.pkl')
+AW, EOS, AST, FMV = SRC['aw'], SRC['eos'], SRC['astar'], SRC['fmv']
+RI = R.set_index('player_id')
+
+
+def rn(x, n=2):
+    return None if x is None or (isinstance(x, float) and not np.isfinite(x)) or pd.isna(x) else round(float(x), n)
+
+
+mvp = AW[AW.award.isin(['nba mvp', 'aba mvp'])].copy()
+mvp['rk'] = mvp.groupby(['season', 'award'])['share'].rank(ascending=False, method='min')
+dpo = AW[AW.award == 'nba dpoy']
+tier = {'1st': 1, '2nd': 2, '3rd': 3}
+anb = EOS[EOS.type.isin(['All-NBA', 'All-ABA', 'All-BAA'])]
+adf = EOS[EOS.type == 'All-Defense']
+fset = set(zip(FMV.season, FMV.player_id))
+
+g_s = {k: v for k, v in s.groupby('player_id')}
+g_ps = {k: v for k, v in PS.groupby('player_id')}
+g_rg = {k: v for k, v in RG.groupby('player_id')}
+g_mvp = {k: v for k, v in mvp.groupby('player_id')}
+g_dpo = {k: v for k, v in dpo.groupby('player_id')}
+g_anb = {k: v for k, v in anb.groupby('player_id')}
+g_adf = {k: v for k, v in adf.groupby('player_id')}
+g_ast = {k: set(v.season) for k, v in AST.groupby('player_id')}
+
+keep_ids, written, total_kb = set(), 0, 0.0
+for pid in R['player_id']:
+    keep_ids.add(pid)
+    d = {}
+    ss = g_s.get(pid)
+    if ss is not None:
+        ss = ss.sort_values('season')
+        d['s'] = [[int(r.season), str(r.team), r.lg, rn(r.g, 0), rn(r.mp, 0), int(bool(r.countable)),
+                   rn(r.PROD), rn(r.EFIC), rn(r.IMPACTO), rn(r.DEF),
+                   rn(r.pts_per_game, 1), rn(r.trb_per_game, 1), rn(r.ast_per_game, 1),
+                   rn(r.stl_per_game, 1), rn(r.blk_per_game, 1),
+                   rn(r.ts_percent, 3), rn(r.tsa, 1), rn(r.tov_percent, 1),
+                   rn(r.per, 1), rn(r.ws_48, 3), rn(r.bpm, 1),
+                   rn(r.dbpm, 1), rn(r.dws_48, 3), rn(r.stl_percent, 1), rn(r.blk_percent, 1), rn(r.drb_percent, 1)]
+                  for r in ss.itertuples()]
+    if pid in C0.index:
+        c = C0.loc[pid]
+        d['c'] = {k: [rn(c[k + '_peak']), rn(c[k + '_prime']), rn(c[k + '_sustain_z']), rn(c[k + '_career'])]
+                  for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']}
+    pp = g_ps.get(pid)
+    if pp is not None:
+        pp = pp.sort_values('season')
+        d['po'] = [[int(r.season), str(r.team), rn(r.g, 0), rn(r.mp, 0), rn(r.pts_pg, 1), rn(r.trb_pg, 1),
+                    rn(r.ast_pg, 1), rn(r.bpm, 1), rn(r.ws_f, 1), rn(r.PO_SEASON)] for r in pp.itertuples()]
+        q = RI.loc[pid]
+        d['pq'] = [rn(q['Q_peak']), rn(q['po_prior']), rn(q['po_quality']), rn(q['po_wp'], 0), rn(q['po_ws_f'], 1)]
+    rg = g_rg.get(pid)
+    if rg is not None:
+        rg = rg.sort_values('season')
+        d['r'] = [[int(r.season), str(r.team), rn(r.share, 3), rn(r.credit), int(bool(r.is_best)),
+                   int((r.season, pid) in fset)] for r in rg.itertuples()]
+    fm_only = sorted(y for (y, p) in fset if p == pid and (rg is None or y not in set(rg.season)))
+    if fm_only:
+        d['fm'] = [int(y) for y in fm_only]          # Finals MVP sin anillo (West 1969)
+    years = {}
+    def slot(y):
+        return years.setdefault(int(y), [int(y), None, None, 0, 0, 0, 0, None, 0])
+    for r in (g_mvp.get(pid) if pid in g_mvp else pd.DataFrame()).itertuples():
+        a = slot(r.season); a[1], a[2], a[3] = int(r.rk), rn(r.share, 3), int(bool(r.winner))
+    for r in (g_anb.get(pid) if pid in g_anb else pd.DataFrame()).itertuples():
+        slot(r.season)[4] = tier.get(r.number_tm, 3)
+    for r in (g_adf.get(pid) if pid in g_adf else pd.DataFrame()).itertuples():
+        slot(r.season)[5] = tier.get(r.number_tm, 2)
+    for y in g_ast.get(pid, ()):
+        slot(y)[6] = 1
+    for r in (g_dpo.get(pid) if pid in g_dpo else pd.DataFrame()).itertuples():
+        a = slot(r.season); a[7], a[8] = rn(r.share, 3), int(bool(r.winner))
+    if years:
+        d['a'] = [years[y] for y in sorted(years)]
+    txt = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
+    f = DET / f'{pid}.json'
+    total_kb += len(txt) / 1024
+    if not f.exists() or f.read_text() != txt:
+        f.write_text(txt); written += 1
+for f in DET.glob('*.json'):
+    if f.stem not in keep_ids:
+        f.unlink()
+print(f'detalle: {len(keep_ids)} fichas en det/ ({written} actualizadas) | {total_kb / 1024:.1f} MB')

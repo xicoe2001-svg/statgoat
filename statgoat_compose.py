@@ -328,10 +328,13 @@ def titles(ps, ch, adv_rs, s):
     rs_only['credit'] = 0.05
     rs_only['is_best'] = False
 
-    allr = pd.concat([po[['season', 'player_id', 'credit', 'is_best']],
-                      fb[['season', 'player_id', 'credit', 'is_best']] if len(fb) else None,
-                      rs_only[['season', 'player_id', 'credit', 'is_best']]], ignore_index=True)
+    rs_only['share'] = np.nan
+    if len(fb):
+        fb['share'] = np.nan
+    cols = ['season', 'lg', 'team', 'player_id', 'credit', 'is_best', 'share']
+    allr = pd.concat([po[cols], fb[cols] if len(fb) else None, rs_only[cols]], ignore_index=True)
     allr = allr.sort_values('credit', ascending=False).drop_duplicates(['season', 'player_id'])
+    allr.to_pickle(OUT / 'rings.pkl')                    # anillo a anillo, para la ficha
     allr['best_i'] = allr['is_best'].astype(int)
     return allr.groupby('player_id').agg(rings=('season', 'nunique'), ring_credit=('credit', 'sum'),
                                          rings_as_best=('best_i', 'sum')).reset_index()
@@ -347,6 +350,7 @@ def main():
     astar = pd.read_csv(BREF / 'All-Star Selections.csv')
     ch = pd.read_csv(ROOT / 'champions.csv')
     fmv = pd.read_csv(ROOT / 'finals_mvp.csv')
+    pd.to_pickle({'aw': aw, 'eos': eos, 'astar': astar, 'fmv': fmv}, OUT / 'awards_src.pkl')  # para la ficha
 
     # ------------------------------------------------------------ PLAYOFFS
     ps = playoff_seasons()
@@ -471,7 +475,7 @@ def main():
     P['po_lift'] = P['po_ppg'] - P['rs_ppg']
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
               'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',
-              'po_ws', 'po_bpm', 'po_runs', 'po_w', 'po_plus',
+              'po_ws', 'po_bpm', 'po_runs', 'po_w', 'po_plus', 'Q_peak', 'po_prior', 'po_quality', 'po_wp', 'po_ws_f',
               'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total', 'pos',
               'rings', 'rings_as_best', 'ring_credit', 'fmvp', 'mvps',
               'mvp_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar',

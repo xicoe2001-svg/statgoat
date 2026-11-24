@@ -51,6 +51,9 @@ check(all(pos.get(k) == v for k, v in {'jordami01': 'SG', 'johnsma02': 'PG', 'bi
                                         'malonka01': 'PF', 'abdulka01': 'C'}.items()),
       'posiciones: Jordan SG, Magic PG, Bird SF, Malone PF, Kareem C')
 check(pos.isin(['PG', 'SG', 'SF', 'PF', 'C']).mean() > 0.9, f"posiciones: {pos.isin(['PG','SG','SF','PF','C']).mean():.0%} de jugadores con posición")
+mg = R.set_index('player_id')
+check(mg.loc['jordami01', 'rank_p10'] == 1 and (mg['rank_p10'] <= mg['rank']).all() and (mg['rank_p90'] >= mg['rank']).all(),
+      f"margen de puesto coherente (Jordan n.º 1 en el {mg.loc['jordami01', 'rank_top1']:.0%} de las ponderaciones)")
 bt = R.set_index('player_id')['BONUS_TOTALES']
 check(all(bt.get(p, 0) == 3 for p in ['jamesle01', 'curryst01', 'stockjo01']),
       'bonus: LeBron (puntos), Curry (triples) y Stockton (asistencias) tienen récord')
@@ -63,6 +66,11 @@ smax = int(info.get('season_max', 0))
 last_done = smax - 1            # última temporada con playoffs y premios ya terminados
 check(smax >= 2027, f'la fuente de temporada regular llega a la temporada en curso ({smax})')
 check(info.get('bref_files', 0) >= 15, f'la fuente trae los ficheros esperados ({info.get("bref_files")})')
+flog_p = ROOT / 'cache' / 'fetch_log.json'
+rc = json.loads(flog_p.read_text()).get('rs_current', {}) if flog_p.exists() else {}
+check(rc.get('season', 0) >= smax,
+      f"liga regular en curso leída de Basketball-Reference: temporada {rc.get('season', '—')}, "
+      f"hasta {rc.get('max_g', '—')} partidos ({str(rc.get('at', '—'))[:10]})")
 
 tot = read(ROOT / 'cache' / 'playoffs_totals.csv')
 eds = tot[['season', 'lg']].drop_duplicates() if not tot.empty else pd.DataFrame(columns=['season', 'lg'])

@@ -9,6 +9,9 @@ Descarga de Basketball-Reference, respetando su límite de velocidad:
      y finals_mvp.csv (se añaden solos).
   3. Votaciones de premios y equipos All-NBA / All-Defensive / All-Rookie de las
      temporadas que el volcado todavía no incluye.
+  4. Liga regular de la temporada en curso (totales y avanzadas): el volcado va
+     con semanas de retraso, así que se lee cada lunes y el pipeline la usa en
+     lugar de la del volcado cuando trae más partidos.
 
 Si Basketball-Reference bloquea o falla, se conserva lo que ya hay en cache/ y
 verify_build.py decide si los datos siguen siendo lo bastante recientes.
@@ -41,6 +44,8 @@ PO_TOT = CACHE / 'playoffs_totals.csv'
 PO_ADV = CACHE / 'playoffs_advanced.csv'
 AW_EXTRA = CACHE / 'awards_extra.csv'
 EOS_EXTRA = CACHE / 'eos_extra.csv'
+RS_TOT = CACHE / 'rs_current_totals.csv'
+RS_ADV = CACHE / 'rs_current_advanced.csv'
 CHAMPS = ROOT / 'champions.csv'
 FMVP = ROOT / 'finals_mvp.csv'
 
@@ -53,6 +58,7 @@ ADV_COLS = {'Tm': 'team', 'Team': 'team', 'G': 'g', 'MP': 'mp', 'PER': 'per', 'T
             'STL%': 'stl_percent', 'BLK%': 'blk_percent', 'TOV%': 'tov_percent', 'USG%': 'usg_percent',
             'OWS': 'ows', 'DWS': 'dws', 'WS': 'ws', 'WS/48': 'ws_48', 'OBPM': 'obpm', 'DBPM': 'dbpm',
             'BPM': 'bpm', 'VORP': 'vorp'}
+RS_ADV_COLS = {**ADV_COLS, 'Pos': 'pos', 'Age': 'age', 'GS': 'gs'}
 AWARD_KEYS = [('Most Valuable Player', 'nba mvp'), ('Rookie of the Year', 'nba roy'),
               ('Defensive Player of the Year', 'nba dpoy'), ('Sixth Man', 'nba smoy'),
               ('Most Improved', 'nba mip'), ('Clutch Player', 'nba clutch_poy')]
@@ -304,6 +310,32 @@ def main():
         log['pages'][key] = {'status': status, 'at': now, **({'rows': rows} if rows is not None else {})}
 
     try:
+        # -------------------------------------------- 0. liga regular en curso
+        today = datetime.now(timezone.utc)
+        cur = today.year + 1 if today.month >= 9 else today.year
+        for season in sorted({smax, cur}):
+            for kind, colmap, need, path in [
+                    ('totals', TOT_COLS, {'Player', 'G', 'PTS'}, RS_TOT),
+                    ('advanced', RS_ADV_COLS, {'Player', 'PER', 'WS'}, RS_ADV)]:
+                key = f'leagues/NBA_{season}_{kind}'
+                raw = cli.get(f'/leagues/NBA_{season}_{kind}.html')
+                if raw is None:
+                    mark(key, 'missing'); continue          # temporada aún sin empezar
+                rows = parse_player_stats(raw, colmap, need)
+                if len(rows) < 100:
+                    mark(key, 'parse_error', len(rows)); stats['parse_error'] += 1
+                    print(f'  AVISO {key}: solo {len(rows)} filas leídas, no se toca la caché')
+                    continue
+                for r in rows:
+                    r['season'], r['lg'] = season, 'NBA'
+                upsert(path, rows, ['season', 'lg'])
+                mark(key, 'ok', len(rows)); stats['ok'] += 1
+                if kind == 'totals':
+                    log['rs_current'] = {'season': season, 'rows': len(rows), 'at': now,
+                                         'max_g': int(max((r.get('g') or 0) for r in rows))}
+                    print(f'  liga regular {season}: {len(rows)} filas, hasta '
+                          f'{log["rs_current"]["max_g"]} partidos por jugador')
+
         # -------------------------------------------- 1. estadísticas de playoffs
         tot, advp = load(PO_TOT), load(PO_ADV)
         have_tot = set(map(tuple, tot[['season', 'lg']].drop_duplicates().values)) if not tot.empty else set()

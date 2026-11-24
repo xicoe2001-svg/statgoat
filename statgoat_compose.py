@@ -454,6 +454,20 @@ def main():
     B['BASE'] = (100 * (B['raw'] - lo) / (hi - lo)).round(2)
     B['STATGOAT'] = B['BASE']
 
+    # Margen de puesto: entre qué puestos se mueve cada jugador si los pesos por
+    # defecto cambian un poco. 2.000 sorteos de pesos alrededor de los de base
+    # (Dirichlet de concentración 50: un peso del 15 % se mueve unos ±5 puntos)
+    # y se guardan los percentiles 10 y 90 de sus puestos. Si los márgenes de dos
+    # jugadores se solapan, quién va delante depende de cómo se pondere.
+    keys = list(W)
+    rng = np.random.default_rng(2026)
+    Wd = rng.dirichlet(np.array([W[k] for k in keys]) * 50, size=2000)
+    sc = B[keys].to_numpy(float) @ Wd.T                       # jugadores x sorteos
+    rk = (-sc).argsort(axis=0).argsort(axis=0) + 1
+    B['rank_p10'] = np.percentile(rk, 10, axis=1).round().astype('int64')
+    B['rank_p90'] = np.percentile(rk, 90, axis=1).round().astype('int64')
+    B['rank_top1'] = (rk == 1).mean(axis=1).round(3)
+
     P['po_lift'] = P['po_ppg'] - P['rs_ppg']
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
               'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',

@@ -39,7 +39,46 @@ def load():
     tpg = pd.read_csv(D / 'bref' / 'Team Stats Per Game.csv')
     tabb = pd.read_csv(D / 'bref' / 'Team Abbrev.csv')
     career = pd.read_csv(D / 'bref' / 'Player Career Info.csv')
+    adv, pg, tot = current_season(adv, pg, tot)
     return adv, pg, tot, aw, eos, astar, tsum, tpg, tabb, career
+
+
+def current_season(adv, pg, tot):
+    """La liga regular de la temporada en curso, leída cada lunes de
+    Basketball-Reference (fetch_bref_extra.py), sustituye a la del volcado
+    cuando trae más partidos. El resto de temporadas sale del volcado."""
+    ct, ca = ROOT / 'cache' / 'rs_current_totals.csv', ROOT / 'cache' / 'rs_current_advanced.csv'
+    if not (ct.exists() and ca.exists()):
+        return adv, pg, tot
+    T, A = pd.read_csv(ct), pd.read_csv(ca)
+    div = lambda x, y: (x / y).where(y > 0)
+    for season in sorted(set(T['season']) & set(A['season'])):
+        t = T[T['season'] == season].copy()
+        a = A[A['season'] == season].copy()
+        old = tot[(tot['season'] == season) & (tot['lg'] == 'NBA')]
+        if len(t) < 100 or len(a) < 100 or t['g'].sum() <= old['g'].sum():
+            continue
+        t['lg'] = a['lg'] = 'NBA'
+        # totales, con los porcentajes que trae el volcado
+        t['x2p'], t['x2pa'] = t['fg'] - t['x3p'], t['fga'] - t['x3pa']
+        t['fg_percent'], t['x3p_percent'] = div(t['fg'], t['fga']), div(t['x3p'], t['x3pa'])
+        t['x2p_percent'], t['ft_percent'] = div(t['x2p'], t['x2pa']), div(t['ft'], t['fta'])
+        t['e_fg_percent'] = div(t['fg'] + 0.5 * t['x3p'], t['fga'])
+        # por partido
+        p = t.copy()
+        for c in ['mp', 'fg', 'fga', 'x3p', 'x3pa', 'x2p', 'x2pa', 'ft', 'fta', 'orb', 'drb', 'trb',
+                  'ast', 'stl', 'blk', 'tov', 'pf', 'pts']:
+            p[c + '_per_game'] = div(p[c], p['g'])
+        # avanzadas: tasas de tiro calculadas desde los totales
+        a = a.merge(t[['player_id', 'team', 'x3pa', 'fga', 'fta']], on=['player_id', 'team'], how='left')
+        a['x3p_ar'], a['f_tr'] = div(a['x3pa'], a['fga']), div(a['fta'], a['fga'])
+        drop = lambda df: df[~((df['season'] == season) & (df['lg'] == 'NBA'))]
+        tot = pd.concat([drop(tot), t.reindex(columns=tot.columns)], ignore_index=True)
+        pg = pd.concat([drop(pg), p.reindex(columns=pg.columns)], ignore_index=True)
+        adv = pd.concat([drop(adv), a.reindex(columns=adv.columns)], ignore_index=True)
+        print(f'  liga regular {season}: Basketball-Reference ({len(t)} filas, hasta {int(t["g"].max())} '
+              f'partidos) en lugar del volcado ({len(old)} filas, hasta {int(old["g"].max()) if len(old) else 0})')
+    return adv, pg, tot
 
 
 def dedupe_multiteam(df):

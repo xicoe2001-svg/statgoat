@@ -77,6 +77,7 @@ button{font-family:Archivo;font-size:11.5px;font-weight:600;letter-spacing:.03em
 button:hover{background:var(--ink);color:var(--line)}
 button[aria-pressed=true]{background:var(--key);border-color:var(--key);color:#fff}
 button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
+.share{margin-top:10px}
 .tog{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:13px;color:var(--ink-soft)}
 .tog input{accent-color:var(--key);width:15px;height:15px}
 .live{border-left:1px solid var(--grain);padding-left:22px}
@@ -214,6 +215,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
     <div class="chead"><b data-i18n="c_weights">PESOS</b><span id="wsum"></span></div>
     <div id="sliders"></div>
     <div class="presets" id="presets"></div>
+    <button type="button" class="share" id="share"><span data-i18n="share">Copiar enlace a esta vista</span></button>
     <label class="tog"><input type="checkbox" id="bonus"> <span data-i18n="bonus">Sumar bonus por totales extraordinarios (máx. 3 pts)</span></label>
   </div>
   <div class="live">

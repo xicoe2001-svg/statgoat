@@ -22,7 +22,7 @@ Si una fuente falla o alguna verificación no pasa, **el workflow aborta y la we
 
 ### De dónde sale cada dato
 
-- **Temporada regular:** volcado público de Basketball-Reference (`sumitrodatta/bball-reference-datasets`).
+- **Temporada regular:** volcado público de Basketball-Reference (`sumitrodatta/bball-reference-datasets`). La temporada en curso se lee cada lunes directamente de Basketball-Reference, porque el volcado va con semanas de retraso.
 - **Playoffs, campeones, Finals MVP y premios recientes:** directamente de las páginas de Basketball-Reference, con `fetch_bref_extra.py`. Va despacio a propósito (una petición cada 4 segundos, muy por debajo de su límite) y guarda todo en `cache/`, así que cada lunes solo vuelve a pedir la temporada en curso y la anterior.
 
 La primera ejecución descarga la historia entera de playoffs (unos 12 minutos). Las siguientes, menos de un minuto.
@@ -79,7 +79,9 @@ Siete bloques ponderables: Producción 15%, Eficiencia 7%, Impacto 20%, Defensa 
 
 **Escala:** títulos y premios se llevan por percentil a la escala de los bloques estadísticos, para que los pesos signifiquen lo que dicen (antes el palmarés pesaba un 34 % en el top 10 en vez de su 25 %). La escala es continua: el 0 queda en el percentil medio de su grupo y los demás se reparten desde ahí hasta arriba, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada. El anillo no cuenta para quien fue traspasado antes de los playoffs.
 
-**Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. El bonus por totales de carrera es opcional y está desactivado por defecto. Da puntos por el puesto histórico en puntos, rebotes, asistencias, robos, tapones o triples (1.º = 3 · 2.º = 2,4 · 3.º = 1,8 · 4.º = 1,2 · 5.º = 0,6; cuenta solo la mejor categoría). No va en la nota por defecto porque compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
+**Puntuación:** suma de los siete bloques por sus pesos, de 0 a 100. Margen de puesto: 2.000 sorteos de pesos alrededor de los de base (Dirichlet de concentración 50) dan el rango de puestos (percentiles 10-90) de cada jugador, que se muestra en su ficha.
+
+El bonus por totales de carrera es opcional y está desactivado por defecto. Da puntos por el puesto histórico en puntos, rebotes, asistencias, robos, tapones o triples (1.º = 3 · 2.º = 2,4 · 3.º = 1,8 · 4.º = 1,2 · 5.º = 0,6; cuenta solo la mejor categoría). No va en la nota por defecto porque compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 
 **Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. Títulos y premios se llevan a la escala de los bloques estadísticos por percentil, para que pesen lo que dicen sus porcentajes. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
 
@@ -93,7 +95,7 @@ El glosario completo está en la propia página.
 
 ## Fuentes
 
-- Basketball-Reference: temporada regular vía el volcado público de `sumitrodatta/bball-reference-datasets`; playoffs, campeones y premios recientes, de sus páginas.
+- Basketball-Reference: temporada regular vía el volcado público de `sumitrodatta/bball-reference-datasets` (la temporada en curso, de sus páginas cada lunes); playoffs, campeones y premios recientes, de sus páginas.
 
 Si reutilizas esto, cítala.
 

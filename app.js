@@ -33,13 +33,15 @@ es:{
   sfilters:{all:'Todas',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
   pos:{all:'Todas las posiciones',PG:'Bases',SG:'Escoltas',SF:'Aleros',PF:'Ala-pívots',C:'Pívots'},
   posOne:{PG:'Base',SG:'Escolta',SF:'Alero',PF:'Ala-pívot',C:'Pívot'},posLab:'POSICIÓN',
+  share:'Copiar enlace a esta vista',copied:'Enlace copiado ✓',margin:'MARGEN DE PUESTO',
+  marginNote:'con pesos parecidos a los de base',top1:n=>`n.º 1 en el ${n} % de las ponderaciones`,
   scount:(a,b)=>`${a} de ${b} temporadas`, smore:n=>`Ver más temporadas (${n} restantes)`,
   tag:{mvp:'MVP',dpoy:'DPOY',ring:'Anillo',fmvp:'MVP Finales'},
   sd:{rs:'LIGA REGULAR',po:'PLAYOFFS',aw:'PREMIOS',none:'No jugó playoffs ese año.',games:'PARTIDOS',ppg:'PUNTOS',mvpv:'de los votos',anba:'ALL-NBA',as:'ALL-STAR',ring:'ANILLO',fmvp:'MVP FINALES',yes:'Sí',no:'No',
       note:n=>`Desviaciones típicas frente a las ${n} temporadas medibles desde 1951-52, con los pesos que tengas puestos.`},
   cr_h:'Fuentes y atribución',
   cr_br_h:'Basketball-Reference · temporada regular',
-  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, 1947–${SMAX}, a través del volcado público de Sumitro Datta.`,
+  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, 1947–${SMAX}, a través del volcado público de Sumitro Datta. La liga regular de la temporada en curso se lee directamente de Basketball-Reference cada lunes.`,
   cr_po_h:'Basketball-Reference · playoffs y premios',
   cr_po:`Estadísticas de playoffs de cada temporada (totales y avanzadas), campeones, Finals MVP y las votaciones de premios más recientes, descargadas directamente cada lunes. Playoffs hasta ${BI.playoff_max||'—'}.`,
   cr_sg_h:'Índice STATGOAT',
@@ -101,6 +103,8 @@ es:{
 <dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0. Se muestra en la ficha pero no suma ni resta: el nivel en playoffs ya recoge lo que rindió de verdad, y contar aparte la diferencia con lo esperado restaba nota a quien hacía una gran liga regular y premiaba a quien partía de una floja.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión de nivel y sin volumen acumulado.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West. Quien estaba en la plantilla pero no jugó esos playoffs se lleva un crédito mínimo; quien fue traspasado antes, ninguno.</dd>
+<dt>Margen de puesto</dt><dd>Entre qué puestos se mueve un jugador si los pesos por defecto cambian un poco. Se sortean 2.000 combinaciones de pesos parecidas a las de base (un peso del 15 % se mueve unos ±5 puntos) y se muestra el rango donde cae su puesto en 8 de cada 10. Si los márgenes de dos jugadores se solapan, quién va delante depende de cómo se pondere, no de los datos: por ejemplo, Jordan es n.º 1 en un 79 % de las combinaciones y LeBron en un 15 %. Se calcula sobre los pesos por defecto, no sobre los que tengas puestos.</dd>
+<dt>Compartir</dt><dd>El botón «Copiar enlace a esta vista» copia una dirección con tus pesos, el bonus, la pestaña, los filtros y la ficha abierta: quien la abra verá exactamente lo mismo.</dd>
 <dt>Posición</dt><dd>La que más minutos jugó en su carrera según Basketball-Reference (en Mejores temporadas, la de ese año). Muchos cambian con los años: LeBron sale como alero y Duncan como ala-pívot porque es donde más minutos jugaron. Es solo un filtro: no cambia la nota. Con cualquier filtro activo, la lista y el top de la derecha numeran dentro del filtro y muestran al lado el puesto general. Los jugadores de 1947 a 1951 casi no tienen posición registrada y solo aparecen con «Todas las posiciones».</dd>
 <dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma puntos a quien esté en el top 5 histórico de una estadística de carrera: puntos, rebotes, asistencias, robos, tapones o triples (NBA, ABA y BAA juntas). El 1.º se lleva 3 puntos, el 2.º 2,4, el 3.º 1,8, el 4.º 1,2 y el 5.º 0,6. Cuenta solo su mejor categoría: dos terceros puestos no valen lo mismo que un récord. No va en la nota por defecto porque compara totales en bruto entre épocas (los robos y tapones se cuentan desde 1974, los triples desde 1980 y antes las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque. Los puestos se actualizan cada lunes.</dd>
 <dt>Mejores temporadas</dt><dd>La misma fórmula del índice aplicada a un solo año: liga regular (producción, eficiencia, impacto y defensa), los playoffs de ese año, el anillo según su aportación y los premios de esa temporada (MVP, DPOY, All-NBA, All-Star). Cada bloque se compara con todas las temporadas medibles y se pondera con los pesos que tengas puestos. Títulos y premios se pasan a la misma escala que la estadística a partir de su percentil: en un solo año casi todo son ceros, y sin esto un anillo pesaba más que la mejor temporada estadística de la historia. Solo entran temporadas desde 1951-52, cuando empiezan los minutos: antes no se pueden medir ni el impacto ni la defensa.</dd>
@@ -131,13 +135,15 @@ en:{
   sfilters:{all:'All',ring:'Title seasons',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
   pos:{all:'All positions',PG:'Point guards',SG:'Shooting guards',SF:'Small forwards',PF:'Power forwards',C:'Centers'},
   posOne:{PG:'Point guard',SG:'Shooting guard',SF:'Small forward',PF:'Power forward',C:'Center'},posLab:'POSITION',
+  share:'Copy link to this view',copied:'Link copied ✓',margin:'RANK RANGE',
+  marginNote:'with weights close to the default',top1:n=>`#1 in ${n}% of weightings`,
   scount:(a,b)=>`${a} of ${b} seasons`, smore:n=>`Show more seasons (${n} left)`,
   tag:{mvp:'MVP',dpoy:'DPOY',ring:'Title',fmvp:'Finals MVP'},
   sd:{rs:'REGULAR SEASON',po:'PLAYOFFS',aw:'AWARDS',none:'No playoffs that year.',games:'GAMES',ppg:'POINTS',mvpv:'vote share',anba:'ALL-NBA',as:'ALL-STAR',ring:'TITLE',fmvp:'FINALS MVP',yes:'Yes',no:'No',
       note:n=>`Standard deviations against the ${n} measurable seasons since 1951-52, with the weights you have set.`},
   cr_h:'Sources and attribution',
   cr_br_h:'Basketball-Reference · regular season',
-  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections, 1947–${SMAX}, through Sumitro Datta’s public data dump.`,
+  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections, 1947–${SMAX}, through Sumitro Datta’s public data dump. The current regular season is read straight from Basketball-Reference every Monday.`,
   cr_po_h:'Basketball-Reference · playoffs and awards',
   cr_po:`Playoff stats for every season (totals and advanced), champions, Finals MVPs and the latest award voting, downloaded directly every Monday. Playoffs through ${BI.playoff_max||'—'}.`,
   cr_sg_h:'STATGOAT index',
@@ -199,6 +205,8 @@ en:{
 <dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0. It’s shown on the player card but doesn’t add or subtract: playoff level already reflects what he really did, and counting the gap to expectations on top of it took points away from players with a great regular season and rewarded those starting from a weak one.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that predicted level, with no accumulated volume.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West. A player on the roster who didn’t play in those playoffs gets a minimal credit; one traded away earlier, none.</dd>
+<dt>Rank range</dt><dd>The ranks a player moves between if the default weights change a little. 2,000 weight combinations close to the default are drawn (a 15% weight moves about ±5 points) and the range shown is where his rank falls in 8 out of 10. If two players’ ranges overlap, who comes first depends on how you weigh things, not on the data: for example, Jordan is #1 in 79% of the combinations and LeBron in 15%. It’s computed on the default weights, not on the ones you’ve set.</dd>
+<dt>Sharing</dt><dd>The “Copy link to this view” button copies an address with your weights, the bonus, the tab, the filters and the open player card: whoever opens it sees exactly the same.</dd>
 <dt>Position</dt><dd>The one he played the most minutes at in his career, according to Basketball-Reference (in Best seasons, the one from that year). Many players change over the years: LeBron is listed as a small forward and Duncan as a power forward because that’s where they played the most minutes. It’s only a filter: it doesn’t change the score. With any filter on, the list and the top on the right are numbered within the filter and show the overall rank next to it. Players from 1947 to 1951 mostly have no recorded position and only show up under “All positions”.</dd>
 <dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds points for anyone in the all-time top 5 of a career stat: points, rebounds, assists, steals, blocks or threes (NBA, ABA and BAA combined). 1st place gets 3 points, 2nd 2.4, 3rd 1.8, 4th 1.2 and 5th 0.6. Only his best category counts: two third places aren’t worth a record. It isn’t in the default score because it compares raw totals across eras (steals and blocks have been counted since 1974, threes since 1980, and seasons used to be shorter) and because longevity already counts for 20% in every block. Rankings update every Monday.</dd>
 <dt>Best seasons</dt><dd>The index formula applied to a single year: regular season (production, efficiency, impact and defense), that year’s playoffs, the ring weighted by contribution and that season’s awards (MVP, DPOY, All-NBA, All-Star). Each block is compared with every measurable season and weighted with the weights you have set. Titles and awards are put on the same scale as the stats through their percentile: in a single year almost everything is zero, and without this a ring outweighed the best statistical season ever. Only seasons from 1951-52 on are included, when minutes start being recorded: before that, impact and defense can’t be measured.</dd>
@@ -385,6 +393,7 @@ function bindOnce(){
   document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
   $('#q').addEventListener('input',e=>{query=e.target.value;shown=CHUNK;sShown=CHUNK;applyView();renderTable();});
   $('#bonus').addEventListener('change',e=>{useBonus=e.target.checked;recalc();});
+  $('#share').onclick=share;
   $('#more').onclick=()=>{ if(mode==='seasons') sShown+=CHUNK*3; else shown+=CHUNK*3; renderTable();};
   document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 }
@@ -400,7 +409,64 @@ function setLang(l){
 }
 
 /* ---------- render ---------- */
-function recalc(){scored=score();sscored=scoreSeasons();applyView();renderTop();renderTable();}
+function recalc(){
+  const oi=openRk?scored[openRk-1]?.i:null;            // misma ficha abierta aunque cambie su puesto
+  scored=score(); sscored=scoreSeasons();
+  if(oi!=null) openRk=scored.find(o=>o.i===oi)?.rk||null;
+  applyView(); renderTop(); renderTable();
+}
+/* ---------- enlace: la dirección guarda pesos, filtros, pestaña y ficha abierta ---------- */
+function stateURL(){
+  const u=new URL(location.href), sp=u.searchParams;
+  const set=(k,v)=>{ if(v==null) sp.delete(k); else sp.set(k,v); };
+  set('w', BLOCKS.every(b=>W[b.k]===PRESETS.base[b.k])?null:BLOCKS.map(b=>W[b.k]).join('.'));
+  set('b', useBonus?'1':null);
+  set('t', mode==='seasons'?'s':null);
+  set('f', filter==='all'?null:filter);
+  set('sf', sFilter==='all'?null:sFilter);
+  set('pos', posF==='all'?null:posF);
+  const op=mode==='players'&&openRk?scored[openRk-1]:null;
+  set('p', op?get(op.p,'id'):null);
+  const os=mode==='seasons'&&openS!=null?S[openS]:null;
+  set('s', os?sg(os,'id')+'-'+sg(os,'y'):null);
+  sp.set('lang',LANG);
+  return u;
+}
+function syncURL(){ try{history.replaceState(null,'',stateURL());}catch(e){} }
+function readURL(){
+  let sp; try{sp=new URLSearchParams(location.search);}catch(e){return {};}
+  const w=(sp.get('w')||'').split('.').map(Number);
+  if(w.length===BLOCKS.length&&w.every(x=>Number.isFinite(x)&&x>=0&&x<=60)) BLOCKS.forEach((b,i)=>W[b.k]=w[i]);
+  if(sp.get('b')==='1'){ useBonus=true; $('#bonus').checked=true; }
+  if(FILTERS[sp.get('f')]) filter=sp.get('f');
+  if(SFILTERS[sp.get('sf')]) sFilter=sp.get('sf');
+  if(POSK.includes(sp.get('pos'))) posF=sp.get('pos');
+  return {seasons:sp.get('t')==='s', p:sp.get('p'), s:sp.get('s')};
+}
+function openFromURL(st){
+  if(st.p&&mode==='players'){
+    const o=scored.find(o=>get(o.p,'id')===st.p), idx=o?view.indexOf(o):-1;
+    if(idx>=0){ openRk=o.rk; shown=Math.max(shown,idx+5); renderTable(); }
+  }
+  const m=st.s&&mode==='seasons'?st.s.match(/^(.+)-(\d{4})$/):null;
+  if(m){
+    const i=S.findIndex(r=>sg(r,'id')===m[1]&&sg(r,'y')===+m[2]), idx=sview.findIndex(o=>o.i===i);
+    if(idx>=0){ openS=i; sShown=Math.max(sShown,idx+5); renderTable(); }
+  }
+  setTimeout(()=>document.querySelector('tr.open')?.scrollIntoView({block:'center'}),50);
+}
+async function share(){
+  syncURL();
+  const url=location.href, t=T(), lab=$('#share span');
+  if(navigator.share&&matchMedia('(pointer:coarse)').matches){
+    try{ await navigator.share({title:document.title,url}); }catch(e){}
+    return;
+  }
+  try{ await navigator.clipboard.writeText(url); }
+  catch(e){ const i=document.createElement('input'); i.value=url; document.body.appendChild(i); i.select();
+    try{document.execCommand('copy');}catch(_){} i.remove(); }
+  lab.textContent=t.copied; setTimeout(()=>{lab.textContent=T().share;},1800);
+}
 
 function renderTopSeasons(){
   const t=T(), sf=sFilt(), pool=sscored.filter(o=>sf(o.r)), all=sFilter==='all'&&posF==='all';
@@ -498,7 +564,7 @@ function sdetail(r){
   </div></td></tr>`;
 }
 function renderTable(){
-  setHead();
+  setHead(); syncURL();
   if(mode==='seasons') return renderSeasons();
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   const maxS=scored.length?scored[0].s:1;
@@ -566,6 +632,7 @@ function detail(p,o){
       <dt>${c.teams}</dt><dd>${(g('tm')||[]).join(' · ')||'—'}</dd>
       <dt>${c.league}</dt><dd>${g('lg')}</dd>
       <dt>${T().posLab}</dt><dd>${T().posOne[g('pos')]||'—'}</dd>
+      ${g('r10')?`<dt>${T().margin}</dt><dd>${g('r10')===g('r90')?ord(g('r10')):ord(g('r10'))+' – '+ord(g('r90'))} <small>(${T().marginNote}${g('t1')>0?' · '+T().top1(Math.round(g('t1')*100)):''})</small></dd>`:''}
     </dl></div>
 
     <div class="card"><h4>${c.pg}</h4><dl class="kv">
@@ -634,6 +701,9 @@ function detail(p,o){
 /* ---------- arranque ---------- */
 bindOnce();
 applyStatic();
+scored=score(); BASE_ORDER=scored.map(o=>o.i);   // orden base, antes de leer la dirección
+const ST=readURL();
 buildControls();
-scored=score(); BASE_ORDER=scored.map(o=>o.i);
 syncP(); recalc();
+if(ST.seasons) setMode('seasons');
+openFromURL(ST);

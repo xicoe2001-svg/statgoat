@@ -271,6 +271,7 @@ const BLOCKS=[
  {k:'TITULOS',c:'var(--w-tit)',d:15},
  {k:'PREMIOS',c:'var(--w-pre)',d:10}
 ];
+const ICON={PROD:'🏀',EFIC:'⚡',IMPACTO:'📈',DEF:'🛡️',PLAYOFFS:'🔥',TITULOS:'🏆',PREMIOS:'🎖️'};
 const bn=k=>T().blocks[k];
 const PRESETS={
  base:{PROD:15,EFIC:7,IMPACTO:20,DEF:13,PLAYOFFS:20,TITULOS:15,PREMIOS:10},
@@ -392,7 +393,7 @@ function applyStatic(){
 function buildControls(){
   const t=T();
   $('#sliders').innerHTML=BLOCKS.map(b=>`<div class="sl">
-    <label for="s_${b.k}" title="${t.tips[b.k]}"><span class="dot" style="background:${b.c}"></span>${bn(b.k)}</label>
+    <label for="s_${b.k}" title="${t.tips[b.k]}"><span class="dot" style="background:${b.c}"></span><span class="ico" aria-hidden="true">${ICON[b.k]}</span>${bn(b.k)}</label>
     <input type="range" id="s_${b.k}" min="0" max="60" step="1" value="${W[b.k]}" aria-label="${bn(b.k)}">
     <output id="o_${b.k}"></output></div>`).join('');
   BLOCKS.forEach(b=>$('#s_'+b.k).addEventListener('input',e=>{W[b.k]=+e.target.value;syncP();recalc();}));

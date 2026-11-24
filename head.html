@@ -142,6 +142,20 @@ tr.det td{padding:2px 8px 22px;background:var(--line)}
 .blk .bb{height:9px;background:var(--maple-deep);position:relative}
 .blk .bb i{position:absolute;top:0;bottom:0}
 .blk .bv{font-family:Archivo;font-size:11px;text-align:right}
+.xr{display:grid;grid-template-columns:78px 1fr 40px 46px;gap:7px;align-items:center;width:100%;background:none;border:0;
+  border-top:1px solid var(--maple-deep);padding:7px 0;cursor:pointer;text-align:left;color:inherit;font:inherit;font-size:12px}
+.xr:hover{background:var(--maple-deep);color:var(--ink)}
+.xr .bl{font-family:Archivo;font-weight:600;font-size:10.5px;letter-spacing:.03em}
+.xr .bl::before{content:'▸ ';color:var(--key)}
+.xr[aria-expanded="true"] .bl::before{content:'▾ '}
+.xr .bb{height:9px;background:var(--maple-deep);position:relative}
+.xr .bb i{position:absolute;top:0;bottom:0}
+.xr .bv{font-family:Archivo;font-size:11px;text-align:right}
+.xr .xc{font-family:Archivo;font-size:11px;font-weight:600;text-align:right;color:var(--key)}
+.xp{padding:4px 0 12px 12px;border-left:2px solid var(--maple-deep);margin:0 0 6px 4px}
+.xp .xrk{font-family:Archivo;font-weight:600;font-size:11px;margin:4px 0}
+.xt{overflow-x:auto}
+tr.xbold td{font-weight:700}
 table.seas{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:2px}
 table.seas th{font-size:9.5px;padding:0 5px 3px 0;border-bottom:1px solid var(--grain)}
 table.seas td{padding:4px 5px 4px 0;border-bottom:1px solid var(--maple-deep)}

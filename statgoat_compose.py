@@ -458,7 +458,7 @@ def main():
     meta = P[['player_id', 'first', 'last', 'seasons', 'g_total', 'mp_total',
               'rs_ppg', 'po_ppg', 'po_lift', 'po_g', 'po_mp', 'po_rpg', 'po_apg', 'po_ts', 'po_per',
               'po_ws', 'po_bpm', 'po_runs', 'po_w', 'po_plus',
-              'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total',
+              'pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total', 'pos',
               'rings', 'rings_as_best', 'ring_credit', 'fmvp', 'mvps',
               'mvp_share', 'dpoys', 'allnba_pts', 'alldef_pts', 'allstar',
               'PROD_cov', 'IMPACTO_cov', 'DEF_cov', 'lg_main']].copy()

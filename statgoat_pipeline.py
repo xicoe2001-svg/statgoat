@@ -201,6 +201,11 @@ def build():
         rec['first'] = gr['season'].min()
         rec['last'] = gr['season'].max()
         rec['lg_main'] = gr['lg'].mode().iloc[0]
+        # posición principal: la que más minutos jugó (antes de 1952, por partidos)
+        pp = gr['pos'].fillna('').astype(str).str.split('-').str[0]
+        ok = pp.isin(['PG', 'SG', 'SF', 'PF', 'C'])
+        pw = gr['mp'].fillna(gr['g'] * 30).fillna(0)
+        rec['pos'] = pw[ok].groupby(pp[ok]).sum().idxmax() if ok.any() else ''
         rows.append(rec)
     C = pd.DataFrame(rows)
 

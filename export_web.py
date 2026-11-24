@@ -75,7 +75,7 @@ FIELDS = ['rk', 'n', 'sc',                                     # 0-2
           'po', 'pog', 'pomp', 'porpg', 'poapg', 'pots', 'poper', 'pows', 'pobpm', 'poruns', 'poplus',  # playoffs
           'ring', 'best', 'fmvp', 'mvp', 'mvps_v', 'dpoy', 'anba', 'adef', 'ast',  # 45-53
           'cov', 'rec', 'lg', 'seas', 'tm',                    # 54-58
-          'tx3p']                                              # 59
+          'tx3p', 'pos']                                       # 59-60
 
 r2 = lambda v, d=2: None if v is None or (isinstance(v, float) and np.isnan(v)) else round(float(v), d)
 i0 = lambda v: None if pd.isna(v) else int(v)
@@ -106,7 +106,7 @@ for _, r in R.iterrows():
         r2(r['alldef_pts'], 1), i0(r['allstar']),
         r2(r['cov_min'], 2), ('' if pd.isna(r['_records']) else str(r['_records'])),
         r['lg_main'], seas, teams,
-        i0(r['x3p_total']),
+        i0(r['x3p_total']), str(r['pos'] or ''),
     ])
 
 # --------------------------------------------------- mejores temporadas completas
@@ -119,7 +119,7 @@ for k in BK:
     keep |= set(T['b_' + k].nlargest(150).index)
 TS = T.loc[sorted(keep)]
 SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
-           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk']
+           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos']
 sdata = []
 for _, r in TS.iterrows():
     sdata.append([
@@ -130,7 +130,7 @@ for _, r in TS.iterrows():
         i0(r['po_g']), (r2(r['po_pts'] / r['po_g'], 1) if r['po_g'] and r['po_g'] == r['po_g'] else None),
         int(r['mvp_win']), int(r['dpoy_win']), int(r['champ']), int(r['fmvp']),
         r2(r['mvp_share'], 3), ('' if pd.isna(r['anba_tm']) else str(r['anba_tm'])), int(r['allstar'] > 0),
-        int(r['srank']),
+        int(r['srank']), str(r['pos']).split('-')[0] if isinstance(r['pos'], str) else '',
     ])
 SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
 

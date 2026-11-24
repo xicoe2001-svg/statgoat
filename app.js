@@ -101,7 +101,7 @@ es:{
 <dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0. Se muestra en la ficha pero no suma ni resta: el nivel en playoffs ya recoge lo que rindió de verdad, y contar aparte la diferencia con lo esperado restaba nota a quien hacía una gran liga regular y premiaba a quien partía de una floja.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión de nivel y sin volumen acumulado.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West. Quien estaba en la plantilla pero no jugó esos playoffs se lleva un crédito mínimo; quien fue traspasado antes, ninguno.</dd>
-<dt>Posición</dt><dd>La que más minutos jugó en su carrera según Basketball-Reference (en Mejores temporadas, la de ese año). Muchos cambian con los años: LeBron sale como alero y Duncan como ala-pívot porque es donde más minutos jugaron. Es solo un filtro: no cambia la nota, y el número de la lista sigue siendo su puesto general. Los jugadores de 1947 a 1951 casi no tienen posición registrada y solo aparecen con «Todas las posiciones».</dd>
+<dt>Posición</dt><dd>La que más minutos jugó en su carrera según Basketball-Reference (en Mejores temporadas, la de ese año). Muchos cambian con los años: LeBron sale como alero y Duncan como ala-pívot porque es donde más minutos jugaron. Es solo un filtro: no cambia la nota. Con cualquier filtro activo, la lista y el top de la derecha numeran dentro del filtro y muestran al lado el puesto general. Los jugadores de 1947 a 1951 casi no tienen posición registrada y solo aparecen con «Todas las posiciones».</dd>
 <dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma puntos a quien esté en el top 5 histórico de una estadística de carrera: puntos, rebotes, asistencias, robos, tapones o triples (NBA, ABA y BAA juntas). El 1.º se lleva 3 puntos, el 2.º 2,4, el 3.º 1,8, el 4.º 1,2 y el 5.º 0,6. Cuenta solo su mejor categoría: dos terceros puestos no valen lo mismo que un récord. No va en la nota por defecto porque compara totales en bruto entre épocas (los robos y tapones se cuentan desde 1974, los triples desde 1980 y antes las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque. Los puestos se actualizan cada lunes.</dd>
 <dt>Mejores temporadas</dt><dd>La misma fórmula del índice aplicada a un solo año: liga regular (producción, eficiencia, impacto y defensa), los playoffs de ese año, el anillo según su aportación y los premios de esa temporada (MVP, DPOY, All-NBA, All-Star). Cada bloque se compara con todas las temporadas medibles y se pondera con los pesos que tengas puestos. Títulos y premios se pasan a la misma escala que la estadística a partir de su percentil: en un solo año casi todo son ceros, y sin esto un anillo pesaba más que la mejor temporada estadística de la historia. Solo entran temporadas desde 1951-52, cuando empiezan los minutos: antes no se pueden medir ni el impacto ni la defensa.</dd>
 <dt>Escala de los bloques</dt><dd>Para que cada peso signifique lo que dice, todos los bloques tienen que estar en la misma escala. Los estadísticos ya lo están (z-score, con las colas comprimidas por encima de 2 desviaciones). Títulos y premios no: tres de cada cuatro jugadores tienen 0 y unos pocos se disparan, y en la cima pesaban un 34% de la nota en vez de su 25%. Por eso se pasan a la escala de la estadística a partir de su percentil: tener más anillos que nadie vale lo mismo que ser el mejor de la historia en producción, no el doble. La escala es continua: quien no tiene nada queda en el centro de su grupo y los demás suben desde ahí, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada, sin saltos de varios puntos.</dd>
@@ -199,7 +199,7 @@ en:{
 <dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0. It’s shown on the player card but doesn’t add or subtract: playoff level already reflects what he really did, and counting the gap to expectations on top of it took points away from players with a great regular season and rewarded those starting from a weak one.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that predicted level, with no accumulated volume.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West. A player on the roster who didn’t play in those playoffs gets a minimal credit; one traded away earlier, none.</dd>
-<dt>Position</dt><dd>The one he played the most minutes at in his career, according to Basketball-Reference (in Best seasons, the one from that year). Many players change over the years: LeBron is listed as a small forward and Duncan as a power forward because that’s where they played the most minutes. It’s only a filter: it doesn’t change the score, and the number in the list is still his overall rank. Players from 1947 to 1951 mostly have no recorded position and only show up under “All positions”.</dd>
+<dt>Position</dt><dd>The one he played the most minutes at in his career, according to Basketball-Reference (in Best seasons, the one from that year). Many players change over the years: LeBron is listed as a small forward and Duncan as a power forward because that’s where they played the most minutes. It’s only a filter: it doesn’t change the score. With any filter on, the list and the top on the right are numbered within the filter and show the overall rank next to it. Players from 1947 to 1951 mostly have no recorded position and only show up under “All positions”.</dd>
 <dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds points for anyone in the all-time top 5 of a career stat: points, rebounds, assists, steals, blocks or threes (NBA, ABA and BAA combined). 1st place gets 3 points, 2nd 2.4, 3rd 1.8, 4th 1.2 and 5th 0.6. Only his best category counts: two third places aren’t worth a record. It isn’t in the default score because it compares raw totals across eras (steals and blocks have been counted since 1974, threes since 1980, and seasons used to be shorter) and because longevity already counts for 20% in every block. Rankings update every Monday.</dd>
 <dt>Best seasons</dt><dd>The index formula applied to a single year: regular season (production, efficiency, impact and defense), that year’s playoffs, the ring weighted by contribution and that season’s awards (MVP, DPOY, All-NBA, All-Star). Each block is compared with every measurable season and weighted with the weights you have set. Titles and awards are put on the same scale as the stats through their percentile: in a single year almost everything is zero, and without this a ring outweighed the best statistical season ever. Only seasons from 1951-52 on are included, when minutes start being recorded: before that, impact and defense can’t be measured.</dd>
 <dt>Block scale</dt><dd>For each weight to mean what it says, every block has to be on the same scale. The statistical blocks already are (z-scores, with the tails compressed above 2 standard deviations). Titles and awards aren’t: three in four players have 0 and a few shoot off the chart, so at the top they made up 34% of the score instead of their 25%. That’s why they’re put on the stats scale through their percentile: having more rings than anyone is worth the same as being the best ever in production, not twice as much. The scale is continuous: players with nothing sit in the middle of their group and everyone else climbs from there, so a token ring or a single All-Star selection is worth almost the same as nothing, with no jumps of several points.</dd>
@@ -408,7 +408,7 @@ function renderTopSeasons(){
   const base=new Map(); S.map((r,i)=>[sg(r,'srk'),i]).filter(([,i])=>sf(S[i])).sort((a,b)=>a[0]-b[0]).forEach(([,i],k)=>base.set(i,k+1));
   const lab=document.querySelector('[data-i18n="c_live"]');
   if(lab) lab.textContent=t.c_live+' · '+t.tab_seasons.toUpperCase()+filtTag(true);
-  $('#live').innerHTML=pool.slice(0,8).map((o,k)=>{
+  $('#live').innerHTML=pool.slice(0,10).map((o,k)=>{
     const pos=k+1, d=(base.get(o.i)||pos)-pos;
     const m=d>0?`<span class="delta up">▲${d}</span>`:d<0?`<span class="delta down">▼${-d}</span>`:'';
     return `<div class="lrow" data-si="${o.i}"><span class="lr num">${pos}</span>
@@ -429,7 +429,7 @@ function renderTop(){
   const f=pFilt(), pool=scored.filter(o=>f(o.p)), bp=basePos(), all=filter==='all'&&posF==='all';
   const lab=document.querySelector('[data-i18n="c_live"]');
   if(lab) lab.textContent=t.c_live+filtTag(false);
-  $('#live').innerHTML=pool.slice(0,8).map((o,k)=>{
+  $('#live').innerHTML=pool.slice(0,10).map((o,k)=>{
     const pos=k+1, d=(bp.get(o.i)||pos)-pos;
     const m=d>0?`<span class="delta up">▲${d}</span>`:d<0?`<span class="delta down">▼${-d}</span>`:'';
     const gr=all?'':`<span style="font-family:Archivo;font-size:10.5px;font-weight:600;color:var(--ink-soft);margin-left:6px">#${o.rk} ${t.overall}</span>`;
@@ -453,6 +453,8 @@ function renderSeasons(){
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   const maxS=sscored.length?sscored[0].s:1;
   const slice=sview.slice(0,sShown);
+  const isF=sFilter!=='all'||posF!=='all', fpos=new Map();
+  if(isF){const f=sFilt(); let k=0; for(const o of sscored) if(f(o.r)) fpos.set(o.i,++k);}
   $('#count').textContent=t.scount(sview.length.toLocaleString(loc()),SN.toLocaleString(loc()));
   $('#tb').innerHTML=slice.map(o=>{
     const r=o.r, parts=BLOCKS.map(b=>({c:b.c,n:bn(b.k),v:(W[b.k]/tot)*(sg(r,b.k)-(SMIN[b.k]||0))}));
@@ -463,8 +465,8 @@ function renderSeasons(){
       .filter(Boolean).map(x=>`<span class="flag aw">${x}</span>`).join('');
     const op=openS===o.i;
     return `<tr class="main${op?' open':''}" data-si="${o.i}">
-      <td class="rk num">${o.rk}</td>
-      <td class="nm">${sg(r,'n')}${tg}<small>${seasonLabel(sg(r,'y'))} · ${sg(r,'tm')}${sg(r,'lg')==='ABA'?' · ABA':''}</small></td>
+      <td class="rk num">${isF?fpos.get(o.i):o.rk}</td>
+      <td class="nm">${sg(r,'n')}${tg}<small>${seasonLabel(sg(r,'y'))} · ${sg(r,'tm')}${sg(r,'lg')==='ABA'?' · ABA':''}${isF?` · #${o.rk} ${t.overall}`:''}</small></td>
       <td class="bar">${bar}</td><td class="sc num">${o.s.toFixed(1)}</td></tr>`+(op?sdetail(r):'');
   }).join('');
   $('#tb').querySelectorAll('tr.main').forEach(tr=>tr.onclick=()=>{
@@ -501,6 +503,9 @@ function renderTable(){
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   const maxS=scored.length?scored[0].s:1;
   const slice=view.slice(0,shown);
+  // con un filtro activo se numera dentro del filtro, igual que el top de la derecha
+  const isF=filter!=='all'||posF!=='all', fpos=new Map();
+  if(isF){const f=pFilt(); let k=0; for(const o of scored) if(f(o.p)) fpos.set(o.i,++k);}
   $('#count').textContent=t.count(view.length.toLocaleString(loc()),P.length.toLocaleString(loc()));
   $('#tb').innerHTML=slice.map(o=>{
     const p=o.p, parts=BLOCKS.map(b=>({c:b.c,n:bn(b.k),v:(W[b.k]/tot)*(get(p,b.k)-MINS[b.k])}));
@@ -512,8 +517,8 @@ function renderTable(){
       (get(p,'cov')<0.75?`<span class="flag warn">${t.partial}</span>`:'');
     const op=openRk===o.rk;
     return `<tr class="main${op?' open':''}" data-rk="${o.rk}">
-      <td class="rk num">${o.rk}</td>
-      <td class="nm">${get(p,'n')}${fl}<small>${get(p,'y0')}–${get(p,'y1')} · ${get(p,'sea')} ${t.seasonsShort}${get(p,'lg')==='ABA'?' · ABA':''}</small></td>
+      <td class="rk num">${isF?fpos.get(o.i):o.rk}</td>
+      <td class="nm">${get(p,'n')}${fl}<small>${get(p,'y0')}–${get(p,'y1')} · ${get(p,'sea')} ${t.seasonsShort}${get(p,'lg')==='ABA'?' · ABA':''}${isF?` · #${o.rk} ${t.overall}`:''}</small></td>
       <td class="bar">${bar}</td><td class="sc num">${o.s.toFixed(1)}</td></tr>`+(op?detail(p,o):'');
   }).join('');
   $('#tb').querySelectorAll('tr.main').forEach(tr=>tr.onclick=()=>{

@@ -271,7 +271,15 @@ const BLOCKS=[
  {k:'TITULOS',c:'var(--w-tit)',d:15},
  {k:'PREMIOS',c:'var(--w-pre)',d:10}
 ];
-const ICON={PROD:'🏀',EFIC:'⚡',IMPACTO:'📈',DEF:'🛡️',PLAYOFFS:'🔥',TITULOS:'🏆',PREMIOS:'🎖️'};
+const ICON={
+ PROD:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M5.6 5.6c2.6 2.6 2.6 10.2 0 12.8M18.4 5.6c-2.6 2.6-2.6 10.2 0 12.8"/>',
+ EFIC:'<path d="M3 7h18"/><path d="M5 7l2.2 11h9.6L19 7"/><path d="M8 11h8M8.6 14.5h6.8"/>',
+ IMPACTO:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ DEF:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+ PLAYOFFS:'<path d="M3 6h5v4h4M3 18h5v-4"/><path d="M12 10v4"/><circle cx="19" cy="12" r="2"/><path d="M14 12h3"/>',
+ TITULOS:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8 20h8M9 17h6"/>',
+ PREMIOS:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'
+};
 const bn=k=>T().blocks[k];
 const PRESETS={
  base:{PROD:15,EFIC:7,IMPACTO:20,DEF:13,PLAYOFFS:20,TITULOS:15,PREMIOS:10},
@@ -393,7 +401,7 @@ function applyStatic(){
 function buildControls(){
   const t=T();
   $('#sliders').innerHTML=BLOCKS.map(b=>`<div class="sl">
-    <label for="s_${b.k}" title="${t.tips[b.k]}"><span class="dot" style="background:${b.c}"></span><span class="ico" aria-hidden="true">${ICON[b.k]}</span>${bn(b.k)}</label>
+    <label for="s_${b.k}" title="${t.tips[b.k]}"><svg class="ico" style="color:${b.c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[b.k]}</svg>${bn(b.k)}</label>
     <input type="range" id="s_${b.k}" min="0" max="60" step="1" value="${W[b.k]}" aria-label="${bn(b.k)}">
     <output id="o_${b.k}"></output></div>`).join('');
   BLOCKS.forEach(b=>$('#s_'+b.k).addEventListener('input',e=>{W[b.k]=+e.target.value;syncP();recalc();}));

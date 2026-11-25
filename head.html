@@ -184,7 +184,8 @@ table.seas tr.go td:first-child{color:var(--key);font-weight:600}
 .yearbox select{height:36px;padding:0 10px;font:600 14px Archivo,sans-serif;background:var(--line);color:var(--ink);border:1px solid var(--ink)}
 .ynote{font-family:Newsreader;font-size:14px;line-height:1.4;color:var(--ink-soft);flex:1 1 280px}
 .ynote.live{color:var(--ink)}
-@media(max-width:640px){.tabs button{padding:10px 10px 8px;font-size:12px;letter-spacing:.03em}}
+.tshort{display:none}
+@media(max-width:640px){.tabs button{padding:10px 8px 8px;font-size:11.5px;letter-spacing:.02em;white-space:nowrap}.tlong{display:none}.tshort{display:inline}}
 .erabox+.toolbar{margin-top:12px}
 .era button[aria-pressed="true"]{background:var(--ball);border-color:var(--ball);color:#fff}
 .eranote{font-family:Newsreader;font-size:14px;line-height:1.4;color:var(--ink-soft);flex:1 1 280px}
@@ -322,7 +323,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 <button type="button" class="wfab" id="wfab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span data-i18n="wfab">Pesos</span></button>
 <div class="wback" id="wback"></div>
 
-<div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button><button data-m="year" aria-pressed="false" data-i18n="tab_year">Por temporada</button></div>
+<div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button><button data-m="year" aria-pressed="false"><span class="tlong" data-i18n="tab_year">Por temporada</span><span class="tshort" data-i18n="tab_yearS">Por año</span></button></div>
 
 <div class="yearbox" id="yearbox" hidden><button type="button" id="yprev" aria-label="◀">◀</button><select id="ysel"></select><button type="button" id="ynext" aria-label="▶">▶</button><span class="ynote" id="ynote"></span></div>
 <div class="erabox" id="erabox"><div class="filters era" id="erasel" role="group" aria-label="1979-80"></div><span class="eranote" id="eranote" hidden></span></div>
@@ -374,6 +375,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
   <div class="legal">
     <p data-i18n="lg_attr"><b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference.</p>
     <p data-i18n="lg_aff"><b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference.</p>
+    <p data-i18n="lg_priv"></p>
     <p data-i18n="lg_war"><b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.</p>
   </div>
 </section>
@@ -383,5 +385,6 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 <script>
 const RAW=__DATA__;
 </script>
+<script data-goatcounter="https://statgoat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

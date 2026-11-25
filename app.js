@@ -30,7 +30,7 @@ es:{
   bonus:'Sumar bonus por estar en el top 5 histórico de una estadística (máx. 3 pts)',
   search:'Buscar jugador…', th_player:'Jugador', th_bar:'De dónde sale la puntuación', th_score:'Punt.',
   tab_players:'Jugadores', tab_seasons:'Mejores temporadas', th_season:'Temporada',
-  sfilters:{all:'Todas',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
+  sfilters:{all:'Todas',ring:'Con anillo',noring:'Sin anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
   pos:{all:'Todas las posiciones',PG:'Bases',SG:'Escoltas',SF:'Aleros',PF:'Ala-pívots',C:'Pívots'},
   posOne:{PG:'Base',SG:'Escolta',SF:'Alero',PF:'Ala-pívot',C:'Pívot'},posLab:'POSICIÓN',
   share:'Copiar enlace a esta vista',
@@ -65,7 +65,7 @@ es:{
     TITULOS:'Anillos según la aportación real en cada carrera al título, y Finals MVP',
     PREMIOS:'Votos al MVP, All-NBA por nivel y All-Star'},
   presets:{base:'Base',imp:'Solo impacto',notit:'Sin títulos',po2:'Playoffs ×2',def2:'Defensa ×2',reg:'Solo temp. regular',hon:'Solo palmarés'},
-  filters:{all:'Todos',g400:'≥ 400 partidos',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',active:'En activo'},
+  filters:{all:'Todos',g400:'≥ 400 partidos',ring:'Con anillo',noring:'Sin anillo',mvp:'Con MVP',pre80:'Antes de 1980',active:'En activo'},
   noWeights:'sin pesos', normalized:'normalizado a 100%',
   movers:n=>`${n} cambios de 3+ puestos en el top 25`,smovers:n=>`${n} temporadas del top 25 se mueven 3+ puestos`, baseOrder:'orden base', overall:'general',
   count:(a,b)=>`${a} de ${b} jugadores`,
@@ -155,7 +155,7 @@ en:{
   bonus:'Add a bonus for being in the all-time top 5 of a stat (max. 3 pts)',
   search:'Search player…', th_player:'Player', th_bar:'Where the score comes from', th_score:'Score',
   tab_players:'Players', tab_seasons:'Best seasons', th_season:'Season',
-  sfilters:{all:'All',ring:'Title seasons',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
+  sfilters:{all:'All',ring:'Title seasons',noring:'No title',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
   pos:{all:'All positions',PG:'Point guards',SG:'Shooting guards',SF:'Small forwards',PF:'Power forwards',C:'Centers'},
   posOne:{PG:'Point guard',SG:'Shooting guard',SF:'Small forward',PF:'Power forward',C:'Center'},posLab:'POSITION',
   share:'Copy link to this view',
@@ -190,7 +190,7 @@ en:{
     TITULOS:'Rings weighted by real contribution to each title run, plus Finals MVPs',
     PREMIOS:'MVP votes, All-NBA selections by tier and All-Star nods'},
   presets:{base:'Default',imp:'Impact only',notit:'No titles',po2:'Playoffs ×2',def2:'Defense ×2',reg:'Regular season only',hon:'Honors only'},
-  filters:{all:'All',g400:'≥ 400 games',ring:'Champions',mvp:'MVP winners',pre80:'Before 1980',active:'Active'},
+  filters:{all:'All',g400:'≥ 400 games',ring:'Champions',noring:'No ring',mvp:'MVP winners',pre80:'Before 1980',active:'Active'},
   noWeights:'no weights', normalized:'normalized to 100%',
   movers:n=>`${n} moves of 3+ spots in the top 25`,smovers:n=>`${n} seasons in the top 25 move 3+ spots`, baseOrder:'default order', overall:'overall',
   count:(a,b)=>`${a} of ${b} players`,
@@ -306,6 +306,7 @@ const FILTERS={
  all:()=>true,
  g400:p=>get(p,'g')>=400,
  ring:p=>get(p,'ring')>0,
+ noring:p=>!(get(p,'ring')>0),
  mvp:p=>get(p,'mvp')>0,
  pre80:p=>get(p,'y1')<1980,
  active:p=>get(p,'y1')>=MAXY
@@ -350,7 +351,7 @@ const SF={}; (RAW.sf||[]).forEach((k,i)=>SF[k]=i);
 const S=RAW.sd||[], SMIN=RAW.smin||{}, SN=RAW.sn||S.length;
 const sg=(r,k)=>r[SF[k]];
 const SNAMES=S.map(r=>norm(sg(r,'n')));
-const SFILTERS={all:()=>true, ring:r=>sg(r,'champ')>0, mvp:r=>sg(r,'mvp')>0,
+const SFILTERS={all:()=>true, ring:r=>sg(r,'champ')>0, noring:r=>!(sg(r,'champ')>0), mvp:r=>sg(r,'mvp')>0,
   pre80:r=>sg(r,'y')<1980, from2000:r=>sg(r,'y')>=2000};
 const sFilt=()=>{const f=SFILTERS[sFilter];return r=>f(r)&&okPos(sg(r,'pos'));};
 const MINS={}; BLOCKS.forEach(b=>MINS[b.k]=Math.min(...P.map(p=>get(p,b.k))));

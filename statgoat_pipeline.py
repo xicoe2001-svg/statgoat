@@ -26,6 +26,7 @@ Z_CAP = 4.0          # winsorizado de z-scores
 MIN_MP_SEASON = 1000  # temporada "computable" para pico/prime (post-1952)
 MIN_G_EARLY = 40      # equivalente pre-1952 (sin minutos registrados)
 ABA_DISCOUNT = 0.90   # descuento de fuerza de liga para la ABA
+FULL_G = 82           # partidos de una temporada completa (para la temporada en curso)
 
 # ---------------------------------------------------------------- carga
 def load():
@@ -231,8 +232,20 @@ def build():
     s['ows_48'] = np.where(s['mp'] > 0, s['ows'] / s['mp'] * 48, np.nan)
     s['tov_neg'] = -s['tov_percent']
 
+    # Temporada en curso: hasta que acaba la liga regular (82 partidos o empiezan
+    # los playoffs) no entra en las carreras ni en Mejores temporadas. Sus umbrales
+    # de minutos se escalan a la parte de temporada jugada: con 19 partidos, 500
+    # minutos los tendrían solo unos pocos titulares y el z saldría sesgado.
+    last = s['season'].max()
+    played = s.groupby(['season', 'lg'])['g'].transform('max')
+    po_csv = ROOT / 'cache' / 'playoffs_totals.csv'
+    po_done = set(pd.read_csv(po_csv, usecols=['season'])['season']) if po_csv.exists() else set()
+    running = (s['season'] == last) & (played < FULL_G) & (last not in po_done)
+    s['running'] = running
+    s['frac'] = np.where(running, (played / FULL_G).clip(upper=1.0), 1.0)
+
     # grupo de referencia de cada temporada
-    qual = ((s['mp'] >= 500) |
+    qual = ((s['mp'] >= 500 * s['frac']) |
             (s['mp'].isna() & (s['g'] >= 0.4 * s['season_g'])))
 
     # Eficiencia con volumen: puntos por partido añadidos por anotar por encima
@@ -266,14 +279,7 @@ def build():
     for name in dims:
         s.loc[aba, name] = s.loc[aba, name] * ABA_DISCOUNT
 
-    # temporada "computable" para pico
-    # Una temporada aun en curso tiene minutos parciales y falsearia el pico.
-    # Se descarta el ultimo curso si la liga no ha jugado un calendario casi completo.
-    last = s['season'].max()
-    incomplete = (s['season'] == last) & (s['season_g'] < 0.9 * s.loc[s['season'] == last, 'season_g'].max()) \
-        if len(s) else False
-    played = s.groupby(['season', 'lg'])['g'].transform('max')
-    running = (s['season'] == last) & (played < 65)
+    # temporada "computable" para pico: la temporada en curso no cuenta hasta que acaba
     s['countable'] = (((s['mp'] >= MIN_MP_SEASON) |
                        (s['mp'].isna() & (s['g'] >= MIN_G_EARLY)))
                       & ~running)

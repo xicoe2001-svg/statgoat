@@ -120,17 +120,21 @@ data = [row(r, rows) for _, r in R.iterrows()]
 # --------------------------------------------------- mejores temporadas completas
 # Se exportan las 1.200 mejores con los pesos por defecto más las 150 mejores de
 # cada bloque, para que el ranking siga siendo correcto si el usuario mueve los pesos.
-T = pd.read_pickle(OUT / 'seasons_full.pkl')
+# La temporada en curso no entra: solo está en su pestaña (yr/).
+TA = pd.read_pickle(OUT / 'seasons_full.pkl')
+T = TA[TA['live'] == 0]
 BK = ['PROD', 'EFIC', 'IMPACTO', 'DEF', 'PLAYOFFS', 'TITULOS', 'PREMIOS']
 keep = set(T.index[:1200])
 for k in BK:
     keep |= set(T['b_' + k].nlargest(150).index)
 TS = T.loc[sorted(keep)]
 SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
-           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id', 'rv', 'pol', 'poe', 'poz', 'pow', 'pows']
-sdata = []
-for _, r in TS.iterrows():
-    sdata.append([
+           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id', 'rv', 'pol', 'poe', 'poz', 'pow', 'pows',
+           'potw', 'potwp', 'live', 'g', 'mp']
+
+
+def srow(r):
+    return [
         r['player'], int(r['season']), str(r['team']), r['lg'],
         *[r2(r['b_' + k], 3) for k in BK],
         r2(r['pts_per_game'], 1), r2(r['trb_per_game'], 1), r2(r['ast_per_game'], 1),
@@ -141,7 +145,31 @@ for _, r in TS.iterrows():
         int(r['srank']), str(r['pos']).split('-')[0] if isinstance(r['pos'], str) else '',
         r['player_id'],
         r2(r['ring'], 2), r2(r['po_level'], 2), r2(r['po_exp'], 2), r2(r['po'], 2), i0(r['pw']), r2(r['pws'], 1),
-    ])
+        int(r['potw']), r2(r['potwp'], 1), int(r['live']), i0(r['g']), i0(r['mp']),
+    ]
+
+
+sdata = [srow(r) for _, r in TS.iterrows()]
+
+# --------------------------------------------------- por temporada (yr/<año>.json)
+# Todas las temporadas medibles de cada año, para la pestaña Por temporada. Se
+# descargan al elegir el año. La temporada en curso va marcada con live = 1.
+YRD = ROOT / 'yr'
+YRD.mkdir(exist_ok=True)
+yrs, ywritten = {}, 0
+for y, g in TA.groupby('season'):
+    txt = json.dumps({'d': [srow(r) for _, r in g.sort_values('FULL', ascending=False).iterrows()]},
+                     ensure_ascii=False, separators=(',', ':'))
+    f = YRD / f'{int(y)}.json'
+    yrs[str(int(y))] = int(len(g))
+    if not f.exists() or f.read_text() != txt:
+        f.write_text(txt); ywritten += 1
+for f in YRD.glob('*.json'):
+    if f.stem not in yrs:
+        f.unlink()
+LIVE = json.loads((OUT / 'season_live.json').read_text())
+print(f'por temporada: {len(yrs)} años en yr/ ({ywritten} actualizados)'
+      + (f" · en curso {LIVE['live'] - 1}-{str(LIVE['live'])[-2:]}: {yrs.get(str(LIVE['live']), 0)} jugadores" if LIVE.get('live') else ''))
 SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
 
 # --------------------------------------------------- vista desde 1979-80
@@ -162,6 +190,7 @@ xdata = [row(r, rows80) for _, r in E[E.player_id.isin(cross)].iterrows()]
 print('desde 1979-80:', len(edata), 'jugadores |', len(xdata), 'con temporadas antes y después')
 
 payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn': int(len(T)),
+           'yrs': yrs, 'ylive': LIVE,
            'e': {'y0': ERA0, 'f': EF, 'd': edata, 'x': xdata, 'sn': int((T['season'] >= ERA0).sum())}}
 raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 open(OUT / 'all.min.json', 'w').write(raw)

@@ -12,7 +12,7 @@ La página es un único HTML estático. Todo el cálculo (pesos ajustables, busc
 
 El workflow `.github/workflows/rebuild.yml` se ejecuta:
 
-- **cada lunes hacia las 04:30 UTC**
+- **cada día hacia las 09:20 UTC**
 - cuando tocas un `.py`, `head.html`, `app.js` o uno de los CSV
 - a mano, desde la pestaña **Actions → Rebuild STATGOAT → Run workflow**
 
@@ -22,8 +22,8 @@ Si una fuente falla o alguna verificación no pasa, **el workflow aborta y la we
 
 ### De dónde sale cada dato
 
-- **Temporada regular:** volcado público de Basketball-Reference (`sumitrodatta/bball-reference-datasets`). La temporada en curso se lee cada lunes directamente de Basketball-Reference, porque el volcado va con semanas de retraso.
-- **Playoffs, campeones, Finals MVP y premios recientes:** directamente de las páginas de Basketball-Reference, con `fetch_bref_extra.py`. Va despacio a propósito (una petición cada 4 segundos, muy por debajo de su límite) y guarda todo en `cache/`, así que cada lunes solo vuelve a pedir la temporada en curso y la anterior.
+- **Temporada regular:** volcado público de Basketball-Reference (`sumitrodatta/bball-reference-datasets`). La temporada en curso se lee cada día directamente de Basketball-Reference, porque el volcado va con semanas de retraso.
+- **Playoffs, campeones, Finals MVP y premios recientes:** directamente de las páginas de Basketball-Reference, con `fetch_bref_extra.py`. Va despacio a propósito (una petición cada 4 segundos, muy por debajo de su límite) y guarda todo en `cache/`, así que cada día solo vuelve a pedir la temporada en curso y la anterior.
 
 La primera ejecución descarga la historia entera de playoffs (unos 12 minutos). Las siguientes, menos de un minuto.
 
@@ -52,7 +52,7 @@ Las carpetas `_raw/` y `_build/` son temporales y están en el `.gitignore`.
 
 Ninguno. Campeón, Finals MVP, playoffs y premios se recogen solos cuando Basketball-Reference los publica.
 
-Si un lunes sale en rojo, abre el paso que falla en **Actions**: el mensaje dice qué dato falta o qué comprobación no cuadra.
+Si un día sale en rojo, abre el paso que falla en **Actions**: el mensaje dice qué dato falta o qué comprobación no cuadra.
 
 ## Ejecutar en local
 
@@ -85,6 +85,10 @@ Margen de puesto: 2.000 sorteos de pesos alrededor de los de base (Dirichlet de 
 
 El bonus por totales de carrera es opcional y está desactivado por defecto. Da puntos por el puesto histórico en puntos, rebotes, asistencias, robos, tapones o triples (1.º = 3 · 2.º = 2,4 · 3.º = 1,8 · 4.º = 1,2 · 5.º = 0,6; cuenta solo la mejor categoría). No va en la nota por defecto porque compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 
+**Por temporada:** todas las temporadas medibles de un año (1.000+ minutos), con los mismos siete bloques y la escala de Mejores temporadas, en `yr/<año>.json` (se descargan al elegir el año).
+
+**Temporada en curso:** se recalcula cada día. Umbrales de minutos proporcionales a lo jugado (1.000 para contar y 500 para el grupo del z, por la fracción de 82 partidos), bloques medidos contra las temporadas cerradas, Playoffs previsto por la liga regular, Títulos vacío y Premios previsto por el Jugador de la semana (`cache/pow.csv`; ritmo proyectado con contracción de 8 semanas y convertido al bloque de Premios medio de 2001-02 a 2025-26 para ese número de premios). Entra en las carreras y en Mejores temporadas cuando acaba la liga regular (82 partidos o empiezan los playoffs).
+
 **Desde 1979-80:** segunda vista del mismo índice que cuenta solo lo jugado desde 1979-80 (primera temporada con línea de 3 y con todas las estadísticas registradas). Los z-scores no cambian; la carrera, los playoffs, los anillos (cada uno con su crédito), los premios, los totales, la escala y el margen se recalculan con lo jugado desde ese año (`statgoat_compose.py`, `ERA0`). La web la muestra con el selector «Toda la historia / Desde 1979-80»; en Mejores temporadas solo filtra por año.
 
 **Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. Títulos y premios se llevan a la escala de los bloques estadísticos por percentil, para que pesen lo que dicen sus porcentajes. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
@@ -99,7 +103,7 @@ El glosario completo está en la propia página.
 
 ## Fuentes
 
-- Basketball-Reference: temporada regular vía el volcado público de `sumitrodatta/bball-reference-datasets` (la temporada en curso, de sus páginas cada lunes); playoffs, campeones y premios recientes, de sus páginas.
+- Basketball-Reference: temporada regular vía el volcado público de `sumitrodatta/bball-reference-datasets` (la temporada en curso, de sus páginas cada día); playoffs, campeones y premios recientes, de sus páginas.
 
 Si reutilizas esto, cítala.
 

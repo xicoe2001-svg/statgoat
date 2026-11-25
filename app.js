@@ -42,6 +42,25 @@ es:{
   tab_players:'Jugadores', tab_seasons:'Mejores temporadas', th_season:'Temporada',
   sfilters:{all:'Todas',ring:'Con anillo',noring:'Sin anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
   pos:{all:'Todas las posiciones',PG:'Bases',SG:'Escoltas',SF:'Aleros',PF:'Ala-pívots',C:'Pívots'},
+  sx:{hint:'Toca un bloque para ver de dónde sale. A la derecha, los puntos que aporta con tus pesos: sumados dan la nota.',
+    cols:['Métrica','Valor','z frente a su liga','Peso','Aporta'],
+    m:{PROD:['Puntos','Rebotes','Asistencias','Robos','Tapones'],EFIC:['Puntos añadidos por eficiencia','Pérdidas (TOV%)'],
+       IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','Robo %','Tapón %','Rebote def. %']},
+    zNote:'El z es cuántas desviaciones típicas está por encima (o por debajo) de la media de los jugadores cualificados de su liga ese mismo año.',
+    season:(v,aba)=>`Valor de la temporada = suma de lo que aporta cada métrica${aba?', × 0,90 por ser ABA':''}: ${v}.`,
+    noFmvp:'no existía hasta 1969',
+    missing:'Las métricas que no se registraban ese año no cuentan: su peso se reparte entre las demás.',
+    ts:v=>`Su TS% fue ${v}; los puntos añadidos son (su TS% − el de su liga) × sus intentos por partido.`,
+    tov:'En pérdidas el z va con el signo cambiado: perder menos balones que su liga suma.',
+    def:(t,dp)=>`El bloque de defensa es 75 % este valor y 25 % el reconocimiento defensivo de ese año: All-Defense ${t} · votos al DPOY ${dp}.`,
+    po:(z,e,m,l,w)=>`Nivel en estos playoffs: ${z} (contra los jugadores de esos mismos playoffs). Previsión por su liga regular de ese año: ${e}. Nivel que cuenta, más cerca del real cuanto más jugó (${m} minutos; con 600 pesarían igual el real y la previsión): ${l} (80 %). Win Shares en estos playoffs: ${w} (20 %).`,
+    poNone:e=>`No jugó playoffs ese año: cuenta su previsión por la liga regular (${e}) y 0 Win Shares.`,
+    ring:(sh,v,f)=>`Campeón. Generó el ${sh} de las Win Shares de su equipo en esos playoffs, así que el anillo vale ${v} (70 %). MVP de las Finales: ${f} (30 %).`,
+    rNone:'No fue campeón ese año.',
+    aw:(m,a,s)=>`Votos al MVP: ${m} (45 %) · All-NBA: ${a} (35 %) · All-Star: ${s} (20 %).`,
+    pts:n=>`${n} ${n===1?'punto':'puntos'}`,
+    fin:(v,n)=>`Bloque: ${v}. Es el valor de arriba comparado con las ${n} temporadas medibles, en desviaciones típicas y con las colas comprimidas por encima de 2.`,
+    finP:(v,n)=>`Bloque: ${v}. Se compara con las ${n} temporadas medibles y se lleva por percentil a la escala de los bloques estadísticos: quien no tiene nada queda en el centro de su grupo.`},
   posOne:{PG:'Base',SG:'Escolta',SF:'Alero',PF:'Ala-pívot',C:'Pívot'},posLab:'POSICIÓN',
   share:'Copiar enlace a esta vista',
   howto:'Cómo funciona',
@@ -137,7 +156,7 @@ es:{
 <dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0. Se muestra en la ficha pero no suma ni resta: el nivel en playoffs ya recoge lo que rindió de verdad, y contar aparte la diferencia con lo esperado restaba nota a quien hacía una gran liga regular y premiaba a quien partía de una floja.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión de nivel y sin volumen acumulado.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West. Quien estaba en la plantilla pero no jugó esos playoffs se lleva un crédito mínimo; quien fue traspasado antes, ninguno.</dd>
-<dt>De dónde sale la nota</dt><dd>En la ficha de cada jugador, cada bloque se despliega: las temporadas que cuentan y sus estadísticas, el cálculo de carrera (40 % mejores 3, 40 % mejores 7, 20 % acumulado), sus playoffs eliminatoria a eliminatoria, cada anillo con su valor y los premios año a año. A la derecha de cada bloque, los puntos que aporta a su nota con los pesos que tengas puestos: el punto de partida (todos los bloques en 0) más esos aportes da su nota.</dd>
+<dt>De dónde sale la nota</dt><dd>En la ficha de cada jugador, cada bloque se despliega: las temporadas que cuentan y sus estadísticas, el cálculo de carrera (40 % mejores 3, 40 % mejores 7, 20 % acumulado), sus playoffs eliminatoria a eliminatoria, cada anillo con su valor y los premios año a año. A la derecha de cada bloque, los puntos que aporta a su nota con los pesos que tengas puestos: el punto de partida (todos los bloques en 0) más esos aportes da su nota. En Mejores temporadas, la ficha hace lo mismo con un solo año: cada métrica con su valor, su z frente a su liga ese año, su peso y lo que aporta; los playoffs de ese año con su previsión; el anillo según su parte de las Win Shares del equipo, y los premios de esa temporada.</dd>
 <dt>Margen de puesto</dt><dd>Entre qué puestos se mueve un jugador si los pesos por defecto cambian un poco. Se sortean 2.000 combinaciones de pesos parecidas a las de base (un peso del 15 % se mueve unos ±5 puntos) y se muestra el rango donde cae su puesto en 8 de cada 10. Si los márgenes de dos jugadores se solapan, quién va delante depende de cómo se pondere, no de los datos: por ejemplo, Jordan es n.º 1 en un 79 % de las combinaciones y LeBron en un 15 %. Se calcula sobre los pesos por defecto, no sobre los que tengas puestos.</dd>
 <dt>Compartir</dt><dd>El botón «Copiar enlace a esta vista» copia una dirección con tus pesos, el bonus, la pestaña, los filtros y la ficha abierta: quien la abra verá exactamente lo mismo.</dd>
 <dt>Posición</dt><dd>La que más minutos jugó en su carrera según Basketball-Reference (en Mejores temporadas, la de ese año). Muchos cambian con los años: LeBron sale como alero y Duncan como ala-pívot porque es donde más minutos jugaron. Es solo un filtro: no cambia la nota. Con cualquier filtro activo, la lista y el top de la derecha numeran dentro del filtro y muestran al lado el puesto general. Los jugadores de 1947 a 1951 casi no tienen posición registrada y solo aparecen con «Todas las posiciones».</dd>
@@ -170,6 +189,25 @@ en:{
   tab_players:'Players', tab_seasons:'Best seasons', th_season:'Season',
   sfilters:{all:'All',ring:'Title seasons',noring:'No title',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
   pos:{all:'All positions',PG:'Point guards',SG:'Shooting guards',SF:'Small forwards',PF:'Power forwards',C:'Centers'},
+  sx:{hint:'Tap a block to see where it comes from. On the right, the points it adds with your weights: together they make the score.',
+    cols:['Metric','Value','z vs his league','Weight','Adds'],
+    m:{PROD:['Points','Rebounds','Assists','Steals','Blocks'],EFIC:['Points added by efficiency','Turnovers (TOV%)'],
+       IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','Steal %','Block %','Def. rebound %']},
+    zNote:'The z is how many standard deviations above (or below) the average of qualified players in his league that same year.',
+    season:(v,aba)=>`Season value = sum of what each metric adds${aba?', × 0.90 as an ABA season':''}: ${v}.`,
+    noFmvp:'didn’t exist until 1969',
+    missing:'Metrics not recorded that year don’t count: their weight is spread over the rest.',
+    ts:v=>`His TS% was ${v}; points added are (his TS% − his league’s) × his attempts per game.`,
+    tov:'For turnovers the z has its sign flipped: losing the ball less than his league adds.',
+    def:(t,dp)=>`The defense block is 75% this value and 25% defensive recognition that year: All-Defense ${t} · DPOY vote share ${dp}.`,
+    po:(z,e,m,l,w)=>`Level in these playoffs: ${z} (against the players in those same playoffs). Prediction from his regular season that year: ${e}. Level that counts, closer to the real one the more he played (${m} minutes; at 600 real and prediction weigh the same): ${l} (80%). Win Shares in these playoffs: ${w} (20%).`,
+    poNone:e=>`No playoffs that year: his prediction from the regular season counts (${e}) and 0 Win Shares.`,
+    ring:(sh,v,f)=>`Champion. He produced ${sh} of his team’s Win Shares in those playoffs, so the ring is worth ${v} (70%). Finals MVP: ${f} (30%).`,
+    rNone:'Not a champion that year.',
+    aw:(m,a,s)=>`MVP votes: ${m} (45%) · All-NBA: ${a} (35%) · All-Star: ${s} (20%).`,
+    pts:n=>`${n} ${n===1?'point':'points'}`,
+    fin:(v,n)=>`Block: ${v}. It is the value above compared with the ${n} measurable seasons, in standard deviations with the tails compressed above 2.`,
+    finP:(v,n)=>`Block: ${v}. It is compared with the ${n} measurable seasons and mapped by percentile onto the scale of the stat blocks: having nothing leaves him in the middle of his group.`},
   posOne:{PG:'Point guard',SG:'Shooting guard',SF:'Small forward',PF:'Power forward',C:'Center'},posLab:'POSITION',
   share:'Copy link to this view',
   howto:'How it works',
@@ -265,7 +303,7 @@ en:{
 <dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0. It’s shown on the player card but doesn’t add or subtract: playoff level already reflects what he really did, and counting the gap to expectations on top of it took points away from players with a great regular season and rewarded those starting from a weak one.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that predicted level, with no accumulated volume.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West. A player on the roster who didn’t play in those playoffs gets a minimal credit; one traded away earlier, none.</dd>
-<dt>Where the score comes from</dt><dd>On each player card, every block expands: the seasons that count and their stats, the career calculation (40% best 3, 40% best 7, 20% cumulative), his playoff runs one by one, every ring with its value and his awards year by year. Next to each block, the points it adds to his score with your current weights: the starting point (every block at 0) plus those points makes his score.</dd>
+<dt>Where the score comes from</dt><dd>On each player card, every block expands: the seasons that count and their stats, the career calculation (40% best 3, 40% best 7, 20% cumulative), his playoff runs one by one, every ring with its value and his awards year by year. Next to each block, the points it adds to his score with your current weights: the starting point (every block at 0) plus those points makes his score. In Best seasons, the card does the same for a single year: each metric with its value, its z against his league that year, its weight and what it adds; that year’s playoffs with their prediction; the ring by his share of the team’s Win Shares, and that season’s awards.</dd>
 <dt>Rank range</dt><dd>The ranks a player moves between if the default weights change a little. 2,000 weight combinations close to the default are drawn (a 15% weight moves about ±5 points) and the range shown is where his rank falls in 8 out of 10. If two players’ ranges overlap, who comes first depends on how you weigh things, not on the data: for example, Jordan is #1 in 79% of the combinations and LeBron in 15%. It’s computed on the default weights, not on the ones you’ve set.</dd>
 <dt>Sharing</dt><dd>The “Copy link to this view” button copies an address with your weights, the bonus, the tab, the filters and the open player card: whoever opens it sees exactly the same.</dd>
 <dt>Position</dt><dd>The one he played the most minutes at in his career, according to Basketball-Reference (in Best seasons, the one from that year). Many players change over the years: LeBron is listed as a small forward and Duncan as a power forward because that’s where they played the most minutes. It’s only a filter: it doesn’t change the score. With any filter on, the list and the top on the right are numbered within the filter and show the overall rank next to it. Players from 1947 to 1951 mostly have no recorded position and only show up under “All positions”.</dd>
@@ -356,7 +394,7 @@ const filtTag=seas=>{const t=T(), a=[];
   return a.length?' · '+a.join(' · '):'';};
 
 const nf=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
-let SCN={lo:0,hi:1,tot:1};
+let SCN={lo:0,hi:1,tot:1}, SSCN={lo:0,hi:1,tot:1};
 const mil=v=>v==null?'—':Number(v).toLocaleString(loc());
 const recs=p=>String(get(p,'rec')||'').split(',').filter(x=>x.includes(':')).map(x=>{const [k,r]=x.split(':');return {k,r:+r};});
 const ord=r=>LANG==='en'?r+(['th','st','nd','rd'][r]||'th'):r+'.º';
@@ -395,6 +433,7 @@ function scoreSeasons(){
   const out=S.map((r,i)=>({i,r,v:BLOCKS.reduce((s,b)=>s+(W[b.k]/tot)*sg(r,b.k),0)}));
   let hi=-Infinity; for(const o of out) if(o.v>hi) hi=o.v;
   for(const o of out) o.s=100*(o.v-lo)/((hi-lo)||1);
+  SSCN={lo,hi,tot};
   out.sort((a,b)=>b.s-a.s); out.forEach((o,k)=>o.rk=k+1);
   return out;
 }
@@ -633,20 +672,81 @@ function renderSeasons(){
     return `<tr class="main${op?' open':''}" data-si="${o.i}">
       <td class="rk num">${isF?fpos.get(o.i):o.rk}</td>
       <td class="nm">${sg(r,'n')}${tg}<small>${seasonLabel(sg(r,'y'))} · ${sg(r,'tm')}${sg(r,'lg')==='ABA'?' · ABA':''}${isF?` · #${o.rk} ${t.overall}`:''}</small></td>
-      <td class="bar">${bar}</td><td class="sc num">${o.s.toFixed(1)}</td></tr>`+(op?sdetail(r):'');
+      <td class="bar">${bar}</td><td class="sc num">${o.s.toFixed(1)}</td></tr>`+(op?sdetail(r,o):'');
   }).join('');
   $('#tb').querySelectorAll('tr.main').forEach(tr=>tr.onclick=()=>{
     const i=+tr.dataset.si; openS=openS===i?null:i; renderTable();});
   $('#more').hidden=sview.length<=sShown;
   $('#more').textContent=t.smore((sview.length-sShown).toLocaleString(loc()));
 }
-function sdetail(r){
-  const t=T(), d=t.sd, c=t.card, g=k=>sg(r,k);
-  const blocks=BLOCKS.map(b=>{
-    const v=g(b.k), w=Math.min(50,Math.abs(v)/7*50);
-    return `<div class="blk"><span class="bl">${bn(b.k)}</span>
+function sblocks(r,o){
+  const t=T(), d=t.card.dx, id=sg(r,'id'), y=sg(r,'y'), key=id+'-'+y;
+  if(OPENX_ID!==key){ OPENX.clear(); OPENX_ID=key; }
+  loadDet(id);
+  const rows=BLOCKS.map(b=>{
+    const v=sg(r,b.k), w=Math.min(50,Math.abs(v)/7*50), op=OPENX.has(b.k);
+    const ct=100*(W[b.k]/SSCN.tot)*(v-(SMIN[b.k]||0))/((SSCN.hi-SSCN.lo)||1);
+    return `<button type="button" class="xr" data-k="${b.k}" data-id="${id}" data-y="${y}" aria-expanded="${op}">
+      <span class="bl">${bn(b.k)}</span>
       <span class="bb"><i style="background:${b.c};${v>=0?`left:50%;width:${w}%`:`right:50%;width:${w}%`}"></i></span>
-      <span class="bv">${v>=0?'+':''}${v.toFixed(2)}</span></div>`;}).join('');
+      <span class="bv">${v>=0?'+':''}${v.toFixed(2)}</span>
+      <span class="xc">+${ct.toFixed(1)}</span></button>
+      <div class="xp" data-k="${b.k}"${op?'':' hidden'}>${op?'<p class="pnote">'+d.loading+'</p>':''}</div>`;}).join('');
+  if(OPENX.size) loadDet(id).then(det=>{ for(const k of OPENX) fillS(id,y,k,det); });
+  return `<div class="card xb" style="grid-column:1/-1"><h4>${d.title}</h4>
+    <p class="pnote" style="margin:0 0 10px">${t.sx.hint}</p>${rows}
+    <p class="pnote"><b>${d.total}: ${o.s.toFixed(1)}</b></p>
+    <p class="pnote">${t.sd.note(SN.toLocaleString(loc()))}</p></div>`;
+}
+function fillS(id,y,k,det){
+  const box=document.querySelector(`.xp[data-k="${k}"]`), btn=document.querySelector(`.xr[data-k="${k}"][data-id="${id}"][data-y="${y}"]`);
+  if(!box||!btn) return;
+  const r=S.find(q=>sg(q,'id')===id&&sg(q,'y')===+y);
+  box.innerHTML=det&&r? spanel(r,k,det) : `<p class="pnote">${T().card.dx.fail}</p>`;
+}
+// métricas de cada bloque en una temporada: [columna del valor, formato, columna del z, peso]
+const SMET={PROD:[[10,1,26,.40],[11,1,27,.20],[12,1,28,.20],[13,1,29,.10],[14,1,30,.10]],
+  EFIC:[[16,'s',31,.70],[17,1,32,.30]], IMPACTO:[[18,1,33,.30],[19,3,34,.35],[20,1,35,.35]],
+  DEF:[[21,1,36,.40],[22,3,37,.30],[23,1,38,.10],[24,1,39,.10],[25,1,40,.10]]};
+function spanel(r,k,det){
+  const t=T(), d=t.card.dx, e=t.sx, y=sg(r,'y'), lg=sg(r,'lg'), v=sg(r,k), n=SN.toLocaleString(loc());
+  const fv=(x,f)=>x==null?'—':f==='s'?(x>=0?'+':'')+nf(x):f===3?Number(x).toFixed(3):nf(x);
+  if(SMET[k]){
+    const x=(det.s||[]).find(q=>q[0]===y&&q[2]===lg)||(det.s||[]).find(q=>q[0]===y);
+    if(!x||x.length<41) return `<p class="pnote">${d.fail}</p>`;
+    const M=SMET[k], ws=M.reduce((s,m)=>s+(x[m[2]]!=null?m[3]:0),0)||1;
+    let h=xtable(e.cols, M.map((m,i)=>[e.m[k][i], fv(x[m[0]],m[1]), zf(x[m[2]]), Math.round(m[3]*100)+' %', x[m[2]]==null?'—':zf(m[3]*x[m[2]]/ws)]));
+    const sv=x[{PROD:6,EFIC:7,IMPACTO:8,DEF:9}[k]];
+    h+=`<p class="pnote">${e.season(zf(sv),lg==='ABA')}${M.some(m=>x[m[2]]==null)?' '+e.missing:''}</p>`;
+    if(k==='EFIC') h+=`<p class="pnote">${e.ts(pc(x[15]))} ${e.tov}</p>`;
+    if(k==='DEF'){
+      const a=(det.a||[]).find(q=>q[0]===y)||[];
+      h+=`<p class="pnote">${e.def(d.tier[a[5]]||'—', a[7]?pc(a[7])+(a[8]?' ★':''):'—')}</p>`;
+    }
+    return h+`<p class="pnote">${e.zNote}</p><p class="pnote"><b>${e.fin(zf(v),n)}</b></p>`;
+  }
+  if(k==='PLAYOFFS'){
+    const pr=(det.po||[]).filter(q=>q[0]===y), pw=sg(r,'pow')||0;
+    let h='';
+    if(pw>0&&pr.length) h+=xtable(d.poCols, pr.map(q=>[seasonLabel(q[0]),q[1],q[2]??'—',mil(q[3]),nf(q[4]),nf(q[5]),nf(q[6]),nf(q[7]),nf(q[8]),zf(q[9])]));
+    h+=`<p class="pnote">${pw>0?e.po(zf(sg(r,'poz')),zf(sg(r,'poe')),th(pw),zf(sg(r,'pol')),nf(sg(r,'pows'))):e.poNone(zf(sg(r,'poe')))}</p>`;
+    return h+`<p class="pnote"><b>${e.fin(zf(v),n)}</b></p>`;
+  }
+  if(k==='TITULOS'){
+    const rr=(det.r||[]).find(q=>q[0]===y);
+    const h=sg(r,'champ')?e.ring(rr&&rr[2]!=null?pf(rr[2])+' %'+(rr[4]?` (${d.best})`:''):d.noShare, nf(sg(r,'rv'),2), y<1969?e.noFmvp:sg(r,'fmvp')?t.sd.yes:t.sd.no):e.rNone;
+    return `<p class="pnote">${h}</p><p class="pnote"><b>${e.finP(zf(v),n)}</b></p>`;
+  }
+  if(k==='PREMIOS'){
+    const a=(det.a||[]).find(q=>q[0]===y)||[], tm={'1st':1,'2nd':2,'3rd':3}[sg(r,'anba')]||0;
+    const mv=sg(r,'mvps')?pf(sg(r,'mvps'))+' %'+(sg(r,'mvp')?` (${d.mvpWin})`:a[1]?` (${d.place(a[1])})`:''):'0';
+    const an=tm?`${d.tier[tm]} = ${e.pts([0,5,3,1.5][tm])}`:'—';
+    return `<p class="pnote">${e.aw(mv, an, sg(r,'as')?t.sd.yes:t.sd.no)}</p><p class="pnote"><b>${e.finP(zf(v),n)}</b></p>`;
+  }
+  return '';
+}
+function sdetail(r,o){
+  const t=T(), d=t.sd, c=t.card, g=k=>sg(r,k);
   const yn=v=>v?d.yes:d.no;
   const po=g('pog')?`<dl class="kv"><dt>${d.games}</dt><dd>${g('pog')}</dd><dt>${d.ppg}</dt><dd>${nf(g('popg'))}</dd></dl>`
                    :`<p class="pnote" style="margin-top:0">${d.none}</p>`;
@@ -660,7 +760,7 @@ function sdetail(r){
       <dt>MVP</dt><dd>${yn(g('mvp'))} <small>(${nf(g('mvps'),2)} ${d.mvpv})</small></dd>
       <dt>DPOY</dt><dd>${yn(g('dpoy'))}</dd><dt>${d.anba}</dt><dd>${g('anba')||'—'}</dd><dt>${d.as}</dt><dd>${yn(g('as'))}</dd>
       <dt>${d.ring}</dt><dd>${yn(g('champ'))}</dd><dt>${d.fmvp}</dt><dd>${yn(g('fmvp'))}</dd></dl></div>
-    <div class="card"><h4>${c.strength}</h4>${blocks}<p class="pnote">${d.note(SN.toLocaleString(loc()))}</p></div>
+    ${sblocks(r,o)}
   </div></td></tr>`;
 }
 function renderTable(){
@@ -735,7 +835,8 @@ function fillX(id,k,det){
 function toggleX(btn){
   const k=btn.dataset.k, id=btn.dataset.id, box=btn.nextElementSibling, open=btn.getAttribute('aria-expanded')!=='true';
   btn.setAttribute('aria-expanded',open); box.hidden=!open;
-  if(open){ OPENX.add(k); box.innerHTML=`<p class="pnote">${T().card.dx.loading}</p>`; loadDet(id).then(det=>fillX(id,k,det)); }
+  if(open){ OPENX.add(k); box.innerHTML=`<p class="pnote">${T().card.dx.loading}</p>`;
+    loadDet(id).then(det=>btn.dataset.y?fillS(id,btn.dataset.y,k,det):fillX(id,k,det)); }
   else OPENX.delete(k);
 }
 const detView=det=>!era||!det?det:{...det,

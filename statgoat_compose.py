@@ -252,6 +252,7 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     A = np.column_stack([np.ones(ok.sum()), rs[ok]])
     b, *_ = np.linalg.lstsq(A * sw[:, None], t.loc[ok, 'po'].values * sw, rcond=None)
     exp = b[0] + b[1] * rs
+    t['po_exp'] = exp
     t['po_level'] = (t['pw'] * t['po'].fillna(0) + SHRINK_K * exp) / (t['pw'] + SHRINK_K)
     t['po_plus'] = (t['pw'] * (t['po'] - exp)).fillna(0) / (t['pw'] + SHRINK_K)
     t['po_vol'] = np.log1p(t['pws'].clip(lower=0))

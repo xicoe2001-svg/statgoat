@@ -127,7 +127,7 @@ for k in BK:
     keep |= set(T['b_' + k].nlargest(150).index)
 TS = T.loc[sorted(keep)]
 SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
-           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id']
+           'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id', 'rv', 'pol', 'poe', 'poz', 'pow', 'pows']
 sdata = []
 for _, r in TS.iterrows():
     sdata.append([
@@ -140,6 +140,7 @@ for _, r in TS.iterrows():
         r2(r['mvp_share'], 3), ('' if pd.isna(r['anba_tm']) else str(r['anba_tm'])), int(r['allstar'] > 0),
         int(r['srank']), str(r['pos']).split('-')[0] if isinstance(r['pos'], str) else '',
         r['player_id'],
+        r2(r['ring'], 2), r2(r['po_level'], 2), r2(r['po_exp'], 2), r2(r['po'], 2), i0(r['pw']), r2(r['pws'], 1),
     ])
 SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
 
@@ -204,6 +205,10 @@ g_anb = {k: v for k, v in anb.groupby('player_id')}
 g_adf = {k: v for k, v in adf.groupby('player_id')}
 g_ast = {k: set(v.season) for k, v in AST.groupby('player_id')}
 
+# z-score de cada métrica frente a su liga ese año (columnas 26-40 de cada temporada)
+ZC = ['pts_per_game_z', 'trb_per_game_z', 'ast_per_game_z', 'stl_per_game_z', 'blk_per_game_z',
+      'tsa_z', 'tov_neg_z', 'per_z', 'ws_48_z', 'bpm_z',
+      'dbpm_z', 'dws_48_z', 'stl_percent_z', 'blk_percent_z', 'drb_percent_z']
 keep_ids, written, total_kb = set(), 0, 0.0
 for pid in R['player_id']:
     keep_ids.add(pid)
@@ -217,7 +222,8 @@ for pid in R['player_id']:
                    rn(r.stl_per_game, 1), rn(r.blk_per_game, 1),
                    rn(r.ts_percent, 3), rn(r.tsa, 1), rn(r.tov_percent, 1),
                    rn(r.per, 1), rn(r.ws_48, 3), rn(r.bpm, 1),
-                   rn(r.dbpm, 1), rn(r.dws_48, 3), rn(r.stl_percent, 1), rn(r.blk_percent, 1), rn(r.drb_percent, 1)]
+                   rn(r.dbpm, 1), rn(r.dws_48, 3), rn(r.stl_percent, 1), rn(r.blk_percent, 1), rn(r.drb_percent, 1),
+                   *[rn(getattr(r, c)) for c in ZC]]
                   for r in ss.itertuples()]
     if pid in C0.index:
         c = C0.loc[pid]

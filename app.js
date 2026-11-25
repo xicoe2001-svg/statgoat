@@ -33,7 +33,13 @@ es:{
   sfilters:{all:'Todas',ring:'Con anillo',mvp:'Con MVP',pre80:'Antes de 1980',from2000:'Desde 2000'},
   pos:{all:'Todas las posiciones',PG:'Bases',SG:'Escoltas',SF:'Aleros',PF:'Ala-pívots',C:'Pívots'},
   posOne:{PG:'Base',SG:'Escolta',SF:'Alero',PF:'Ala-pívot',C:'Pívot'},posLab:'POSICIÓN',
-  share:'Copiar enlace a esta vista',copied:'Enlace copiado ✓',margin:'MARGEN DE PUESTO',
+  share:'Copiar enlace a esta vista',
+  howto:'Cómo funciona',
+  wl_h:'Bienvenido a STATGOAT',
+  wl_1:'Un índice de los mejores jugadores de la historia de la NBA, la ABA y la BAA. Cada estadística se mide contra los rivales de su propia temporada, así que se pueden comparar épocas distintas.',
+  wl_2:'El orden lo deciden los pesos: cuánto vale cada bloque (producción, defensa, títulos…). Los datos son los mismos para todos; los pesos los eliges tú.',
+  wl_3:'¿Te sorprende ver a tu jugador favorito más abajo de lo que esperabas? Prueba a bajar Defensa y subir Producción o Premios, y mira cómo cambia el ranking. Con Defensa a 0, Curry sube al 12.º puesto.',
+  wl_btn:'Empezar',copied:'Enlace copiado ✓',margin:'MARGEN DE PUESTO',
   marginNote:'con pesos parecidos a los de base',top1:n=>`n.º 1 en el ${n} % de las ponderaciones`,
   scount:(a,b)=>`${a} de ${b} temporadas`, smore:n=>`Ver más temporadas (${n} restantes)`,
   tag:{mvp:'MVP',dpoy:'DPOY',ring:'Anillo',fmvp:'MVP Finales'},
@@ -152,7 +158,13 @@ en:{
   sfilters:{all:'All',ring:'Title seasons',mvp:'MVP seasons',pre80:'Before 1980',from2000:'Since 2000'},
   pos:{all:'All positions',PG:'Point guards',SG:'Shooting guards',SF:'Small forwards',PF:'Power forwards',C:'Centers'},
   posOne:{PG:'Point guard',SG:'Shooting guard',SF:'Small forward',PF:'Power forward',C:'Center'},posLab:'POSITION',
-  share:'Copy link to this view',copied:'Link copied ✓',margin:'RANK RANGE',
+  share:'Copy link to this view',
+  howto:'How it works',
+  wl_h:'Welcome to STATGOAT',
+  wl_1:'An index of the best players in NBA, ABA and BAA history. Every stat is measured against the rivals of its own season, so different eras can be compared.',
+  wl_2:'The order is set by the weights: how much each block counts (production, defense, titles…). The data is the same for everyone; you choose the weights.',
+  wl_3:'Surprised to see your favourite player lower than expected? Try lowering Defense and raising Production or Awards, and watch the ranking change. With Defense at 0, Curry rises to 12th.',
+  wl_btn:'Start',copied:'Link copied ✓',margin:'RANK RANGE',
   marginNote:'with weights close to the default',top1:n=>`#1 in ${n}% of weightings`,
   scount:(a,b)=>`${a} of ${b} seasons`, smore:n=>`Show more seasons (${n} left)`,
   tag:{mvp:'MVP',dpoy:'DPOY',ring:'Title',fmvp:'Finals MVP'},
@@ -851,3 +863,22 @@ buildControls();
 syncP(); recalc();
 if(ST.seasons) setMode('seasons');
 openFromURL(ST);
+
+/* ---------- bienvenida: primera visita y enlace "Cómo funciona" ---------- */
+function openWelcome(){ $('#welcome').hidden=false; $('#wl_btn').focus(); }
+function closeWelcome(){
+  if($('#welcome').hidden) return;
+  $('#welcome').hidden=true;
+  try{localStorage.setItem('statgoat_welcome','1');}catch(e){}
+}
+$('#howto').onclick=openWelcome;
+$('#wl_btn').onclick=closeWelcome;
+$('#welcome').addEventListener('click',e=>{if(e.target.id==='welcome') closeWelcome();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeWelcome();});
+// Si la dirección ya abre una vista concreta, no tapar la tabla; si es primera visita, mostrar la tarjeta
+(function(){
+  const sp=new URLSearchParams(location.search);
+  const linked=['w','b','t','f','sf','pos','p','s'].some(k=>sp.has(k));
+  let seen=false; try{seen=localStorage.getItem('statgoat_welcome')==='1';}catch(e){seen=true;}
+  if(!linked && !seen) openWelcome();
+})();

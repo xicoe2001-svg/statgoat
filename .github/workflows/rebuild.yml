@@ -3,7 +3,7 @@ name: Rebuild STATGOAT
 on:
   workflow_dispatch:
   schedule:
-    - cron: '23 4 * * 1'
+    - cron: '17 9 * * *'        # cada día (la temporada en curso se actualiza a diario)
   push:
     branches: [main]
     paths:
@@ -54,7 +54,7 @@ jobs:
         run: |
           git config user.name "statgoat-bot"
           git config user.email "actions@github.com"
-          git add index.html data.json build_info.json robots.txt cache/ det/ champions.csv finals_mvp.csv
+          git add index.html data.json build_info.json robots.txt cache/ det/ yr/ champions.csv finals_mvp.csv
           if git diff --staged --quiet; then
             echo "Sin cambios esta semana."
           else

@@ -57,6 +57,11 @@ es:{
     poNone:e=>`No jugó playoffs ese año: cuenta su previsión por la liga regular (${e}) y 0 Win Shares.`,
     ring:(sh,v,f)=>`Campeón. Generó el ${sh} de las Win Shares de su equipo en esos playoffs, así que el anillo vale ${v} (70 %). MVP de las Finales: ${f} (30 %).`,
     rNone:'No fue campeón ese año.',
+    blk:v=>`Bloque: ${v}.`,
+    rLive:'La temporada está en curso: aún no hay campeón, así que nadie suma aquí.',
+    poLive:e=>`Los playoffs aún no se han jugado: cuenta lo previsible por su liga regular (${e}) y 0 Win Shares.`,
+    liveZ:m=>`Temporada en curso: el z se mide contra los jugadores con al menos ${m} minutos (la parte proporcional de 500).`,
+    awLive:(n,w,p)=>`Lleva ${n} ${n===1?'vez':'veces'} Jugador de la semana en ${w} semanas. Proyectado al resto de la temporada (al principio se contrae, como si llevara 8 semanas más sin premio): ${p}. El bloque es el de Premios que, de 2001-02 a 2025-26, acabaron teniendo de media los jugadores con ese número de premios. Cuando haya votación del MVP se sustituye por los premios reales.`,
     aw:(m,a,s)=>`Votos al MVP: ${m} (45 %) · All-NBA: ${a} (35 %) · All-Star: ${s} (20 %).`,
     pts:n=>`${n} ${n===1?'punto':'puntos'}`,
     fin:(v,n)=>`Bloque: ${v}. Es el valor de arriba comparado con las ${n} temporadas medibles, en desviaciones típicas y con las colas comprimidas por encima de 2.`,
@@ -73,14 +78,19 @@ es:{
   wl_btn:'Empezar',copied:'Enlace copiado ✓',margin:'MARGEN DE PUESTO',
   marginNote:'con pesos parecidos a los de base',top1:n=>`n.º 1 en el ${n} % de las ponderaciones`,
   scount:(a,b)=>`${a} de ${b} temporadas`, smore:n=>`Ver más temporadas (${n} restantes)`,
-  tag:{mvp:'MVP',dpoy:'DPOY',ring:'Anillo',fmvp:'MVP Finales'},
-  sd:{rs:'LIGA REGULAR',po:'PLAYOFFS',aw:'PREMIOS',none:'No jugó playoffs ese año.',games:'PARTIDOS',ppg:'PUNTOS',mvpv:'de los votos',anba:'ALL-NBA',as:'ALL-STAR',ring:'ANILLO',fmvp:'MVP FINALES',yes:'Sí',no:'No',
+  tag:{mvp:'MVP',dpoy:'DPOY',ring:'Anillo',fmvp:'MVP Finales',potw:'Jug. de la semana'},
+  ymovers:n=>`${n} del top 10 se ${n===1?'mueve':'mueven'} 3+ puestos`,
+  tab_year:'Por temporada', hist:'histórico', ysel:'Temporada', liveTag:'en curso',
+  ycount:(a,b,y)=>`${a} de ${b} jugadores de ${y}`,
+  ynote:n=>`Los ${n} jugadores con 1.000+ minutos esa temporada, en la misma escala que Mejores temporadas: un 90 vale lo mismo en cualquier año.`,
+  ylive:(g,m,d)=>`En curso · ${g} partidos · actualizado el ${d}. Cuentan los jugadores con ${m}+ minutos (la parte proporcional de 1.000). Playoffs es lo previsible por su liga regular, Títulos aún no existe y Premios es una previsión por el Jugador de la semana. Cuando acabe la temporada pasa al histórico con sus playoffs y premios reales.`,
+  sd:{rs:'LIGA REGULAR',po:'PLAYOFFS',aw:'PREMIOS',none:'No jugó playoffs ese año.',noneLive:'Los playoffs aún no se han jugado.',games:'PARTIDOS',ppg:'PUNTOS',mvpv:'de los votos',anba:'ALL-NBA',as:'ALL-STAR',ring:'ANILLO',fmvp:'MVP FINALES',yes:'Sí',no:'No',
       note:n=>`Desviaciones típicas frente a las ${n} temporadas medibles desde 1951-52, con los pesos que tengas puestos.`},
   cr_h:'Fuentes y atribución',
   cr_br_h:'Basketball-Reference · temporada regular',
-  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, 1947–${SMAX}, a través del volcado público de Sumitro Datta. La liga regular de la temporada en curso se lee directamente de Basketball-Reference cada lunes.`,
+  cr_br:`Box score completo, métricas avanzadas, votaciones de premios, All-NBA, All-Defensivo y All-Star, 1947–${SMAX}, a través del volcado público de Sumitro Datta. La liga regular de la temporada en curso se lee directamente de Basketball-Reference cada día.`,
   cr_po_h:'Basketball-Reference · playoffs y premios',
-  cr_po:`Estadísticas de playoffs de cada temporada (totales y avanzadas), campeones, Finals MVP y las votaciones de premios más recientes, descargadas directamente cada lunes. Playoffs hasta ${BI.playoff_max||'—'}.`,
+  cr_po:`Estadísticas de playoffs de cada temporada (totales y avanzadas), campeones, Finals MVP y las votaciones de premios más recientes, descargadas directamente cada día. Playoffs hasta ${BI.playoff_max||'—'}.`,
   cr_sg_h:'Índice STATGOAT',
   cr_sg1:'La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, anillos según la aportación real en cada playoff y composición de los siete bloques.',
   cr_sg2:'La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.',
@@ -131,7 +141,7 @@ es:{
     partialNote:'<b>Datos parciales:</b> su época no registraba parte de las métricas del modelo, así que estos bloques descansan sobre menos indicadores.',
     best3:'SUS TRES MEJORES TEMPORADAS',cols:['AÑO','EQUIPO','PTS','REB','AST','PER','WS/48','BPM'],
     best3Note:'Ordenadas por un compuesto de producción, eficiencia, impacto y defensa medido en z-score de su propio año, no por puntos.'},
-  footer:(s,d)=>`Datos hasta la temporada ${s}, playoffs hasta ${BI.playoff_max||'—'}. Se actualiza cada lunes; última vez: ${d}.`,
+  footer:(s,d)=>`Datos hasta la temporada ${s}, playoffs hasta ${BI.playoff_max||'—'}. Se actualiza cada día; última vez: ${d}.`,
   gloss:n=>`<h2>Qué es exactamente cada cosa</h2>
 <p class="lead">Los colores son los mismos en los cuadraditos de los pesos y en la barra de cada jugador, así que la barra se lee directamente como el reparto de su puntuación.</p>
 <h3>LOS SIETE BLOQUES</h3><dl class="gl">${glossBlocks('en la ponderación base')}</dl>
@@ -160,7 +170,9 @@ es:{
 <dt>Margen de puesto</dt><dd>Entre qué puestos se mueve un jugador si los pesos por defecto cambian un poco. Se sortean 2.000 combinaciones de pesos parecidas a las de base (un peso del 15 % se mueve unos ±5 puntos) y se muestra el rango donde cae su puesto en 8 de cada 10. Si los márgenes de dos jugadores se solapan, quién va delante depende de cómo se pondere, no de los datos: por ejemplo, Jordan es n.º 1 en un 79 % de las combinaciones y LeBron en un 15 %. Se calcula sobre los pesos por defecto, no sobre los que tengas puestos.</dd>
 <dt>Compartir</dt><dd>El botón «Copiar enlace a esta vista» copia una dirección con tus pesos, el bonus, la pestaña, los filtros y la ficha abierta: quien la abra verá exactamente lo mismo.</dd>
 <dt>Posición</dt><dd>La que más minutos jugó en su carrera según Basketball-Reference (en Mejores temporadas, la de ese año). Muchos cambian con los años: LeBron sale como alero y Duncan como ala-pívot porque es donde más minutos jugaron. Es solo un filtro: no cambia la nota. Con cualquier filtro activo, la lista y el top de la derecha numeran dentro del filtro y muestran al lado el puesto general. Los jugadores de 1947 a 1951 casi no tienen posición registrada y solo aparecen con «Todas las posiciones».</dd>
-<dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma puntos a quien esté en el top 5 histórico de una estadística de carrera: puntos, rebotes, asistencias, robos, tapones o triples (NBA, ABA y BAA juntas). El 1.º se lleva 3 puntos, el 2.º 2,4, el 3.º 1,8, el 4.º 1,2 y el 5.º 0,6. Cuenta solo su mejor categoría: dos terceros puestos no valen lo mismo que un récord. No va en la nota por defecto porque compara totales en bruto entre épocas (los robos y tapones se cuentan desde 1974, los triples desde 1980 y antes las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque. Los puestos se actualizan cada lunes.</dd>
+<dt>Bonus por totales</dt><dd>Opcional y desactivado por defecto. Si lo activas, suma puntos a quien esté en el top 5 histórico de una estadística de carrera: puntos, rebotes, asistencias, robos, tapones o triples (NBA, ABA y BAA juntas). El 1.º se lleva 3 puntos, el 2.º 2,4, el 3.º 1,8, el 4.º 1,2 y el 5.º 0,6. Cuenta solo su mejor categoría: dos terceros puestos no valen lo mismo que un récord. No va en la nota por defecto porque compara totales en bruto entre épocas (los robos y tapones se cuentan desde 1974, los triples desde 1980 y antes las temporadas eran más cortas) y porque la longevidad ya cuenta un 20% en cada bloque. Los puestos se actualizan cada día.</dd>
+<dt>Por temporada</dt><dd>El mejor de cada año según el índice: todos los jugadores con 1.000+ minutos de una temporada, puntuados solo con lo de esa temporada (los mismos siete bloques que Mejores temporadas: liga regular, sus playoffs, su anillo y sus premios de ese año). La escala es la de Mejores temporadas, así que un 90 vale lo mismo en 1985 que en 2016, y cada jugador lleva su puesto histórico entre todas las temporadas medibles. También marca cuántas veces fue Jugador de la semana (desde 1979-80), que en las temporadas cerradas es solo informativo.</dd>
+<dt>Temporada en curso</dt><dd>Se recalcula cada día con los números de Basketball-Reference. Los mínimos de minutos se escalan a lo jugado: para contar hace falta la parte proporcional de 1.000 minutos, y el z de cada métrica se mide contra los jugadores con la parte proporcional de 500 (con 19 partidos, 232 y 116). Cada bloque se compara con las temporadas cerradas, sin moverlas. Playoffs es lo previsible por su liga regular, Títulos aún no existe y Premios es una previsión: el ritmo de Jugador de la semana se proyecta al resto de la temporada, contraído al principio (como si llevara 8 semanas más sin premio), y se convierte en el bloque de Premios que de media acabaron teniendo, de 2001-02 a 2025-26, los jugadores con ese número de premios. No entra en Mejores temporadas ni en la nota de carrera: lo hace cuando acaba la liga regular (82 partidos o empiezan los playoffs), y sus playoffs, anillo y premios reales se suman según llegan.</dd>
 <dt>Desde 1979-80</dt><dd>Una segunda vista del mismo índice que cuenta solo lo jugado desde 1979-80, la primera temporada con línea de 3 en la NBA. Desde ese año existen todas las estadísticas (tapones, robos, BPM, triples), así que a todos los jugadores se les mide con las mismas métricas. Los z-scores no cambian, porque ya son por temporada: cambia qué temporadas entran en cada carrera. A quien jugó antes y después solo le cuentan sus temporadas, playoffs, anillos, premios y totales desde 1979-80 (Kareem llega con 32 años; la ABA de Dr. J queda fuera); cada anillo conserva su crédito. Quien jugó solo antes no aparece. Los bloques, la escala, el bonus y el margen de puesto se recalculan dentro de este grupo, y el mejor marca 100. En Mejores temporadas, esta vista solo filtra por año.</dd>
 <dt>Mejores temporadas</dt><dd>La misma fórmula del índice aplicada a un solo año: liga regular (producción, eficiencia, impacto y defensa), los playoffs de ese año, el anillo según su aportación y los premios de esa temporada (MVP, DPOY, All-NBA, All-Star). Cada bloque se compara con todas las temporadas medibles y se pondera con los pesos que tengas puestos. Títulos y premios se pasan a la misma escala que la estadística a partir de su percentil: en un solo año casi todo son ceros, y sin esto un anillo pesaba más que la mejor temporada estadística de la historia. Solo entran temporadas desde 1951-52, cuando empiezan los minutos: antes no se pueden medir ni el impacto ni la defensa.</dd>
 <dt>Escala de los bloques</dt><dd>Para que cada peso signifique lo que dice, todos los bloques tienen que estar en la misma escala. Los estadísticos ya lo están (z-score, con las colas comprimidas por encima de 2 desviaciones). Títulos y premios no: tres de cada cuatro jugadores tienen 0 y unos pocos se disparan, y en la cima pesaban un 34% de la nota en vez de su 25%. Por eso se pasan a la escala de la estadística a partir de su percentil: tener más anillos que nadie vale lo mismo que ser el mejor de la historia en producción, no el doble. La escala es continua: quien no tiene nada queda en el centro de su grupo y los demás suben desde ahí, así que un anillo testimonial o un solo All-Star valen casi lo mismo que nada, sin saltos de varios puntos.</dd>
@@ -204,6 +216,11 @@ en:{
     poNone:e=>`No playoffs that year: his prediction from the regular season counts (${e}) and 0 Win Shares.`,
     ring:(sh,v,f)=>`Champion. He produced ${sh} of his team’s Win Shares in those playoffs, so the ring is worth ${v} (70%). Finals MVP: ${f} (30%).`,
     rNone:'Not a champion that year.',
+    blk:v=>`Block: ${v}.`,
+    rLive:'The season is in progress: there is no champion yet, so nobody adds anything here.',
+    poLive:e=>`The playoffs haven’t been played yet: what his regular season predicts counts (${e}) and 0 Win Shares.`,
+    liveZ:m=>`Season in progress: the z is measured against players with at least ${m} minutes (the pro-rated share of 500).`,
+    awLive:(n,w,p)=>`${n} Player of the Week ${n===1?'award':'awards'} in ${w} weeks. Projected over the rest of the season (shrunk early on, as if 8 more weeks without an award had passed): ${p}. The block is the Awards value that players finishing with that many awards had on average from 2001-02 to 2025-26. Once MVP voting exists, the real awards replace it.`,
     aw:(m,a,s)=>`MVP votes: ${m} (45%) · All-NBA: ${a} (35%) · All-Star: ${s} (20%).`,
     pts:n=>`${n} ${n===1?'point':'points'}`,
     fin:(v,n)=>`Block: ${v}. It is the value above compared with the ${n} measurable seasons, in standard deviations with the tails compressed above 2.`,
@@ -220,14 +237,19 @@ en:{
   wl_btn:'Start',copied:'Link copied ✓',margin:'RANK RANGE',
   marginNote:'with weights close to the default',top1:n=>`#1 in ${n}% of weightings`,
   scount:(a,b)=>`${a} of ${b} seasons`, smore:n=>`Show more seasons (${n} left)`,
-  tag:{mvp:'MVP',dpoy:'DPOY',ring:'Title',fmvp:'Finals MVP'},
-  sd:{rs:'REGULAR SEASON',po:'PLAYOFFS',aw:'AWARDS',none:'No playoffs that year.',games:'GAMES',ppg:'POINTS',mvpv:'vote share',anba:'ALL-NBA',as:'ALL-STAR',ring:'TITLE',fmvp:'FINALS MVP',yes:'Yes',no:'No',
+  tag:{mvp:'MVP',dpoy:'DPOY',ring:'Title',fmvp:'Finals MVP',potw:'POTW'},
+  ymovers:n=>`${n} of the top 10 ${n===1?'moves':'move'} 3+ spots`,
+  tab_year:'By season', hist:'all-time', ysel:'Season', liveTag:'in progress',
+  ycount:(a,b,y)=>`${a} of ${b} players in ${y}`,
+  ynote:n=>`The ${n} players with 1,000+ minutes that season, on the same scale as Best seasons: a 90 means the same in any year.`,
+  ylive:(g,m,d)=>`In progress · ${g} games · updated ${d}. Players with ${m}+ minutes count (the pro-rated share of 1,000). Playoffs is what his regular season predicts, Titles doesn’t exist yet and Awards is a forecast from Player of the Week. When the season ends it moves into history with its real playoffs and awards.`,
+  sd:{rs:'REGULAR SEASON',po:'PLAYOFFS',aw:'AWARDS',none:'No playoffs that year.',noneLive:'The playoffs haven’t been played yet.',games:'GAMES',ppg:'POINTS',mvpv:'vote share',anba:'ALL-NBA',as:'ALL-STAR',ring:'TITLE',fmvp:'FINALS MVP',yes:'Yes',no:'No',
       note:n=>`Standard deviations against the ${n} measurable seasons since 1951-52, with the weights you have set.`},
   cr_h:'Sources and attribution',
   cr_br_h:'Basketball-Reference · regular season',
-  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections, 1947–${SMAX}, through Sumitro Datta’s public data dump. The current regular season is read straight from Basketball-Reference every Monday.`,
+  cr_br:`Full box score, advanced metrics, award voting, All-NBA, All-Defensive and All-Star selections, 1947–${SMAX}, through Sumitro Datta’s public data dump. The current regular season is read straight from Basketball-Reference every day.`,
   cr_po_h:'Basketball-Reference · playoffs and awards',
-  cr_po:`Playoff stats for every season (totals and advanced), champions, Finals MVPs and the latest award voting, downloaded directly every Monday. Playoffs through ${BI.playoff_max||'—'}.`,
+  cr_po:`Playoff stats for every season (totals and advanced), champions, Finals MVPs and the latest award voting, downloaded directly every day. Playoffs through ${BI.playoff_max||'—'}.`,
   cr_sg_h:'STATGOAT index',
   cr_sg1:'The transformation is our own: within-season z-scores, logarithmic tail compression, rings weighted by real contribution in each playoff run and the composition of the seven blocks.',
   cr_sg2:'The weighting is a formalized opinion, which is why you can change it above.',
@@ -278,7 +300,7 @@ en:{
     partialNote:'<b>Partial data:</b> his era didn’t record some of the model’s metrics, so these blocks rest on fewer indicators.',
     best3:'HIS THREE BEST SEASONS',cols:['YEAR','TEAM','PTS','REB','AST','PER','WS/48','BPM'],
     best3Note:'Ranked by a composite of production, efficiency, impact and defense measured as a z-score within his own year, not by points.'},
-  footer:(s,d)=>`Data through the ${s} season, playoffs through ${BI.playoff_max||'—'}. Updated every Monday; last update: ${d}.`,
+  footer:(s,d)=>`Data through the ${s} season, playoffs through ${BI.playoff_max||'—'}. Updated every day; last update: ${d}.`,
   gloss:n=>`<h2>What everything means</h2>
 <p class="lead">The colors match the little squares next to the weights and each player’s bar, so the bar reads directly as the breakdown of his score.</p>
 <h3>THE SEVEN BLOCKS</h3><dl class="gl">${glossBlocks('in the default weighting')}</dl>
@@ -307,7 +329,9 @@ en:{
 <dt>Rank range</dt><dd>The ranks a player moves between if the default weights change a little. 2,000 weight combinations close to the default are drawn (a 15% weight moves about ±5 points) and the range shown is where his rank falls in 8 out of 10. If two players’ ranges overlap, who comes first depends on how you weigh things, not on the data: for example, Jordan is #1 in 79% of the combinations and LeBron in 15%. It’s computed on the default weights, not on the ones you’ve set.</dd>
 <dt>Sharing</dt><dd>The “Copy link to this view” button copies an address with your weights, the bonus, the tab, the filters and the open player card: whoever opens it sees exactly the same.</dd>
 <dt>Position</dt><dd>The one he played the most minutes at in his career, according to Basketball-Reference (in Best seasons, the one from that year). Many players change over the years: LeBron is listed as a small forward and Duncan as a power forward because that’s where they played the most minutes. It’s only a filter: it doesn’t change the score. With any filter on, the list and the top on the right are numbered within the filter and show the overall rank next to it. Players from 1947 to 1951 mostly have no recorded position and only show up under “All positions”.</dd>
-<dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds points for anyone in the all-time top 5 of a career stat: points, rebounds, assists, steals, blocks or threes (NBA, ABA and BAA combined). 1st place gets 3 points, 2nd 2.4, 3rd 1.8, 4th 1.2 and 5th 0.6. Only his best category counts: two third places aren’t worth a record. It isn’t in the default score because it compares raw totals across eras (steals and blocks have been counted since 1974, threes since 1980, and seasons used to be shorter) and because longevity already counts for 20% in every block. Rankings update every Monday.</dd>
+<dt>Totals bonus</dt><dd>Optional and off by default. If you switch it on, it adds points for anyone in the all-time top 5 of a career stat: points, rebounds, assists, steals, blocks or threes (NBA, ABA and BAA combined). 1st place gets 3 points, 2nd 2.4, 3rd 1.8, 4th 1.2 and 5th 0.6. Only his best category counts: two third places aren’t worth a record. It isn’t in the default score because it compares raw totals across eras (steals and blocks have been counted since 1974, threes since 1980, and seasons used to be shorter) and because longevity already counts for 20% in every block. Rankings update every day.</dd>
+<dt>By season</dt><dd>The best player of each year according to the index: every player with 1,000+ minutes in a season, scored only on that season (the same seven blocks as Best seasons: regular season, his playoffs, his ring and his awards that year). The scale is the Best seasons one, so a 90 means the same in 1985 as in 2016, and each player carries his all-time rank among every measurable season. It also shows how many times he was Player of the Week (since 1979-80), which is informational only for finished seasons.</dd>
+<dt>Current season</dt><dd>Recalculated every day with Basketball-Reference’s numbers. Minute minimums scale with games played: to count, a player needs the pro-rated share of 1,000 minutes, and each metric’s z is measured against players with the pro-rated share of 500 (after 19 games, 232 and 116). Each block is compared with the finished seasons without moving them. Playoffs is what his regular season predicts, Titles doesn’t exist yet and Awards is a forecast: the Player of the Week pace is projected over the rest of the season, shrunk early on (as if 8 more award-less weeks had passed), and turned into the Awards value that players finishing with that many awards had on average from 2001-02 to 2025-26. It doesn’t enter Best seasons or career scores until the regular season ends (82 games or the playoffs start); its real playoffs, ring and awards are added as they arrive.</dd>
 <dt>Since 1979-80</dt><dd>A second view of the same index that counts only what was played since 1979-80, the NBA’s first season with a 3-point line. From that year every stat exists (blocks, steals, BPM, threes), so every player is measured with the same metrics. The z-scores don’t change, since they are already per season: what changes is which seasons go into each career. For players who played before and after, only their seasons, playoffs, rings, awards and totals since 1979-80 count (Kareem arrives at 32; Dr. J’s ABA years are left out); each ring keeps its credit. Players who only played before don’t appear. The blocks, the scale, the bonus and the rank range are recalculated within this group, and the best player scores 100. In Best seasons, this view only filters by year.</dd>
 <dt>Best seasons</dt><dd>The index formula applied to a single year: regular season (production, efficiency, impact and defense), that year’s playoffs, the ring weighted by contribution and that season’s awards (MVP, DPOY, All-NBA, All-Star). Each block is compared with every measurable season and weighted with the weights you have set. Titles and awards are put on the same scale as the stats through their percentile: in a single year almost everything is zero, and without this a ring outweighed the best statistical season ever. Only seasons from 1951-52 on are included, when minutes start being recorded: before that, impact and defense can’t be measured.</dd>
 <dt>Block scale</dt><dd>For each weight to mean what it says, every block has to be on the same scale. The statistical blocks already are (z-scores, with the tails compressed above 2 standard deviations). Titles and awards aren’t: three in four players have 0 and a few shoot off the chart, so at the top they made up 34% of the score instead of their 25%. That’s why they’re put on the stats scale through their percentile: having more rings than anyone is worth the same as being the best ever in production, not twice as much. The scale is continuous: players with nothing sit in the middle of their group and everyone else climbs from there, so a token ring or a single All-Star selection is worth almost the same as nothing, with no jumps of several points.</dd>
@@ -388,13 +412,15 @@ function basePos(){
 }
 // etiqueta del filtro activo para el top en vivo
 const filtTag=seas=>{const t=T(), a=[];
-  if(seas? sFilter!=='all' : filter!=='all') a.push((seas?t.sfilters[sFilter]:t.filters[filter]).toUpperCase());
+  const ff=mode==='year'?yFilter:seas?sFilter:filter;
+  if(ff!=='all') a.push((mode!=='players'?t.sfilters[ff]:t.filters[ff]).toUpperCase());
   if(posF!=='all') a.push(t.pos[posF].toUpperCase());
   if(era) a.push(t.eraTag);
   return a.length?' · '+a.join(' · '):'';};
 
 const nf=(v,d=1)=>v==null?'—':Number(v).toFixed(d);
 let SCN={lo:0,hi:1,tot:1}, SSCN={lo:0,hi:1,tot:1};
+const builtDate=()=>{let d=BI.built||''; if(BI.built_iso){try{d=new Date(BI.built_iso+'T12:00:00Z').toLocaleDateString(loc(),{year:'numeric',month:'long',day:'numeric'});}catch(e){}} return d;};
 const mil=v=>v==null?'—':Number(v).toLocaleString(loc());
 const recs=p=>String(get(p,'rec')||'').split(',').filter(x=>x.includes(':')).map(x=>{const [k,r]=x.split(':');return {k,r:+r};});
 const ord=r=>LANG==='en'?r+(['th','st','nd','rd'][r]||'th'):r+'.º';
@@ -408,6 +434,10 @@ const sg=(r,k)=>r[SF[k]];
 const SNAMES=S.map(r=>norm(sg(r,'n')));
 const SFILTERS={all:()=>true, ring:r=>sg(r,'champ')>0, noring:r=>!(sg(r,'champ')>0), mvp:r=>sg(r,'mvp')>0,
   pre80:r=>sg(r,'y')<1980, from2000:r=>sg(r,'y')>=2000};
+const YRS=RAW.yrs||{}, YLIVE=RAW.ylive||{}, YLIST=Object.keys(YRS).map(Number).sort((a,b)=>b-a);
+let YEAR=YLIST[0]||null, YLOADED=null, YROWS=[], YNAMES=[], yscored=[], yview=[], openY=null, yShown=CHUNK, yFilter='all', PENDY=null;
+const YC=new Map();
+const yFilt=()=>{const f=SFILTERS[yFilter]||SFILTERS.all;return r=>f(r)&&okPos(sg(r,'pos'));};
 const sFilt=()=>{const f=SFILTERS[sFilter];return r=>f(r)&&okPos(sg(r,'pos'))&&(!era||sg(r,'y')>=Y0);};
 const MINS={}; BLOCKS.forEach(b=>MINS[b.k]=Math.min(...P.map(p=>get(p,b.k))));
 
@@ -437,8 +467,16 @@ function scoreSeasons(){
   out.sort((a,b)=>b.s-a.s); out.forEach((o,k)=>o.rk=k+1);
   return out;
 }
+function scoreYear(){
+  const {lo,hi,tot}=SSCN;
+  const out=YROWS.map((r,i)=>({i,r,v:BLOCKS.reduce((s,b)=>s+(W[b.k]/tot)*sg(r,b.k),0)}));
+  for(const o of out) o.s=100*(o.v-lo)/((hi-lo)||1);
+  out.sort((a,b)=>b.s-a.s); out.forEach((o,k)=>o.rk=k+1);
+  return out;
+}
 function applyView(){
   const f=pFilt(), q=norm(query.trim());
+  const yf=yFilt(); yview=yscored.filter(o=>yf(o.r)&&(!q||YNAMES[o.i].includes(q)));
   view=scored.filter(o=>f(o.p)&&(!q||NAMES[o.i].includes(q)));
   const sf=sFilt();
   sview=sscored.filter(o=>sf(o.r)&&(!q||SNAMES[o.i].includes(q)));
@@ -484,16 +522,17 @@ function buildControls(){
   syncP();
 }
 function buildFilters(){
-  const t=T(), seas=mode==='seasons', FS=seas?SFILTERS:FILTERS, cur=seas?sFilter:filter, lab=seas?t.sfilters:t.filters;
-  $('#filters').innerHTML=Object.keys(FS).filter(id=>!(era&&id==='pre80')).map(id=>`<button data-f="${id}" aria-pressed="${id===cur}">${lab[id]}</button>`).join('');
+  const t=T(), yr=mode==='year', seas=mode!=='players', FS=seas?SFILTERS:FILTERS, cur=yr?yFilter:seas?sFilter:filter, lab=seas?t.sfilters:t.filters;
+  $('#filters').innerHTML=Object.keys(FS).filter(id=>!(era&&id==='pre80')&&!(yr&&(id==='pre80'||id==='from2000'))).map(id=>`<button data-f="${id}" aria-pressed="${id===cur}">${lab[id]}</button>`).join('');
   $('#filters').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
-    if(seas){ sFilter=btn.dataset.f; sShown=CHUNK; openS=null; }
+    if(yr){ yFilter=btn.dataset.f; yShown=CHUNK; openY=null; }
+    else if(seas){ sFilter=btn.dataset.f; sShown=CHUNK; openS=null; }
     else { filter=btn.dataset.f; shown=CHUNK; openRk=null; }
     $('#filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===btn.dataset.f));
     applyView(); renderTop(); renderTable();});
   $('#posf').innerHTML=['all',...POSK].map(k=>`<button data-p="${k}" aria-pressed="${k===posF}">${t.pos[k]}</button>`).join('');
   $('#posf').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
-    posF=btn.dataset.p; shown=CHUNK; sShown=CHUNK; openRk=null; openS=null;
+    posF=btn.dataset.p; shown=CHUNK; sShown=CHUNK; yShown=CHUNK; openRk=null; openS=null; openY=null;
     $('#posf').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===posF));
     applyView(); renderTop(); renderTable();});
 }
@@ -524,7 +563,80 @@ function setMode(m){
   if(m===mode) return;
   mode=m; query=''; $('#q').value='';
   document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===mode));
+  syncYearBox();
   buildFilters(); applyView(); renderTop(); renderTable();
+  if(mode==='year'&&YLOADED!==YEAR) showYear(YEAR);
+}
+/* ---------- pestaña Por temporada ---------- */
+function loadYear(y){
+  if(!YC.has(y)) YC.set(y, fetch(`yr/${y}.json`).then(r=>r.ok?r.json():null).then(j=>j?j.d:null).catch(()=>null));
+  return YC.get(y);
+}
+async function showYear(y){
+  if(!YRS[y]) return;
+  YEAR=y; syncYearBox();
+  const d=await loadYear(y);
+  if(YEAR!==y) return;
+  YROWS=d||[]; YNAMES=YROWS.map(r=>norm(sg(r,'n'))); YLOADED=y; openY=null; yShown=CHUNK;
+  if(PENDY){ const i=YROWS.findIndex(r=>sg(r,'id')===PENDY); if(i>=0) openY=i; PENDY=null; }
+  yscored=scoreYear(); applyView(); renderTop(); renderTable();
+  if(openY!=null){ const idx=yview.findIndex(o=>o.i===openY); if(idx>=0){ yShown=Math.max(yShown,idx+5); renderTable(); }
+    setTimeout(()=>document.querySelector('tr.open')?.scrollIntoView({block:'center'}),50); }
+}
+function syncYearBox(){
+  const on=mode==='year', t=T();
+  $('#yearbox').hidden=!on; $('#erabox').hidden=on||!P80;
+  if(!on) return;
+  $('#ysel').innerHTML=YLIST.map(y=>`<option value="${y}"${y===YEAR?' selected':''}>${seasonLabel(y)}${y===YLIVE.live?' · '+t.liveTag:''}</option>`).join('');
+  $('#ysel').setAttribute('aria-label',t.ysel);
+  const i=YLIST.indexOf(YEAR);
+  $('#yprev').disabled=i>=YLIST.length-1; $('#ynext').disabled=i<=0;
+  const live=YEAR===YLIVE.live;
+  $('#ynote').textContent=live?t.ylive(YLIVE.g,YLIVE.minc,builtDate()):t.ynote((YRS[YEAR]||0).toLocaleString(loc()));
+  $('#ynote').classList.toggle('live',live);
+}
+function renderYear(){
+  const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
+  if(YLOADED!==YEAR){ $('#tb').innerHTML=`<tr><td colspan="4"><p class="pnote">${t.card.dx.loading}</p></td></tr>`; $('#more').hidden=true; $('#count').textContent=''; return; }
+  const maxS=yscored.length?yscored[0].s:1, slice=yview.slice(0,yShown);
+  const isF=yFilter!=='all'||posF!=='all', fpos=new Map();
+  if(isF){const f=yFilt(); let k=0; for(const o of yscored) if(f(o.r)) fpos.set(o.i,++k);}
+  $('#count').textContent=t.ycount(yview.length.toLocaleString(loc()),YROWS.length.toLocaleString(loc()),seasonLabel(YEAR));
+  $('#tb').innerHTML=slice.map(o=>{
+    const r=o.r, parts=BLOCKS.map(b=>({c:b.c,n:bn(b.k),v:(W[b.k]/tot)*(sg(r,b.k)-(SMIN[b.k]||0))}));
+    const sum=parts.reduce((s,x)=>s+Math.max(0,x.v),0)||1;
+    const bar=`<div class="stack" style="width:${Math.max(4,100*o.s/maxS)}%">`+
+      parts.map(x=>`<i style="width:${100*Math.max(0,x.v)/sum}%;background:${x.c}" title="${x.n}"></i>`).join('')+'</div>';
+    const tg=[sg(r,'mvp')&&t.tag.mvp, sg(r,'dpoy')&&t.tag.dpoy, sg(r,'champ')&&t.tag.ring, sg(r,'fmvp')&&t.tag.fmvp,
+      sg(r,'potw')&&`${t.tag.potw} ×${sg(r,'potw')}`].filter(Boolean).map(x=>`<span class="flag aw">${x}</span>`).join('');
+    const op=openY===o.i;
+    return `<tr class="main${op?' open':''}" data-yi="${o.i}">
+      <td class="rk num">${isF?fpos.get(o.i):o.rk}</td>
+      <td class="nm">${sg(r,'n')}${tg}<small>${T().posOne[sg(r,'pos')]||'—'} · ${sg(r,'tm')}${sg(r,'lg')==='ABA'?' · ABA':''}${sg(r,'live')?` · ${sg(r,'g')} PJ`:''} · #${th(sg(r,'srk'))} ${t.hist}${isF?` · #${o.rk} ${t.overall}`:''}</small></td>
+      <td class="bar">${bar}</td><td class="sc num">${o.s.toFixed(1)}</td></tr>`+(op?sdetail(r,o):'');
+  }).join('');
+  $('#tb').querySelectorAll('tr.main').forEach(tr=>tr.onclick=()=>{
+    const i=+tr.dataset.yi; openY=openY===i?null:i; renderTable();});
+  $('#more').hidden=yview.length<=yShown;
+  $('#more').textContent=t.more((yview.length-yShown).toLocaleString(loc()));
+}
+function renderTopYear(){
+  const t=T(), f=yFilt(), pool=yscored.filter(o=>f(o.r));
+  const base=new Map(); YROWS.map((r,i)=>[sg(r,'srk'),i]).filter(([,i])=>f(YROWS[i])).sort((a,b)=>a[0]-b[0]).forEach(([,i],k)=>base.set(i,k+1));
+  const lab=document.querySelector('[data-i18n="c_live"]');
+  if(lab) lab.textContent=t.c_live+' · '+(YEAR?seasonLabel(YEAR):'')+filtTag(true);
+  if(YLOADED!==YEAR){ $('#live').innerHTML=''; $('#movers').textContent=''; return; }
+  $('#live').innerHTML=pool.slice(0,10).map((o,k)=>{
+    const pos=k+1, d=(base.get(o.i)||pos)-pos;
+    const m=d>0?`<span class="delta up">▲${d}</span>`:d<0?`<span class="delta down">▼${-d}</span>`:'';
+    return `<div class="lrow" data-yi="${o.i}"><span class="lr num">${pos}</span>
+      <span class="ln">${sg(o.r,'n')}${m}</span><span class="ls num">${o.s.toFixed(1)}</span></div>`;}).join('');
+  $('#live').querySelectorAll('.lrow').forEach(el=>el.onclick=()=>{
+    const i=+el.dataset.yi; query=''; $('#q').value=''; applyView();
+    const idx=yview.findIndex(o=>o.i===i); openY=i; yShown=Math.max(yShown,idx+5); renderTable();
+    document.querySelector('tr.open')?.scrollIntoView({block:'center'});});
+  const moved=pool.slice(0,10).filter((o,k)=>Math.abs((base.get(o.i)||k+1)-(k+1))>=3).length;
+  $('#movers').textContent=moved?t.ymovers(moved):t.baseOrder;
 }
 function bindOnce(){
   document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
@@ -532,7 +644,10 @@ function bindOnce(){
   $('#bonus').addEventListener('change',e=>{useBonus=e.target.checked;recalc();});
   $('#share').onclick=share;
   $('#tb').addEventListener('click',e=>{const x=e.target.closest('.xr'); if(x){e.stopPropagation(); toggleX(x);}});
-  $('#more').onclick=()=>{ if(mode==='seasons') sShown+=CHUNK*3; else shown+=CHUNK*3; renderTable();};
+  $('#more').onclick=()=>{ if(mode==='seasons') sShown+=CHUNK*3; else if(mode==='year') yShown+=CHUNK*3; else shown+=CHUNK*3; renderTable();};
+  $('#ysel').onchange=e=>showYear(+e.target.value);
+  $('#yprev').onclick=()=>{ const i=YLIST.indexOf(YEAR); if(i<YLIST.length-1) showYear(YLIST[i+1]); };
+  $('#ynext').onclick=()=>{ const i=YLIST.indexOf(YEAR); if(i>0) showYear(YLIST[i-1]); };
   document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 }
 function syncP(){$('#presets').querySelectorAll('button').forEach(b=>{
@@ -549,7 +664,7 @@ function setLang(l){
 /* ---------- render ---------- */
 function recalc(){
   const oi=openRk?scored[openRk-1]?.i:null;            // misma ficha abierta aunque cambie su puesto
-  scored=score(); sscored=scoreSeasons();
+  scored=score(); sscored=scoreSeasons(); yscored=scoreYear();
   if(oi!=null) openRk=scored.find(o=>o.i===oi)?.rk||null;
   applyView(); renderTop(); renderTable();
 }
@@ -559,14 +674,15 @@ function stateURL(){
   const set=(k,v)=>{ if(v==null) sp.delete(k); else sp.set(k,v); };
   set('w', BLOCKS.every(b=>W[b.k]===PRESETS.base[b.k])?null:BLOCKS.map(b=>W[b.k]).join('.'));
   set('b', useBonus?'1':null);
-  set('t', mode==='seasons'?'s':null);
+  set('t', mode==='seasons'?'s':mode==='year'?'y':null);
+  set('yr', mode==='year'&&YEAR!==YLIST[0]?YEAR:null);
   set('f', filter==='all'?null:filter);
   set('sf', sFilter==='all'?null:sFilter);
   set('pos', posF==='all'?null:posF);
   set('e', era?'80':null);
   const op=mode==='players'&&openRk?scored[openRk-1]:null;
   set('p', op?get(op.p,'id'):null);
-  const os=mode==='seasons'&&openS!=null?S[openS]:null;
+  const os=mode==='seasons'&&openS!=null?S[openS]:mode==='year'&&openY!=null?YROWS[openY]:null;
   set('s', os?sg(os,'id')+'-'+sg(os,'y'):null);
   sp.set('lang',LANG);
   return u;
@@ -580,7 +696,8 @@ function readURL(){
   if(FILTERS[sp.get('f')]) filter=sp.get('f');
   if(SFILTERS[sp.get('sf')]) sFilter=sp.get('sf');
   if(POSK.includes(sp.get('pos'))) posF=sp.get('pos');
-  return {seasons:sp.get('t')==='s', p:sp.get('p'), s:sp.get('s'), era:sp.get('e')==='80'};
+  if(YRS[+sp.get('yr')]) YEAR=+sp.get('yr');
+  return {seasons:sp.get('t')==='s', year:sp.get('t')==='y', p:sp.get('p'), s:sp.get('s'), era:sp.get('e')==='80'};
 }
 function openFromURL(st){
   if(st.p&&mode==='players'){
@@ -630,6 +747,7 @@ function renderTop(){
   BLOCKS.forEach(b=>$('#o_'+b.k).textContent=Math.round(100*W[b.k]/tot)+'%');
   $('#wsum').textContent=BLOCKS.reduce((s,b)=>s+W[b.k],0)===0?t.noWeights:t.normalized;
   if(mode==='seasons') return renderTopSeasons();
+  if(mode==='year') return renderTopYear();
   // el top en vivo respeta el filtro activo (no la búsqueda por nombre)
   const f=pFilt(), pool=scored.filter(o=>f(o.p)), bp=basePos(), all=filter==='all'&&posF==='all';
   const lab=document.querySelector('[data-i18n="c_live"]');
@@ -701,7 +819,7 @@ function sblocks(r,o){
 function fillS(id,y,k,det){
   const box=document.querySelector(`.xp[data-k="${k}"]`), btn=document.querySelector(`.xr[data-k="${k}"][data-id="${id}"][data-y="${y}"]`);
   if(!box||!btn) return;
-  const r=S.find(q=>sg(q,'id')===id&&sg(q,'y')===+y);
+  const r=(YLOADED===+y?YROWS.find(q=>sg(q,'id')===id):null)||S.find(q=>sg(q,'id')===id&&sg(q,'y')===+y);
   box.innerHTML=det&&r? spanel(r,k,det) : `<p class="pnote">${T().card.dx.fail}</p>`;
 }
 // métricas de cada bloque en una temporada: [columna del valor, formato, columna del z, peso]
@@ -723,19 +841,23 @@ function spanel(r,k,det){
       const a=(det.a||[]).find(q=>q[0]===y)||[];
       h+=`<p class="pnote">${e.def(d.tier[a[5]]||'—', a[7]?pc(a[7])+(a[8]?' ★':''):'—')}</p>`;
     }
+    if(sg(r,'live')) h+=`<p class="pnote">${e.liveZ(YLIVE.minq)}</p>`;
     return h+`<p class="pnote">${e.zNote}</p><p class="pnote"><b>${e.fin(zf(v),n)}</b></p>`;
   }
   if(k==='PLAYOFFS'){
     const pr=(det.po||[]).filter(q=>q[0]===y), pw=sg(r,'pow')||0;
     let h='';
     if(pw>0&&pr.length) h+=xtable(d.poCols, pr.map(q=>[seasonLabel(q[0]),q[1],q[2]??'—',mil(q[3]),nf(q[4]),nf(q[5]),nf(q[6]),nf(q[7]),nf(q[8]),zf(q[9])]));
-    h+=`<p class="pnote">${pw>0?e.po(zf(sg(r,'poz')),zf(sg(r,'poe')),th(pw),zf(sg(r,'pol')),nf(sg(r,'pows'))):e.poNone(zf(sg(r,'poe')))}</p>`;
+    h+=`<p class="pnote">${pw>0?e.po(zf(sg(r,'poz')),zf(sg(r,'poe')),th(pw),zf(sg(r,'pol')),nf(sg(r,'pows'))):sg(r,'live')?e.poLive(zf(sg(r,'poe'))):e.poNone(zf(sg(r,'poe')))}</p>`;
     return h+`<p class="pnote"><b>${e.fin(zf(v),n)}</b></p>`;
   }
   if(k==='TITULOS'){
     const rr=(det.r||[]).find(q=>q[0]===y);
-    const h=sg(r,'champ')?e.ring(rr&&rr[2]!=null?pf(rr[2])+' %'+(rr[4]?` (${d.best})`:''):d.noShare, nf(sg(r,'rv'),2), y<1969?e.noFmvp:sg(r,'fmvp')?t.sd.yes:t.sd.no):e.rNone;
+    const h=sg(r,'live')&&!sg(r,'champ')?e.rLive:sg(r,'champ')?e.ring(rr&&rr[2]!=null?pf(rr[2])+' %'+(rr[4]?` (${d.best})`:''):d.noShare, nf(sg(r,'rv'),2), y<1969?e.noFmvp:sg(r,'fmvp')?t.sd.yes:t.sd.no):e.rNone;
     return `<p class="pnote">${h}</p><p class="pnote"><b>${e.finP(zf(v),n)}</b></p>`;
+  }
+  if(k==='PREMIOS'&&sg(r,'live')&&!sg(r,'mvps')){
+    return `<p class="pnote">${e.awLive(sg(r,'potw'),YLIVE.weeks,nf(sg(r,'potwp')))}</p><p class="pnote"><b>${e.blk(zf(v))}</b></p>`;
   }
   if(k==='PREMIOS'){
     const a=(det.a||[]).find(q=>q[0]===y)||[], tm={'1st':1,'2nd':2,'3rd':3}[sg(r,'anba')]||0;
@@ -749,7 +871,7 @@ function sdetail(r,o){
   const t=T(), d=t.sd, c=t.card, g=k=>sg(r,k);
   const yn=v=>v?d.yes:d.no;
   const po=g('pog')?`<dl class="kv"><dt>${d.games}</dt><dd>${g('pog')}</dd><dt>${d.ppg}</dt><dd>${nf(g('popg'))}</dd></dl>`
-                   :`<p class="pnote" style="margin-top:0">${d.none}</p>`;
+                   :`<p class="pnote" style="margin-top:0">${g('live')?d.noneLive:d.none}</p>`;
   return `<tr class="det"><td colspan="4"><div class="dgrid">
     <div class="card"><h4>${d.rs}</h4><dl class="kv">
       <dt>${T().posLab}</dt><dd>${T().posOne[g('pos')]||'—'}</dd>
@@ -766,6 +888,7 @@ function sdetail(r,o){
 function renderTable(){
   setHead(); syncURL();
   if(mode==='seasons') return renderSeasons();
+  if(mode==='year') return renderYear();
   const t=T(), tot=BLOCKS.reduce((s,b)=>s+W[b.k],0)||1;
   const maxS=scored.length?scored[0].s:1;
   const slice=view.slice(0,shown);
@@ -1010,6 +1133,7 @@ if(ST.era) setEra(true,true);
 buildControls(); syncEra();
 syncP(); recalc();
 if(ST.seasons) setMode('seasons');
+if(ST.year){ const m=(ST.s||'').match(/^(.+)-(\d{4})$/); if(m&&+m[2]===YEAR) PENDY=m[1]; setMode('year'); }
 openFromURL(ST);
 
 /* ---------- bienvenida: primera visita y enlace "Cómo funciona" ---------- */

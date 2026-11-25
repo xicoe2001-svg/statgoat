@@ -140,7 +140,24 @@ c25 = ch[ch.season == 2025]
 check(len(c25) == 1 and c25['abbrev'].iloc[0] == 'OKC', 'campeón 2025: OKC')
 
 # ---------------------------------------------------------------- mejores temporadas
-SF = pd.read_pickle(ROOT / '_build' / 'seasons_full.pkl')
+SFA = pd.read_pickle(ROOT / '_build' / 'seasons_full.pkl')
+SF = SFA[SFA['live'] == 0]                       # la temporada en curso no entra en Mejores temporadas
+# ------------------------------------------------- por temporada (yr/)
+YRD = ROOT / 'yr'
+ny = len(list(YRD.glob('*.json'))) if YRD.exists() else 0
+check(ny == SFA['season'].nunique(), f'por temporada: {ny} archivos en yr/ para {SFA["season"].nunique()} temporadas')
+for y, pid, nm in [(2000, 'onealsh01', "Shaq 1999-00"), (1996, 'jordami01', 'Jordan 1995-96')]:
+    f = YRD / f'{y}.json'
+    top = json.loads(f.read_text())['d'][0] if f.exists() else []
+    check(bool(top) and pid in top, f'por temporada: {nm} es el n.º 1 de su año')
+LV = json.loads((ROOT / '_build' / 'season_live.json').read_text())
+if LV.get('live'):
+    lv = SFA[SFA['live'] == 1]
+    check(len(lv) >= 50 and lv['season'].eq(LV['live']).all() and not SF['season'].eq(LV['live']).any(),
+          f"temporada en curso {LV['live']}: {len(lv)} jugadores con {LV['minc']}+ minutos, fuera de Mejores temporadas")
+POW = ROOT / 'cache' / 'pow.csv'
+npw = len(pd.read_csv(POW)) if POW.exists() else 0
+check(npw > 1000, f'jugador de la semana: {npw} premios en caché')
 check(len(SF) > 10000, f'temporadas completas medibles ({len(SF)})')
 top25 = set(zip(SF.head(25)['player_id'], SF.head(25)['season']))
 anc = {('jordami01', 1991), ('jamesle01', 2012), ('onealsh01', 2000), ('duncati01', 2003), ('olajuha01', 1994)}

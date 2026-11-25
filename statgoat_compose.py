@@ -7,6 +7,7 @@ Todo sale de datos que se actualizan solos:
   - campeones y Finals MVP: champions.csv y finals_mvp.csv (se amplían solos)
 """
 
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -21,6 +22,8 @@ OUT = ROOT / '_build'
 Z_CAP = 4.0
 ABA_DISCOUNT = 0.90
 SHRINK_K = 600          # minutos de playoffs que "valen" lo mismo que la previsión por liga regular
+MIN_MP = 1000           # temporada computable (en la temporada en curso, la parte proporcional)
+SHRINK_W = 8            # semanas: la previsión del Jugador de la semana se contrae al principio de temporada
 ERA0 = 1980             # vista 'desde 1979-80': primera temporada con línea de 3 y con todas las estadísticas
 PEAK_MIN = 4000         # se mide a cada uno por sus mejores 4.000 minutos de playoffs (≈ 4-5 rondas largas)
 PO_SUBDIMS = {
@@ -85,7 +88,7 @@ def read(path):
 
 
 # ------------------------------------------------------------------ playoffs
-def palmares_scale(v, ref):
+def palmares_scale(v, ref, base=None):
     """Lleva un bloque de palmarés a la escala de los bloques estadísticos, sin escalones.
 
     Tres de cada cuatro jugadores tienen 0 en títulos o premios. Si se pasa todo
@@ -96,10 +99,16 @@ def palmares_scale(v, ref):
     (casi nada vale casi lo mismo que nada) y el máximo sigue arriba del todo.
     """
     v = pd.Series(np.asarray(v, dtype=float))
-    zero = np.isclose(v, v.min())
-    p0 = zero.mean()
+    b = np.ones(len(v), bool) if base is None else np.asarray(base, bool)
+    v0 = v[b].min()
+    zero = (v <= v0) | np.isclose(v, v0)
+    p0 = zero[b].mean()
+    nz = np.sort(v[b & ~zero].values)
+    # puesto medio entre los que tienen algo del grupo de referencia (base); el resto
+    # de filas (la temporada en curso) se coloca en esa misma escala sin moverla
+    x = v[~zero].values
+    h = (np.searchsorted(nz, x, 'left') + np.searchsorted(nz, x, 'right')) / (2 * max(len(nz), 1))
     pct = pd.Series(p0 / 2, index=v.index)
-    h = (v[~zero].rank(method='average') - 0.5) / max(int((~zero).sum()), 1)
     pct[~zero] = p0 / 2 + h * (1 - p0 / 2)
     return np.quantile(ref, pct.values)
 
@@ -209,7 +218,7 @@ def playoff_career(ps, C, s):
     return C
 
 
-def season_ranking(s, ps, aw, eos, astar, ch, fmv):
+def season_ranking(s, ps, aw, eos, astar, ch, fmv, pw=None):
     """Mejores temporadas completas: los mismos siete bloques del índice, en un solo año.
 
     Liga regular (producción, eficiencia, impacto, defensa), los playoffs de ese
@@ -219,7 +228,27 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     regular medibles (desde 1951-52: antes no hay minutos, ni impacto ni defensa).
     """
     key = ['season', 'lg', 'player_id']
-    t = s[s['countable'] & s[['PROD', 'EFIC', 'IMPACTO', 'DEF']].notna().all(axis=1)].copy()
+    ok4 = s[['PROD', 'EFIC', 'IMPACTO', 'DEF']].notna().all(axis=1)
+    # Temporada en curso (hasta que hay votación del MVP): solo para su pestaña, con el
+    # mínimo de minutos proporcional a lo jugado. No entra en Mejores temporadas y no
+    # mueve la escala: cada bloque se mide contra las temporadas cerradas.
+    last = int(s['season'].max())
+    voted = set(aw.loc[aw.award.isin(['nba mvp', 'aba mvp']), 'season'])
+    live_y = last if last not in voted else None
+    is_live = (s['season'] == live_y) & ok4 & (s['mp'] >= MIN_MP * s['frac'])
+    t = s[(s['countable'] & ok4 & (s['season'] != live_y)) | is_live].copy()
+    t['live'] = (t['season'] == live_y).astype(int)
+    pw = pw if pw is not None and len(pw) else pd.DataFrame(columns=['season', 'week', 'player_id'])
+    cnt = pw.groupby(['season', 'player_id']).size().rename('potw').reset_index()
+    t = t.merge(cnt, on=['season', 'player_id'], how='left')
+    t['potw'] = t['potw'].fillna(0).astype(int)
+    t['potwp'] = t['potw'].astype(float)
+    L = t['live'].astype(bool).values
+
+    def zc(x):
+        x = pd.to_numeric(x, errors='coerce')
+        r = x[~L]
+        return (x - r.mean()) / r.std()
     # premios de esa temporada
     mvp = aw[aw.award.isin(['nba mvp', 'aba mvp'])].groupby(['season', 'player_id'])['share'].sum().rename('mvp_share')
     dpoy = aw[aw.award == 'nba dpoy'].groupby(['season', 'player_id'])['share'].sum().rename('dpoy_share')
@@ -269,29 +298,61 @@ def season_ranking(s, ps, aw, eos, astar, ch, fmv):
     t = t.merge(fmv[['season', 'player_id']].drop_duplicates().assign(fmvp=1), on=['season', 'player_id'], how='left')
     t['fmvp'] = t['fmvp'].fillna(0).astype(int)
     t['champ'] = (t['ring'] > 0).astype(int)
+    L = t['live'].astype(bool).values                     # tras los merge, mismo orden
     # los siete bloques de una temporada
-    t['b_PROD'] = soft(z(t['PROD']))
-    t['b_EFIC'] = soft(z(t['EFIC']))
-    t['b_IMPACTO'] = soft(z(t['IMPACTO']))
-    t['b_DEF'] = soft(z(0.75 * z(t['DEF']) + 0.25 * z(t['adef'] + 2.5 * t['dpoy_share'])))
-    t['b_PLAYOFFS'] = soft(z(0.80 * z(t['po_level']) + 0.20 * z(t['po_vol'])))
-    t['b_TITULOS'] = soft(z(0.70 * z(t['ring']) + 0.30 * z(t['fmvp'])))
-    t['b_PREMIOS'] = soft(z(0.45 * z(t['mvp_share']) + 0.35 * z(t['anba']) + 0.20 * z(t['allstar'])))
+    t['b_PROD'] = soft(zc(t['PROD']))
+    t['b_EFIC'] = soft(zc(t['EFIC']))
+    t['b_IMPACTO'] = soft(zc(t['IMPACTO']))
+    t['b_DEF'] = soft(zc(0.75 * zc(t['DEF']) + 0.25 * zc(t['adef'] + 2.5 * t['dpoy_share'])))
+    t['b_PLAYOFFS'] = soft(zc(0.80 * zc(t['po_level']) + 0.20 * zc(t['po_vol'])))
+    t['b_TITULOS'] = soft(zc(0.70 * zc(t['ring']) + 0.30 * zc(t['fmvp'])))
+    t['b_PREMIOS'] = soft(zc(0.45 * zc(t['mvp_share']) + 0.35 * zc(t['anba']) + 0.20 * zc(t['allstar'])))
     # Títulos y premios: en una sola temporada casi todo son ceros y unos pocos
     # valores enormes (un anillo salía a +6 desviaciones, más que la mejor
     # temporada estadística de la historia). Así el palmarés pesaba un 37 % de la
     # nota en el top 25 en vez de su 25 %. Se pasan a la misma escala que los
     # bloques estadísticos: su percentil se lleva a esa misma distribución.
-    ref = np.concatenate([t['b_' + k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
+    ref = np.concatenate([t.loc[~L, 'b_' + k].values for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']])
     for k in ['TITULOS', 'PREMIOS']:
-        t['b_' + k] = palmares_scale(t['b_' + k].values, ref)
+        t['b_' + k] = palmares_scale(t['b_' + k].values, ref, base=~L)
+
+    # Premios de la temporada en curso: previsión por el Jugador de la semana.
+    # Su ritmo se proyecta al resto de la temporada (contraído al principio) y se
+    # convierte en el bloque de Premios que de media acabaron teniendo, de 2001-02
+    # en adelante (dos premios por semana), los jugadores con ese número de premios.
+    hist = t[(~L) & (t['season'] >= 2002)]
+    cap = 6
+    curve = (hist.groupby(hist['potw'].clip(upper=cap))['b_PREMIOS'].mean()
+             .reindex(range(cap + 1)).interpolate().ffill().cummax())
+    wk = pw[pw['season'].between(2002, last)].groupby('season')['week'].nunique()
+    wfull = float(wk[wk.index != live_y].mean()) if len(wk[wk.index != live_y]) else 24.0
+    model = {'curve': [round(float(x), 3) for x in curve.values], 'wfull': round(wfull, 1),
+             'live': live_y, 'weeks': 0, 'g': None, 'minc': None, 'minq': None}
+    if live_y and L.any():
+        we = int(pw[pw['season'] == live_y]['week'].nunique())
+        n = t.loc[L, 'potw'].astype(float)
+        proj = n + n / (we + SHRINK_W) * max(wfull - we, 0.0)
+        t.loc[L, 'potwp'] = proj.round(1)
+        t.loc[L, 'b_PREMIOS'] = np.interp(proj.clip(upper=cap), np.arange(cap + 1), curve.values)
+        cur = s[s['season'] == live_y]
+        fr = float(cur['frac'].max())
+        model.update(weeks=we, g=int(cur['g'].max()), minc=int(round(MIN_MP * fr)), minq=int(round(500 * fr)))
+        print(f'  temporada en curso {live_y - 1}-{str(live_y)[-2:]}: {int(L.sum())} jugadores con {model["minc"]}+ minutos '
+              f'({model["g"]} partidos); jugador de la semana: {we} semanas')
+    (OUT / 'season_live.json').write_text(json.dumps(model))
+
     W = {'PROD': .15, 'EFIC': .07, 'IMPACTO': .20, 'DEF': .13, 'PLAYOFFS': .20, 'TITULOS': .15, 'PREMIOS': .10}
     t['FULL'] = sum(t['b_' + k] * v for k, v in W.items())
     t = t.sort_values('FULL', ascending=False).reset_index(drop=True)
-    t['srank'] = np.arange(1, len(t) + 1)
-    print(f'  temporadas completas medibles: {len(t)} (desde {int(t.season.min())})')
+    c = t['live'].eq(0)
+    t.loc[c, 'srank'] = np.arange(1, int(c.sum()) + 1)
+    asc = np.sort(t.loc[c, 'FULL'].values)                      # puesto que tendría entre las cerradas
+    t.loc[~c, 'srank'] = len(asc) - np.searchsorted(asc, t.loc[~c, 'FULL'].values, 'right') + 1
+    t['srank'] = t['srank'].astype('int64')
+    tc = t[c]
+    print(f'  temporadas completas medibles: {len(tc)} (desde {int(tc.season.min())})')
     print('  mejores: ' + ' | '.join(f"{r.player} {int(r.season) - 1}-{str(int(r.season))[-2:]}"
-                                     for r in t.head(5).itertuples()))
+                                     for r in tc.head(5).itertuples()))
     return t
 
 
@@ -491,7 +552,7 @@ def main():
     print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
           f'hasta {int(ps.season.max())}')
     C = playoff_career(ps, C, s)
-    season_ranking(s, ps, aw, eos, astar, ch, fmv).to_pickle(OUT / 'seasons_full.pkl')
+    season_ranking(s, ps, aw, eos, astar, ch, fmv, read(CACHE / 'pow.csv')).to_pickle(OUT / 'seasons_full.pkl')
 
     allr = titles(ps, ch, adv_rs, s)
     allr.to_pickle(OUT / 'rings.pkl')                    # anillo a anillo, para la ficha

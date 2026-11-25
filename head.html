@@ -123,6 +123,15 @@ button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 .tabs+.toolbar{margin-top:12px}
 .erabox{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:14px 0 0}
 .erabox[hidden]{display:none}
+.yearbox{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:14px 0 0}
+.yearbox[hidden]{display:none}
+.yearbox+.erabox+.toolbar,.yearbox+.erabox[hidden]+.toolbar{margin-top:12px}
+.yearbox button{min-width:40px;height:36px;padding:0 10px;font-size:14px}
+.yearbox button:disabled{opacity:.35;cursor:default}
+.yearbox select{height:36px;padding:0 10px;font:600 14px Archivo,sans-serif;background:var(--line);color:var(--ink);border:1px solid var(--ink)}
+.ynote{font-family:Newsreader;font-size:14px;line-height:1.4;color:var(--ink-soft);flex:1 1 280px}
+.ynote.live{color:var(--ink)}
+@media(max-width:640px){.tabs button{padding:10px 10px 8px;font-size:12px;letter-spacing:.03em}}
 .erabox+.toolbar{margin-top:12px}
 .era button[aria-pressed="true"]{background:var(--ball);border-color:var(--ball);color:#fff}
 .eranote{font-family:Newsreader;font-size:14px;line-height:1.4;color:var(--ink-soft);flex:1 1 280px}
@@ -272,8 +281,9 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
   </div>
 </section>
 
-<div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button></div>
+<div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button><button data-m="year" aria-pressed="false" data-i18n="tab_year">Por temporada</button></div>
 
+<div class="yearbox" id="yearbox" hidden><button type="button" id="yprev" aria-label="◀">◀</button><select id="ysel"></select><button type="button" id="ynext" aria-label="▶">▶</button><span class="ynote" id="ynote"></span></div>
 <div class="erabox" id="erabox"><div class="filters era" id="erasel" role="group" aria-label="1979-80"></div><span class="eranote" id="eranote" hidden></span></div>
 
 <div class="toolbar">

@@ -54,6 +54,26 @@ check(pos.isin(['PG', 'SG', 'SF', 'PF', 'C']).mean() > 0.9, f"posiciones: {pos.i
 mg = R.set_index('player_id')
 check(mg.loc['jordami01', 'rank_p10'] == 1 and (mg['rank_p10'] <= mg['rank']).all() and (mg['rank_p90'] >= mg['rank']).all(),
       f"margen de puesto coherente (Jordan n.º 1 en el {mg.loc['jordami01', 'rank_top1']:.0%} de las ponderaciones)")
+# ------------------------------------------------- vista desde 1979-80
+E = read(ROOT / '_build' / 'statgoat_1980.csv')
+check(1500 < len(E) < len(R), f'desde 1979-80: {len(E)} jugadores (menos que en toda la historia)')
+if len(E):
+    ei = E.set_index('player_id')
+    check(97 <= E['STATGOAT'].max() <= 100.01 and E.iloc[0]['player_id'] in {'jordami01', 'jamesle01'},
+          f"desde 1979-80: líder plausible ({E.iloc[0]['player']}, {E['STATGOAT'].max():.2f})")
+    check(len(set(E.head(15)['player']) & anclas) >= 4, 'desde 1979-80: top 15 plausible')
+    check('russebi01' not in ei.index and 'chambwi01' not in ei.index,
+          'desde 1979-80: quien jugó solo antes no aparece (Russell, Wilt)')
+    check(ei.loc['abdulka01', 'first'] == 1980 and ei.loc['abdulka01', 'rank'] > mg.loc['abdulka01', 'rank'],
+          f"desde 1979-80: Kareem cuenta desde 1980 y baja (n.º {mg.loc['abdulka01', 'rank']} → {ei.loc['abdulka01', 'rank']})")
+    check(ei.loc['abdulka01', 'rings'] == 5 and ei.loc['jordami01', 'rings'] == 6,
+          'desde 1979-80: anillos de Kareem (5) y Jordan (6) desde 1980')
+    check(ei.loc['jamesle01', 'pts_total'] == mg.loc['jamesle01', 'pts_total'],
+          'desde 1979-80: quien jugó solo después conserva sus totales')
+    check(((ei['rank_p10'] <= ei['rank'] + 5) & (ei['rank_p90'] >= ei['rank'] - 5)).all(),
+          'desde 1979-80: margen de puesto coherente')
+    m = __import__('re').search(r'"e":\{"y0":1980', txt)
+    check(bool(m), 'desde 1979-80: los datos de la vista están en la web')
 DETD = ROOT / 'det'
 nd = len(list(DETD.glob('*.json'))) if DETD.exists() else 0
 check(nd == len(R), f'detalle de ficha: {nd} archivos en det/ para {len(R)} jugadores')
@@ -61,6 +81,10 @@ if (DETD / 'jordami01.json').exists():
     jd = json.loads((DETD / 'jordami01.json').read_text())
     check(len(jd.get('r', [])) == 6 and sum(x[5] for x in jd['r']) == 6 and len(jd.get('s', [])) >= 15,
           'detalle de Jordan: 6 anillos, 6 MVP de las Finales y sus 15 temporadas')
+if (DETD / 'abdulka01.json').exists():
+    kd = json.loads((DETD / 'abdulka01.json').read_text())
+    check('e' in kd and set(kd['e'].get('c', {})) == {'PROD', 'EFIC', 'IMPACTO', 'DEF'},
+          'detalle de Kareem: trae su cálculo desde 1979-80')
 bt = R.set_index('player_id')['BONUS_TOTALES']
 check(all(bt.get(p, 0) == 3 for p in ['jamesle01', 'curryst01', 'stockjo01']),
       'bonus: LeBron (puntos), Curry (triples) y Stockton (asistencias) tienen récord')

@@ -4,6 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>STATGOAT · NBA 1947–today</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E3D2B4">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="STATGOAT">
+<meta property="og:title" content="STATGOAT · ¿Quién es el GOAT según los datos?">
+<meta property="og:description" content="Índice histórico de casi 3.000 jugadores de NBA, ABA y BAA, ajustado por época. Tú decides cuánto pesa cada cosa. Era-adjusted all-time NBA index with live weights.">
+<meta property="og:url" content="https://xicoe2001-svg.github.io/statgoat/">
+<meta property="og:image" content="https://xicoe2001-svg.github.io/statgoat/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="STATGOAT: ¿Quién es el GOAT según los datos?">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="STATGOAT · ¿Quién es el GOAT según los datos?">
+<meta name="twitter:description" content="Índice histórico de jugadores de NBA, ABA y BAA ajustado por época, con pesos ajustables.">
+<meta name="twitter:image" content="https://xicoe2001-svg.github.io/statgoat/og.png">
 <meta name="description" content="STATGOAT: índice histórico de jugadores NBA, ABA y BAA ajustado por época, con pesos ajustables en vivo. Era-adjusted all-time index of NBA, ABA and BAA players with live adjustable weights.">
 <link rel="alternate" hreflang="es" href="https://xicoe2001-svg.github.io/statgoat/?lang=es">
 <link rel="alternate" hreflang="en" href="https://xicoe2001-svg.github.io/statgoat/?lang=en">
@@ -42,7 +58,7 @@ h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacin
 .stats-strip span{font-family:Archivo;font-size:10.5px;letter-spacing:.06em;color:var(--ink-soft)}
 
 /* ---------- infografía de eras ---------- */
-.infograph{margin-bottom:30px}
+.infograph{margin:46px 0 10px}
 .infograph h2,.credits h2,#glosario h2{font-weight:800;font-size:23px;letter-spacing:-.01em;margin:0 0 5px}
 .info-sub{font-size:14.5px;color:var(--ink-soft);max-width:68ch;margin:0 0 16px}
 .eras{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:10px}
@@ -117,7 +133,41 @@ button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 #q:focus{outline:2px solid var(--key);outline-offset:-1px}
 .count{font-family:Archivo;font-size:11.5px;letter-spacing:.05em;color:var(--ink-soft)}
 .filters{display:flex;gap:5px;flex-wrap:wrap}
-.tabs{display:flex;gap:0;margin:30px 0 0;border-bottom:2px solid var(--ink)}
+.tabs{display:flex;gap:0;margin:30px 0 0;border-bottom:2px solid var(--ink);position:sticky;top:0;z-index:30;background:var(--maple)}
+tr.main{scroll-margin-top:58px}
+.evosvg{display:block;max-width:100%;height:auto;font-family:Archivo}
+.evobox{overflow:hidden}
+.evosvg .eg{stroke:var(--grain);stroke-width:1}
+.evosvg .et{font-size:10px;fill:var(--ink-soft)}
+.evosvg .el{fill:none;stroke:var(--key);stroke-width:2}
+.evosvg .ed{fill:var(--key)}
+.evosvg .eb{fill:var(--ball)}
+.evosvg .ebl{font-size:11px;font-weight:600;fill:var(--ink)}
+.evosvg .ep{cursor:pointer}
+.evosvg .ep:hover .ed{fill:var(--ball)}
+.trend{font-weight:600}.trend.up{color:#3E6B4A}.trend.down{color:var(--ball)}
+.keyd{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
+.keyd i{display:block;width:9px;height:9px}
+.fbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 2px}
+.fbar button,.fend button{font-size:12px;padding:6px 11px}
+.fend{display:flex;justify-content:flex-end}
+table.seas tr.go{cursor:pointer}
+table.seas tr.go:hover td{background:var(--maple)}
+table.seas tr.go td:first-child{color:var(--key);font-weight:600}
+.wclose,.wfab,.wback{display:none}
+@media(max-width:640px){
+  .console{position:fixed;left:0;right:0;bottom:0;margin:0;max-height:88vh;overflow:auto;z-index:70;
+    transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -8px 30px rgba(36,26,16,.3);visibility:hidden}
+  body.wopen .console{transform:none;visibility:visible}
+  body.wopen{overflow:hidden}
+  .wclose{display:block;position:sticky;top:-19px;margin:-19px -19px 10px;width:calc(100% + 38px);padding:12px;
+    background:var(--ink);color:var(--line);border:0;font-size:14px;letter-spacing:.04em;z-index:2}
+  .wfab{display:flex;align-items:center;gap:7px;position:fixed;right:14px;bottom:16px;z-index:60;
+    background:var(--ink);color:var(--line);border:0;padding:12px 16px;font-size:14px;box-shadow:0 4px 14px rgba(36,26,16,.35)}
+  body.wopen .wback{display:block;position:fixed;inset:0;background:rgba(36,26,16,.45);z-index:65}
+  .tabs{margin-top:18px}
+  body{padding-bottom:76px}
+}
 .tabs button{border:0;border-bottom:4px solid transparent;background:none;padding:10px 16px 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
 .tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ball)}
 .tabs+.toolbar{margin-top:12px}
@@ -251,23 +301,8 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
     <div id="po_cell"><b id="n_po">—</b><span data-i18n="st_po">TEMPORADAS DE PLAYOFFS</span></div>
   </div>
 </header>
-
-<section class="infograph">
-  <h2 data-i18n="info_h">Qué datos existían en cada época</h2>
-  <p class="info-sub" data-i18n="info_sub">A cada jugador se le puntúa solo con lo que su época registró, renormalizando los pesos disponibles. No se le castiga con ceros, pero sus bloques descansan sobre menos indicadores.</p>
-  <div class="eras">
-    <div class="era"><span class="year">1947–1951</span><span class="metrics" data-i18n="e1m">Pts · Reb · As · TC · TL</span><span class="note" data-i18n="e1n">Solo box score básico</span></div>
-    <div class="era"><span class="year">1952–1967</span><span class="metrics" data-i18n="e2m">+ Minutos · PER · WS/48</span><span class="note" data-i18n="e2n">Primeras métricas derivadas</span></div>
-    <div class="era"><span class="year">1968–1971</span><span class="metrics" data-i18n="e3m">+ Pérdidas · USG% · TOV%</span><span class="note" data-i18n="e3n">Control ofensivo</span></div>
-    <div class="era"><span class="year">1972–1973</span><span class="metrics" data-i18n="e4m">+ Tapones · Robos</span><span class="note" data-i18n="e4n">La defensa empieza a medirse</span></div>
-    <div class="era"><span class="year">1974–1978</span><span class="metrics" data-i18n="e5m">+ BPM · VORP · DBPM</span><span class="note" data-i18n="e5n">Impacto estimado por posesión</span></div>
-    <div class="era"><span class="year">1979–1995</span><span class="metrics" data-i18n="e6m">+ Triple</span><span class="note" data-i18n="e6n">Transición al juego moderno</span></div>
-    <div class="era"><span class="year">1996–2012</span><span class="metrics" data-i18n="e7m">+ On/Off · Play-by-play</span><span class="note" data-i18n="e7n">Más/menos por quinteto</span></div>
-    <div class="era"><span class="year" data-i18n="e8y">2013–hoy</span><span class="metrics" data-i18n="e8m">+ Tracking óptico</span><span class="note" data-i18n="e8n">Posición de jugador y balón</span></div>
-  </div>
-</section>
-
-<section class="console">
+<section class="console" id="console">
+  <button type="button" class="wclose" id="wclose" data-i18n="wdone">Listo</button>
   <div>
     <div class="chead"><b data-i18n="c_weights">PESOS</b><span id="wsum"></span></div>
     <div id="sliders"></div>
@@ -280,6 +315,9 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
     <div id="live"></div>
   </div>
 </section>
+
+<button type="button" class="wfab" id="wfab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span data-i18n="wfab">Pesos</span></button>
+<div class="wback" id="wback"></div>
 
 <div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button><button data-m="year" aria-pressed="false" data-i18n="tab_year">Por temporada</button></div>
 
@@ -298,6 +336,20 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
   <tbody id="tb"></tbody>
 </table>
 <button id="more" hidden></button>
+
+<section class="infograph">
+  <h2 data-i18n="info_h">Qué datos existían en cada época</h2>
+  <p class="info-sub" data-i18n="info_sub"></p>
+  <div class="eras">
+    <div class="era"><span class="year">1946-47</span><span class="metrics" data-i18n="e1m"></span><span class="note" data-i18n="e1n"></span></div>
+    <div class="era"><span class="year">1950-51</span><span class="metrics" data-i18n="e2m"></span><span class="note" data-i18n="e2n"></span></div>
+    <div class="era"><span class="year">1951-52</span><span class="metrics" data-i18n="e3m"></span><span class="note" data-i18n="e3n"></span></div>
+    <div class="era"><span class="year">1973-74</span><span class="metrics" data-i18n="e4m"></span><span class="note" data-i18n="e4n"></span></div>
+    <div class="era"><span class="year">1977-78</span><span class="metrics" data-i18n="e5m"></span><span class="note" data-i18n="e5n"></span></div>
+    <div class="era"><span class="year">1979-80</span><span class="metrics" data-i18n="e6m"></span><span class="note" data-i18n="e6n"></span></div>
+  </div>
+  <p class="info-sub" style="margin-top:12px" data-i18n="info_note"></p>
+</section>
 
 <section id="glosario"></section>
 

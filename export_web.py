@@ -130,7 +130,38 @@ for k in BK:
 TS = T.loc[sorted(keep)]
 SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
            'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id', 'rv', 'pol', 'poe', 'poz', 'pow', 'pows',
-           'potw', 'potwp', 'live', 'g', 'mp']
+           'potw', 'potwp', 'live', 'g', 'mp', 'drk']
+
+
+# --------------------------------------------------- tendencia diaria de la temporada en curso
+# Puesto de cada jugador con los pesos por defecto, contando como en la web solo los
+# bloques que ya existen (Playoffs y Títulos cuando se juegan). Se guarda el del día
+# anterior en cache/live_ranks.json para enseñar cuánto ha subido o bajado.
+from datetime import datetime, timezone
+DRK, PREV_DATE = {}, None
+_lv = TA[TA['live'] == 1]
+if len(_lv):
+    W0 = {'PROD': 15, 'EFIC': 7, 'IMPACTO': 20, 'DEF': 13, 'PLAYOFFS': 20, 'TITULOS': 15, 'PREMIOS': 10}
+    ks = [k for k in BK if not (k == 'PLAYOFFS' and not (_lv['pw'].fillna(0) > 0).any())
+          and not (k == 'TITULOS' and not (_lv['champ'] > 0).any())]
+    tw = sum(W0[k] for k in ks)
+    val = sum(_lv['b_' + k] * W0[k] / tw for k in ks)
+    today_rk = {pid: int(i) for i, pid in enumerate(_lv.assign(v=val.values).sort_values('v', ascending=False)['player_id'], 1)}
+    lr_path = ROOT / 'cache' / 'live_ranks.json'
+    old = json.loads(lr_path.read_text()) if lr_path.exists() else {}
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    season = int(_lv['season'].iloc[0])
+    if old.get('season') != season:
+        old = {}
+    if old.get('date') and old['date'] != today:
+        prev, PREV_DATE = old.get('ranks', {}), old['date']
+    else:
+        prev, PREV_DATE = old.get('prev', {}), old.get('prev_date')
+    lr_path.write_text(json.dumps({'season': season, 'date': today, 'ranks': today_rk,
+                                   'prev_date': PREV_DATE, 'prev': prev}, separators=(',', ':')))
+    if prev:
+        DRK = {pid: (prev[pid] - r if pid in prev else 999) for pid, r in today_rk.items()}
+    print(f'tendencia diaria: {len(today_rk)} puestos de hoy' + (f', comparados con {PREV_DATE}' if PREV_DATE else ', sin día anterior todavía'))
 
 
 def srow(r):
@@ -146,6 +177,7 @@ def srow(r):
         r['player_id'],
         r2(r['ring'], 2), r2(r['po_level'], 2), r2(r['po_exp'], 2), r2(r['po'], 2), i0(r['pw']), r2(r['pws'], 1),
         int(r['potw']), r2(r['potwp'], 1), int(r['live']), i0(r['g']), i0(r['mp']),
+        DRK.get(r['player_id']) if int(r['live']) else None,
     ]
 
 
@@ -168,6 +200,7 @@ for f in YRD.glob('*.json'):
     if f.stem not in yrs:
         f.unlink()
 LIVE = json.loads((OUT / 'season_live.json').read_text())
+LIVE['prev_date'] = PREV_DATE
 print(f'por temporada: {len(yrs)} años en yr/ ({ywritten} actualizados)'
       + (f" · en curso {LIVE['live'] - 1}-{str(LIVE['live'])[-2:]}: {yrs.get(str(LIVE['live']), 0)} jugadores" if LIVE.get('live') else ''))
 SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
@@ -209,6 +242,7 @@ RG = pd.read_pickle(OUT / 'rings.pkl')
 SRC = pd.read_pickle(OUT / 'awards_src.pkl')
 AW, EOS, AST, FMV = SRC['aw'], SRC['eos'], SRC['astar'], SRC['fmv']
 RI = R.set_index('player_id')
+SSD = {pid: g for pid, g in T.groupby('player_id')}       # temporadas cerradas, para la evolución
 C80 = pd.read_pickle(OUT / 'careers_1980.pkl').set_index('player_id')
 EI = E.set_index('player_id')
 
@@ -288,6 +322,9 @@ for pid in R['player_id']:
         a = slot(r.season); a[7], a[8] = rn(r.share, 3), int(bool(r.winner))
     if years:
         d['a'] = [years[y] for y in sorted(years)]
+    if pid in SSD:                                   # bloques de cada temporada (gráfica de evolución)
+        d['ss'] = [[int(q.season), *[rn(getattr(q, 'b_' + k), 3) for k in BK]]
+                   for q in SSD[pid].sort_values('season').itertuples()]
     if pid in EI.index and pid in C80.index:        # vista desde 1979-80
         c, q = C80.loc[pid], EI.loc[pid]
         d['e'] = {'c': {k: [rn(c[k + '_peak']), rn(c[k + '_prime']), rn(c[k + '_sustain_z']), rn(c[k + '_career'])]

@@ -155,6 +155,13 @@ if LV.get('live'):
     lv = SFA[SFA['live'] == 1]
     check(len(lv) >= 50 and lv['season'].eq(LV['live']).all() and not SF['season'].eq(LV['live']).any(),
           f"temporada en curso {LV['live']}: {len(lv)} jugadores con {LV['minc']}+ minutos, fuera de Mejores temporadas")
+# ------------------------------------------------- vista previa de enlaces y evolución
+for f in ['og.png', 'favicon.svg', 'apple-touch-icon.png']:
+    check((ROOT / f).exists(), f'vista previa de enlaces: {f}')
+check('og:image' in txt and 'twitter:card' in txt, 'vista previa de enlaces: etiquetas Open Graph en la web')
+jd = json.loads((ROOT / 'det' / 'jordami01.json').read_text()) if (ROOT / 'det' / 'jordami01.json').exists() else {}
+check(len(jd.get('ss', [])) == 13 and all(len(r) == 8 for r in jd.get('ss', [])),
+      f"evolución: Jordan con {len(jd.get('ss', []))} temporadas medibles en su ficha")
 POW = ROOT / 'cache' / 'pow.csv'
 npw = len(pd.read_csv(POW)) if POW.exists() else 0
 check(npw > 1000, f'jugador de la semana: {npw} premios en caché')

@@ -129,6 +129,82 @@ def wmean(frame, weights):
     return (sub.fillna(0).mul(w, axis=1).sum(axis=1)) / denom, mask.mul(w, axis=1).sum(axis=1) / w.sum()
 
 
+DIMS = ['PROD', 'EFIC', 'IMPACTO', 'DEF']
+
+
+def careers(s):
+    """Agrega las temporadas de cada jugador en su carrera (40 % mejores 3, 40 % mejores 7,
+    20 % acumulado). Se llama con todas las temporadas y, para la vista desde 1979-80,
+    solo con las de ese año en adelante."""
+    dims = DIMS
+    # ------------------------------------------------ agregacion de carrera
+    def career_dim(gr, col):
+        v = gr.loc[gr['countable'], col].dropna().sort_values(ascending=False)
+        if len(v) == 0:
+            v = gr[col].dropna().sort_values(ascending=False)
+        if len(v) == 0:
+            return pd.Series({'peak3': np.nan, 'prime7': np.nan, 'sustain': np.nan})
+        # La media de las 3 y de las 7 mejores exige 3 y 7 temporadas: las que
+        # faltan cuentan como 0 (jugador medio de la liga), no se ignoran.
+        return pd.Series({
+            'peak3': v.head(3).sum() / 3,
+            'prime7': v.head(7).sum() / 7,
+            'sustain': v.clip(lower=0).sum() / 12.0,
+        })
+
+    rows = []
+    for pid, gr in s.groupby('player_id'):
+        rec = {'player_id': pid, 'player': gr['player'].iloc[-1]}
+        for name in dims:
+            d = career_dim(gr, name)
+            rec[name + '_peak'] = d['peak3']
+            rec[name + '_prime'] = d['prime7']
+            rec[name + '_sustain'] = d['sustain']
+            rec[name + '_cov'] = gr.loc[gr['countable'], name + '_cov'].mean()
+        rec['seasons'] = int(gr['countable'].sum())
+        rec['g_total'] = gr['g'].sum()
+        rec['mp_total'] = gr['mp'].sum()
+        rec['pts_total'] = gr['pts_tot'].sum()
+        rec['trb_total'] = gr['trb_tot'].sum()
+        rec['ast_total'] = gr['ast_tot'].sum()
+        rec['stl_total'] = gr['stl_tot'].sum()
+        rec['blk_total'] = gr['blk_tot'].sum()
+        rec['x3p_total'] = gr['x3p_tot'].sum(min_count=1)   # sin dato antes de existir la línea de 3
+        w = gr['g'].fillna(0)
+        rec['rs_ppg'] = np.average(gr['pts_per_game'].fillna(0), weights=w) if w.sum() else np.nan
+        rec['first'] = gr['season'].min()
+        rec['last'] = gr['season'].max()
+        rec['lg_main'] = gr['lg'].mode().iloc[0]
+        # posición principal: la que más minutos jugó (antes de 1952, por partidos)
+        pp = gr['pos'].fillna('').astype(str).str.split('-').str[0]
+        ok = pp.isin(['PG', 'SG', 'SF', 'PF', 'C'])
+        pw = gr['mp'].fillna(gr['g'] * 30).fillna(0)
+        rec['pos'] = pw[ok].groupby(pp[ok]).sum().idxmax() if ok.any() else ''
+        rows.append(rec)
+    C = pd.DataFrame(rows)
+
+    # El acumulado se pasa a la misma escala que el pico antes de sumarlo, para
+    # que cada porcentaje pese lo que dice. En bruto es una suma muy asimétrica
+    # (casi todos los jugadores cerca de 0, las carreras largas a +15) y el
+    # "20 %" llegaba a pesar la mitad de la nota. Se usa su percentil:
+    # percentil -> puntuación normal -> mismo centro y dispersión que el pico.
+    # Referencia: los jugadores que entran en el índice (1+ temporada computable).
+    nd = NormalDist()
+    ref = C['seasons'] >= 1
+    for name in dims:
+        pk = C.loc[ref, name + '_peak']
+        pool = np.sort(C.loc[ref, name + '_sustain'].dropna().values)
+        n = len(pool)
+        v = C[name + '_sustain'].values
+        pct = (np.searchsorted(pool, v, 'left') + np.searchsorted(pool, v, 'right')) / (2 * n)
+        pct = np.clip(pct, 0.5 / n, 1 - 0.5 / n)
+        ns = np.array([nd.inv_cdf(q) if np.isfinite(x) else np.nan for q, x in zip(pct, v)])
+        C[name + '_sustain_z'] = pk.mean() + pk.std() * ns
+        C[name + '_career'] = (0.40 * C[name + '_peak'] + 0.40 * C[name + '_prime']
+                               + 0.20 * C[name + '_sustain_z'])
+    return C
+
+
 # ---------------------------------------------------------------- principal
 def build():
     adv, pg, tot, aw, eos, astar, tsum, tpg, tabb, career = load()
@@ -202,71 +278,7 @@ def build():
                        (s['mp'].isna() & (s['g'] >= MIN_G_EARLY)))
                       & ~running)
 
-    # ------------------------------------------------ agregacion de carrera
-    def career_dim(gr, col):
-        v = gr.loc[gr['countable'], col].dropna().sort_values(ascending=False)
-        if len(v) == 0:
-            v = gr[col].dropna().sort_values(ascending=False)
-        if len(v) == 0:
-            return pd.Series({'peak3': np.nan, 'prime7': np.nan, 'sustain': np.nan})
-        # La media de las 3 y de las 7 mejores exige 3 y 7 temporadas: las que
-        # faltan cuentan como 0 (jugador medio de la liga), no se ignoran.
-        return pd.Series({
-            'peak3': v.head(3).sum() / 3,
-            'prime7': v.head(7).sum() / 7,
-            'sustain': v.clip(lower=0).sum() / 12.0,
-        })
-
-    rows = []
-    for pid, gr in s.groupby('player_id'):
-        rec = {'player_id': pid, 'player': gr['player'].iloc[-1]}
-        for name in dims:
-            d = career_dim(gr, name)
-            rec[name + '_peak'] = d['peak3']
-            rec[name + '_prime'] = d['prime7']
-            rec[name + '_sustain'] = d['sustain']
-            rec[name + '_cov'] = gr.loc[gr['countable'], name + '_cov'].mean()
-        rec['seasons'] = int(gr['countable'].sum())
-        rec['g_total'] = gr['g'].sum()
-        rec['mp_total'] = gr['mp'].sum()
-        rec['pts_total'] = gr['pts_tot'].sum()
-        rec['trb_total'] = gr['trb_tot'].sum()
-        rec['ast_total'] = gr['ast_tot'].sum()
-        rec['stl_total'] = gr['stl_tot'].sum()
-        rec['blk_total'] = gr['blk_tot'].sum()
-        rec['x3p_total'] = gr['x3p_tot'].sum(min_count=1)   # sin dato antes de existir la línea de 3
-        w = gr['g'].fillna(0)
-        rec['rs_ppg'] = np.average(gr['pts_per_game'].fillna(0), weights=w) if w.sum() else np.nan
-        rec['first'] = gr['season'].min()
-        rec['last'] = gr['season'].max()
-        rec['lg_main'] = gr['lg'].mode().iloc[0]
-        # posición principal: la que más minutos jugó (antes de 1952, por partidos)
-        pp = gr['pos'].fillna('').astype(str).str.split('-').str[0]
-        ok = pp.isin(['PG', 'SG', 'SF', 'PF', 'C'])
-        pw = gr['mp'].fillna(gr['g'] * 30).fillna(0)
-        rec['pos'] = pw[ok].groupby(pp[ok]).sum().idxmax() if ok.any() else ''
-        rows.append(rec)
-    C = pd.DataFrame(rows)
-
-    # El acumulado se pasa a la misma escala que el pico antes de sumarlo, para
-    # que cada porcentaje pese lo que dice. En bruto es una suma muy asimétrica
-    # (casi todos los jugadores cerca de 0, las carreras largas a +15) y el
-    # "20 %" llegaba a pesar la mitad de la nota. Se usa su percentil:
-    # percentil -> puntuación normal -> mismo centro y dispersión que el pico.
-    # Referencia: los jugadores que entran en el índice (1+ temporada computable).
-    nd = NormalDist()
-    ref = C['seasons'] >= 1
-    for name in dims:
-        pk = C.loc[ref, name + '_peak']
-        pool = np.sort(C.loc[ref, name + '_sustain'].dropna().values)
-        n = len(pool)
-        v = C[name + '_sustain'].values
-        pct = (np.searchsorted(pool, v, 'left') + np.searchsorted(pool, v, 'right')) / (2 * n)
-        pct = np.clip(pct, 0.5 / n, 1 - 0.5 / n)
-        ns = np.array([nd.inv_cdf(q) if np.isfinite(x) else np.nan for q, x in zip(pct, v)])
-        C[name + '_sustain_z'] = pk.mean() + pk.std() * ns
-        C[name + '_career'] = (0.40 * C[name + '_peak'] + 0.40 * C[name + '_prime']
-                               + 0.20 * C[name + '_sustain_z'])
+    C = careers(s)
 
     return s, C, (adv, aw, eos, astar, tabb, career, tpg)
 

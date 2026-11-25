@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from statgoat_pipeline import ts_added
+from statgoat_pipeline import ts_added, careers
 
 ROOT = Path(__file__).resolve().parent
 BREF = ROOT / '_raw' / 'bref'
@@ -21,6 +21,7 @@ OUT = ROOT / '_build'
 Z_CAP = 4.0
 ABA_DISCOUNT = 0.90
 SHRINK_K = 600          # minutos de playoffs que "valen" lo mismo que la previsión por liga regular
+ERA0 = 1980             # vista 'desde 1979-80': primera temporada con línea de 3 y con todas las estadísticas
 PEAK_MIN = 4000         # se mide a cada uno por sus mejores 4.000 minutos de playoffs (≈ 4-5 rondas largas)
 PO_SUBDIMS = {
     'PROD': {'pts_pg_z': .40, 'trb_pg_z': .20, 'ast_pg_z': .20, 'stl_pg_z': .10, 'blk_pg_z': .10},
@@ -334,34 +335,19 @@ def titles(ps, ch, adv_rs, s):
     cols = ['season', 'lg', 'team', 'player_id', 'credit', 'is_best', 'share']
     allr = pd.concat([po[cols], fb[cols] if len(fb) else None, rs_only[cols]], ignore_index=True)
     allr = allr.sort_values('credit', ascending=False).drop_duplicates(['season', 'player_id'])
-    allr.to_pickle(OUT / 'rings.pkl')                    # anillo a anillo, para la ficha
-    allr['best_i'] = allr['is_best'].astype(int)
-    return allr.groupby('player_id').agg(rings=('season', 'nunique'), ring_credit=('credit', 'sum'),
-                                         rings_as_best=('best_i', 'sum')).reset_index()
+    return allr
 
 
-# ------------------------------------------------------------------ principal
-def main():
-    s = pd.read_pickle(OUT / 'seasons.pkl')
-    C = pd.read_pickle(OUT / 'careers_raw.pkl')
-    adv_rs = pd.read_csv(BREF / 'Advanced.csv', usecols=['season', 'lg', 'team', 'player_id', 'g', 'mp', 'ws'])
-    aw = merge_extra(pd.read_csv(BREF / 'Player Award Shares.csv'), read(CACHE / 'awards_extra.csv'), ['season', 'award'])
-    eos = merge_extra(pd.read_csv(BREF / 'End of Season Teams.csv'), read(CACHE / 'eos_extra.csv'), ['season', 'type'])
-    astar = pd.read_csv(BREF / 'All-Star Selections.csv')
-    ch = pd.read_csv(ROOT / 'champions.csv')
-    fmv = pd.read_csv(ROOT / 'finals_mvp.csv')
-    pd.to_pickle({'aw': aw, 'eos': eos, 'astar': astar, 'fmv': fmv}, OUT / 'awards_src.pkl')  # para la ficha
+def ring_agg(allr):
+    a = allr.assign(best_i=allr['is_best'].astype(int))
+    return a.groupby('player_id').agg(rings=('season', 'nunique'), ring_credit=('credit', 'sum'),
+                                      rings_as_best=('best_i', 'sum')).reset_index()
 
-    # ------------------------------------------------------------ PLAYOFFS
-    ps = playoff_seasons()
-    ps.to_pickle(OUT / 'playoff_seasons.pkl')
-    print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
-          f'hasta {int(ps.season.max())}')
-    C = playoff_career(ps, C, s)
-    season_ranking(s, ps, aw, eos, astar, ch, fmv).to_pickle(OUT / 'seasons_full.pkl')
 
+def index(C, allr, aw, eos, astar, fmv, tag=''):
+    """De las carreras agregadas a la nota: anillos, premios, bloques, escala, bonus y margen."""
     # ------------------------------------------------------------ ANILLOS Y FMVP
-    C = C.merge(titles(ps, ch, adv_rs, s), on='player_id', how='left')
+    C = C.merge(ring_agg(allr), on='player_id', how='left')
     if fmv['player_id'].isna().any():
         raise SystemExit('ABORTA: finals_mvp.csv tiene jugadores sin identificar')
     C = C.merge(fmv.groupby('player_id').size().rename('fmvp').reset_index(), on='player_id', how='left')
@@ -392,7 +378,7 @@ def main():
 
     # Universo: todo jugador con al menos una temporada de 1.000+ minutos.
     pool = C[C['seasons'] >= 1].copy()
-    print('pool de candidatos:', len(pool))
+    print(f'pool de candidatos{tag}:', len(pool))
 
     B = pd.DataFrame({'player_id': pool['player_id'].values, 'player': pool['player'].values})
     P = pool.reset_index(drop=True)
@@ -483,6 +469,32 @@ def main():
     meta['cov_min'] = meta[['PROD_cov', 'IMPACTO_cov', 'DEF_cov']].fillna(0).min(axis=1)
     R = B.merge(meta, on='player_id').sort_values('STATGOAT', ascending=False)
     R.insert(0, 'rank', range(1, len(R) + 1))
+    return R, B, W
+
+
+# ------------------------------------------------------------------ principal
+def main():
+    s = pd.read_pickle(OUT / 'seasons.pkl')
+    C = pd.read_pickle(OUT / 'careers_raw.pkl')
+    adv_rs = pd.read_csv(BREF / 'Advanced.csv', usecols=['season', 'lg', 'team', 'player_id', 'g', 'mp', 'ws'])
+    aw = merge_extra(pd.read_csv(BREF / 'Player Award Shares.csv'), read(CACHE / 'awards_extra.csv'), ['season', 'award'])
+    eos = merge_extra(pd.read_csv(BREF / 'End of Season Teams.csv'), read(CACHE / 'eos_extra.csv'), ['season', 'type'])
+    astar = pd.read_csv(BREF / 'All-Star Selections.csv')
+    ch = pd.read_csv(ROOT / 'champions.csv')
+    fmv = pd.read_csv(ROOT / 'finals_mvp.csv')
+    pd.to_pickle({'aw': aw, 'eos': eos, 'astar': astar, 'fmv': fmv}, OUT / 'awards_src.pkl')  # para la ficha
+
+    # ------------------------------------------------------------ PLAYOFFS
+    ps = playoff_seasons()
+    ps.to_pickle(OUT / 'playoff_seasons.pkl')
+    print(f'  playoffs: {len(ps)} temporadas de jugador, {ps[["season", "lg"]].drop_duplicates().shape[0]} ediciones, '
+          f'hasta {int(ps.season.max())}')
+    C = playoff_career(ps, C, s)
+    season_ranking(s, ps, aw, eos, astar, ch, fmv).to_pickle(OUT / 'seasons_full.pkl')
+
+    allr = titles(ps, ch, adv_rs, s)
+    allr.to_pickle(OUT / 'rings.pkl')                    # anillo a anillo, para la ficha
+    R, B, W = index(C, allr, aw, eos, astar, fmv)
     R.to_csv(OUT / 'statgoat_full.csv', index=False)
 
     cols = ['rank', 'player', 'STATGOAT', 'PROD', 'EFIC', 'IMPACTO', 'DEF',
@@ -506,6 +518,20 @@ def main():
     print('\n--- sensibilidad (posicion segun ponderacion) ---')
     print(S.to_string(index=False))
     S.to_csv(OUT / 'sensibilidad.csv', index=False)
+
+    # ------------------------------------------------- vista desde 1979-80
+    # El mismo índice contando solo lo jugado desde 1979-80 (línea de 3 y todas
+    # las estadísticas registradas): temporadas, playoffs, anillos y premios desde
+    # ese año. Los z-scores son por temporada, así que no cambian; cambia qué
+    # temporadas entran en cada carrera. Cada anillo conserva su crédito.
+    s80 = s[s['season'] >= ERA0].copy()
+    C80 = playoff_career(ps[ps['season'] >= ERA0].copy(), careers(s80), s80)
+    C80.to_pickle(OUT / 'careers_1980.pkl')
+    yr = lambda d: d[d['season'] >= ERA0]
+    R80, _, _ = index(C80, yr(allr), yr(aw), yr(eos), yr(astar), yr(fmv), tag=' desde 1979-80')
+    R80.to_csv(OUT / 'statgoat_1980.csv', index=False)
+    print('\n--- desde 1979-80 ---')
+    print(R80.head(20)[cols].to_string(index=False, float_format=lambda x: f'{x:6.2f}'))
     return R
 
 

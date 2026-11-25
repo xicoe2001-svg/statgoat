@@ -121,6 +121,11 @@ button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 .tabs button{border:0;border-bottom:4px solid transparent;background:none;padding:10px 16px 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
 .tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ball)}
 .tabs+.toolbar{margin-top:12px}
+.erabox{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:14px 0 0}
+.erabox[hidden]{display:none}
+.erabox+.toolbar{margin-top:12px}
+.era button[aria-pressed="true"]{background:var(--ball);border-color:var(--ball);color:#fff}
+.eranote{font-family:Newsreader;font-size:14px;line-height:1.4;color:var(--ink-soft);flex:1 1 280px}
 .flag.aw{border-color:var(--key);color:var(--key)}
 
 table{width:100%;border-collapse:collapse}
@@ -268,6 +273,8 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 </section>
 
 <div class="tabs" id="tabs"><button data-m="players" aria-pressed="true" data-i18n="tab_players">Jugadores</button><button data-m="seasons" aria-pressed="false" data-i18n="tab_seasons">Mejores temporadas</button></div>
+
+<div class="erabox" id="erabox"><div class="filters era" id="erasel" role="group" aria-label="1979-80"></div><span class="eranote" id="eranote" hidden></span></div>
 
 <div class="toolbar">
   <input id="q" type="search" placeholder="Buscar jugador…" data-i18n-ph="search" autocomplete="off">

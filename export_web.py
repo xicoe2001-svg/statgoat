@@ -27,42 +27,47 @@ def wavg(gr, col, wcol='w'):
 
 
 # --------------------------------------------------- agregados de carrera
-rows = {}
-for pid, gr in s.groupby('player_id'):
-    gr = gr.sort_values('season')
-    car = {
-        'mpg': wavg(gr, 'mp_per_game'), 'ppg': wavg(gr, 'pts_per_game'),
-        'rpg': wavg(gr, 'trb_per_game'), 'apg': wavg(gr, 'ast_per_game'),
-        'spg': wavg(gr, 'stl_per_game'), 'bpg': wavg(gr, 'blk_per_game'),
-        'topg': wavg(gr, 'tov_per_game'),
-        'per': wavg(gr, 'per', 'wm'), 'ts': wavg(gr, 'ts_percent', 'wm'),
-        'ws48': wavg(gr, 'ws_48', 'wm'), 'bpm': wavg(gr, 'bpm', 'wm'),
-        'obpm': wavg(gr, 'obpm', 'wm'), 'dbpm': wavg(gr, 'dbpm', 'wm'),
-        'usg': wavg(gr, 'usg_percent', 'wm'), 'tovp': wavg(gr, 'tov_percent', 'wm'),
-        'stlp': wavg(gr, 'stl_percent', 'wm'), 'blkp': wavg(gr, 'blk_percent', 'wm'),
-        'drbp': wavg(gr, 'drb_percent', 'wm'), 'orbp': wavg(gr, 'orb_percent', 'wm'),
-        'astp': wavg(gr, 'ast_percent', 'wm'),
-        'ws': float(pd.to_numeric(gr['ws'], errors='coerce').sum()),
-        'vorp': float(pd.to_numeric(gr['vorp'], errors='coerce').sum()),
-        'mp': float(pd.to_numeric(gr['mp'], errors='coerce').sum()),
-    }
-    cs = gr[gr['countable']].copy()
-    if len(cs) == 0:
-        cs = gr.copy()
-    cs['SS'] = (0.22 * cs['PROD'] + 0.10 * cs['EFIC']
-                + 0.42 * cs['IMPACTO'] + 0.26 * cs['DEF'])
-    best = cs.nlargest(3, 'SS')
-    seas = []
-    for _, b in best.iterrows():
-        seas.append([int(b.season), str(b.team),
-                     None if pd.isna(b.pts_per_game) else round(float(b.pts_per_game), 1),
-                     None if pd.isna(b.trb_per_game) else round(float(b.trb_per_game), 1),
-                     None if pd.isna(b.ast_per_game) else round(float(b.ast_per_game), 1),
-                     None if pd.isna(b.per) else round(float(b.per), 1),
-                     None if pd.isna(b.ws_48) else round(float(b.ws_48), 3),
-                     None if pd.isna(b.bpm) else round(float(b.bpm), 1)])
-    teams = list(dict.fromkeys([t for t in gr['team'] if 'TM' not in str(t)]))
-    rows[pid] = (car, seas, teams[:6])
+def car_rows(s):
+    rows = {}
+    for pid, gr in s.groupby('player_id'):
+        gr = gr.sort_values('season')
+        car = {
+            'mpg': wavg(gr, 'mp_per_game'), 'ppg': wavg(gr, 'pts_per_game'),
+            'rpg': wavg(gr, 'trb_per_game'), 'apg': wavg(gr, 'ast_per_game'),
+            'spg': wavg(gr, 'stl_per_game'), 'bpg': wavg(gr, 'blk_per_game'),
+            'topg': wavg(gr, 'tov_per_game'),
+            'per': wavg(gr, 'per', 'wm'), 'ts': wavg(gr, 'ts_percent', 'wm'),
+            'ws48': wavg(gr, 'ws_48', 'wm'), 'bpm': wavg(gr, 'bpm', 'wm'),
+            'obpm': wavg(gr, 'obpm', 'wm'), 'dbpm': wavg(gr, 'dbpm', 'wm'),
+            'usg': wavg(gr, 'usg_percent', 'wm'), 'tovp': wavg(gr, 'tov_percent', 'wm'),
+            'stlp': wavg(gr, 'stl_percent', 'wm'), 'blkp': wavg(gr, 'blk_percent', 'wm'),
+            'drbp': wavg(gr, 'drb_percent', 'wm'), 'orbp': wavg(gr, 'orb_percent', 'wm'),
+            'astp': wavg(gr, 'ast_percent', 'wm'),
+            'ws': float(pd.to_numeric(gr['ws'], errors='coerce').sum()),
+            'vorp': float(pd.to_numeric(gr['vorp'], errors='coerce').sum()),
+            'mp': float(pd.to_numeric(gr['mp'], errors='coerce').sum()),
+        }
+        cs = gr[gr['countable']].copy()
+        if len(cs) == 0:
+            cs = gr.copy()
+        cs['SS'] = (0.22 * cs['PROD'] + 0.10 * cs['EFIC']
+                    + 0.42 * cs['IMPACTO'] + 0.26 * cs['DEF'])
+        best = cs.nlargest(3, 'SS')
+        seas = []
+        for _, b in best.iterrows():
+            seas.append([int(b.season), str(b.team),
+                         None if pd.isna(b.pts_per_game) else round(float(b.pts_per_game), 1),
+                         None if pd.isna(b.trb_per_game) else round(float(b.trb_per_game), 1),
+                         None if pd.isna(b.ast_per_game) else round(float(b.ast_per_game), 1),
+                         None if pd.isna(b.per) else round(float(b.per), 1),
+                         None if pd.isna(b.ws_48) else round(float(b.ws_48), 3),
+                         None if pd.isna(b.bpm) else round(float(b.bpm), 1)])
+        teams = list(dict.fromkeys([t for t in gr['team'] if 'TM' not in str(t)]))
+        rows[pid] = (car, seas, teams[:6])
+    return rows
+
+
+rows = car_rows(s)
 
 # --------------------------------------------------- cabecera columnar
 FIELDS = ['rk', 'n', 'sc',                                     # 0-2
@@ -80,12 +85,11 @@ FIELDS = ['rk', 'n', 'sc',                                     # 0-2
 r2 = lambda v, d=2: None if v is None or (isinstance(v, float) and np.isnan(v)) else round(float(v), d)
 i0 = lambda v: None if pd.isna(v) else int(v)
 
-data = []
-for _, r in R.iterrows():
+def row(r, rows):
     pid = r.player_id
     car, seas, teams = rows.get(pid, ({}, [], []))
     g = car.get
-    data.append([
+    return [
         int(r['rank']), r['player'], r2(r['STATGOAT']),
         r2(r['PROD'], 3), r2(r['EFIC'], 3), r2(r['IMPACTO'], 3), r2(r['DEF'], 3),
         r2(r['PLAYOFFS'], 3), r2(r['TITULOS'], 3), r2(r['PREMIOS'], 3), r2(r['BONUS_TOTALES']),
@@ -108,7 +112,10 @@ for _, r in R.iterrows():
         r['lg_main'], seas, teams,
         i0(r['x3p_total']), str(r['pos'] or ''),
         r['player_id'], i0(r['rank_p10']), i0(r['rank_p90']), r2(r['rank_top1'], 3),
-    ])
+    ]
+
+
+data = [row(r, rows) for _, r in R.iterrows()]
 
 # --------------------------------------------------- mejores temporadas completas
 # Se exportan las 1.200 mejores con los pesos por defecto más las 150 mejores de
@@ -136,7 +143,25 @@ for _, r in TS.iterrows():
     ])
 SMIN = {k: r2(T['b_' + k].min(), 3) for k in BK}
 
-payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn': int(len(T))}
+# --------------------------------------------------- vista desde 1979-80
+# Misma nota contando solo lo jugado desde 1979-80. Para quien jugó solo desde
+# entonces, sus estadísticas no cambian: basta con su puesto, sus bloques, su bonus
+# y su margen. Quien jugó antes y después lleva su ficha entera recalculada.
+ERA0 = 1980
+E = pd.read_csv(OUT / 'statgoat_1980.csv')
+first_all = R.set_index('player_id')['first']
+cross = set(E.player_id[E.player_id.map(first_all) < ERA0])
+rows80 = car_rows(s[(s['season'] >= ERA0) & s.player_id.isin(cross)])
+EF = ['id', 'rk', 'sc', 'PROD', 'EFIC', 'IMPACTO', 'DEF', 'PLAYOFFS', 'TITULOS', 'PREMIOS', 'bt', 'rec', 'r10', 'r90', 't1']
+edata = [[r['player_id'], int(r['rank']), r2(r['STATGOAT']),
+          *[r2(r[k], 3) for k in EF[3:10]], r2(r['BONUS_TOTALES']),
+          ('' if pd.isna(r['_records']) else str(r['_records'])),
+          i0(r['rank_p10']), i0(r['rank_p90']), r2(r['rank_top1'], 3)] for _, r in E.iterrows()]
+xdata = [row(r, rows80) for _, r in E[E.player_id.isin(cross)].iterrows()]
+print('desde 1979-80:', len(edata), 'jugadores |', len(xdata), 'con temporadas antes y después')
+
+payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn': int(len(T)),
+           'e': {'y0': ERA0, 'f': EF, 'd': edata, 'x': xdata, 'sn': int((T['season'] >= ERA0).sum())}}
 raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 open(OUT / 'all.min.json', 'w').write(raw)
 print('jugadores:', len(data), '| temporadas exportadas:', len(sdata), 'de', len(T), '| KB:', round(len(raw) / 1024, 1))
@@ -154,6 +179,8 @@ RG = pd.read_pickle(OUT / 'rings.pkl')
 SRC = pd.read_pickle(OUT / 'awards_src.pkl')
 AW, EOS, AST, FMV = SRC['aw'], SRC['eos'], SRC['astar'], SRC['fmv']
 RI = R.set_index('player_id')
+C80 = pd.read_pickle(OUT / 'careers_1980.pkl').set_index('player_id')
+EI = E.set_index('player_id')
 
 
 def rn(x, n=2):
@@ -226,6 +253,11 @@ for pid in R['player_id']:
         a = slot(r.season); a[7], a[8] = rn(r.share, 3), int(bool(r.winner))
     if years:
         d['a'] = [years[y] for y in sorted(years)]
+    if pid in EI.index and pid in C80.index:        # vista desde 1979-80
+        c, q = C80.loc[pid], EI.loc[pid]
+        d['e'] = {'c': {k: [rn(c[k + '_peak']), rn(c[k + '_prime']), rn(c[k + '_sustain_z']), rn(c[k + '_career'])]
+                        for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']},
+                  'pq': [rn(q['Q_peak']), rn(q['po_prior']), rn(q['po_quality']), rn(q['po_wp'], 0), rn(q['po_ws_f'], 1)]}
     txt = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
     f = DET / f'{pid}.json'
     total_kb += len(txt) / 1024

@@ -85,6 +85,8 @@ Margen de puesto: 2.000 sorteos de pesos alrededor de los de base (Dirichlet de 
 
 El bonus por totales de carrera es opcional y está desactivado por defecto. Da puntos por el puesto histórico en puntos, rebotes, asistencias, robos, tapones o triples (1.º = 3 · 2.º = 2,4 · 3.º = 1,8 · 4.º = 1,2 · 5.º = 0,6; cuenta solo la mejor categoría). No va en la nota por defecto porque compara totales en bruto entre épocas y la longevidad ya cuenta un 20 % en cada bloque.
 
+**Desde 1979-80:** segunda vista del mismo índice que cuenta solo lo jugado desde 1979-80 (primera temporada con línea de 3 y con todas las estadísticas registradas). Los z-scores no cambian; la carrera, los playoffs, los anillos (cada uno con su crédito), los premios, los totales, la escala y el margen se recalculan con lo jugado desde ese año (`statgoat_compose.py`, `ERA0`). La web la muestra con el selector «Toda la historia / Desde 1979-80»; en Mejores temporadas solo filtra por año.
+
 **Mejores temporadas:** la misma fórmula aplicada a un solo año (liga regular, playoffs de ese año, anillo según su aportación y premios de esa temporada), desde 1951-52. Títulos y premios se llevan a la escala de los bloques estadísticos por percentil, para que pesen lo que dicen sus porcentajes. La web exporta las mejores 1.200 con los pesos por defecto más las 150 mejores de cada bloque, y las reordena con los pesos que ponga el usuario.
 
 **Eficiencia:** puntos añadidos por eficiencia, `(TS% propio − TS% de su liga) × intentos` (70 %), y control de pérdidas (30 %). Mide eficiencia y volumen a la vez; se usa igual en liga regular y en playoffs.

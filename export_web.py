@@ -117,6 +117,40 @@ def row(r, rows):
 
 data = [row(r, rows) for _, r in R.iterrows()]
 
+# --------------------------------------------------- por franquicia
+# Cada paso de un jugador por una franquicia, con solo lo hecho allí (statgoat_team.csv).
+# Un archivo por franquicia en tm/<código>.json que se descarga al elegir el equipo.
+from franchises import FR as TFR, NAMES as TNAMES, CURRENT as TCUR
+ST = pd.read_pickle(OUT / 'seasons_team.pkl')
+ST = ST[ST['fr'].ne('') & ST['fr'].notna()].copy()
+ST['w'] = ST['g'].fillna(0)
+ST['wm'] = ST['mp'].fillna(0)
+FRS = ST.groupby(['player_id', 'season'])['fr'].agg(lambda x: ','.join(sorted(set(x)))).to_dict()
+TR = pd.read_csv(OUT / 'statgoat_team.csv')
+STE = ST.assign(pid=ST['player_id'], player_id=ST['player_id'] + '|' + ST['fr'])
+rows_t = car_rows(STE[STE['player_id'].isin(set(TR['player_id']))])
+TMD = ROOT / 'tm'
+TMD.mkdir(exist_ok=True)
+tms, twritten = {}, 0
+iid, irk = FIELDS.index('id'), FIELDS.index('rk')
+ir10, ir90, it1 = FIELDS.index('r10'), FIELDS.index('r90'), FIELDS.index('t1')
+for fr, g in TR.groupby('fr'):
+    out = []
+    for _, r in g.sort_values('rank_fr').iterrows():
+        x = row(r, rows_t)
+        x[iid], x[irk] = r['pid'], int(r['rank_fr'])
+        x[ir10] = x[ir90] = x[it1] = None
+        out.append(x)
+    txt = json.dumps({'d': out}, ensure_ascii=False, separators=(',', ':'))
+    f = TMD / f'{fr}.json'
+    tms[fr] = [TNAMES.get(fr, fr), len(out), int(fr in TCUR)]
+    if not f.exists() or f.read_text() != txt:
+        f.write_text(txt); twritten += 1
+for f in TMD.glob('*.json'):
+    if f.stem not in tms:
+        f.unlink()
+print(f'por franquicia: {len(TR)} pasos en {len(tms)} franquicias ({twritten} archivos actualizados)')
+
 # --------------------------------------------------- mejores temporadas completas
 # Se exportan las 1.200 mejores con los pesos por defecto más las 150 mejores de
 # cada bloque, para que el ranking siga siendo correcto si el usuario mueve los pesos.
@@ -130,7 +164,7 @@ for k in BK:
 TS = T.loc[sorted(keep)]
 SFIELDS = ['n', 'y', 'tm', 'lg', *BK, 'ppg', 'rpg', 'apg', 'ts', 'per', 'bpm',
            'pog', 'popg', 'mvp', 'dpoy', 'champ', 'fmvp', 'mvps', 'anba', 'as', 'srk', 'pos', 'id', 'rv', 'pol', 'poe', 'poz', 'pow', 'pows',
-           'potw', 'potwp', 'live', 'g', 'mp', 'drk']
+           'potw', 'potwp', 'live', 'g', 'mp', 'drk', 'frs']
 
 
 # --------------------------------------------------- tendencia diaria de la temporada en curso
@@ -178,6 +212,7 @@ def srow(r):
         r2(r['ring'], 2), r2(r['po_level'], 2), r2(r['po_exp'], 2), r2(r['po'], 2), i0(r['pw']), r2(r['pws'], 1),
         int(r['potw']), r2(r['potwp'], 1), int(r['live']), i0(r['g']), i0(r['mp']),
         DRK.get(r['player_id']) if int(r['live']) else None,
+        FRS.get((r['player_id'], int(r['season'])), ''),
     ]
 
 
@@ -223,7 +258,7 @@ xdata = [row(r, rows80) for _, r in E[E.player_id.isin(cross)].iterrows()]
 print('desde 1979-80:', len(edata), 'jugadores |', len(xdata), 'con temporadas antes y después')
 
 payload = {'f': FIELDS, 'd': data, 'sf': SFIELDS, 'sd': sdata, 'smin': SMIN, 'sn': int(len(T)),
-           'yrs': yrs, 'ylive': LIVE,
+           'yrs': yrs, 'ylive': LIVE, 'tms': tms, 'tfr': TFR,
            'e': {'y0': ERA0, 'f': EF, 'd': edata, 'x': xdata, 'sn': int((T['season'] >= ERA0).sum())}}
 raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
 open(OUT / 'all.min.json', 'w').write(raw)
@@ -272,6 +307,24 @@ g_ast = {k: set(v.season) for k, v in AST.groupby('player_id')}
 ZC = ['pts_per_game_z', 'trb_per_game_z', 'ast_per_game_z', 'stl_per_game_z', 'blk_per_game_z',
       'tsa_z', 'tov_neg_z', 'per_z', 'ws_48_z', 'bpm_z',
       'dbpm_z', 'dws_48_z', 'stl_percent_z', 'blk_percent_z', 'drb_percent_z']
+def det_row(r):
+    return [int(r.season), str(r.team), r.lg, rn(r.g, 0), rn(r.mp, 0), int(bool(r.countable)),
+            rn(r.PROD), rn(r.EFIC), rn(r.IMPACTO), rn(r.DEF),
+            rn(r.pts_per_game, 1), rn(r.trb_per_game, 1), rn(r.ast_per_game, 1),
+            rn(r.stl_per_game, 1), rn(r.blk_per_game, 1),
+            rn(r.ts_percent, 3), rn(r.tsa, 1), rn(r.tov_percent, 1),
+            rn(r.per, 1), rn(r.ws_48, 3), rn(r.bpm, 1),
+            rn(r.dbpm, 1), rn(r.dws_48, 3), rn(r.stl_percent, 1), rn(r.blk_percent, 1), rn(r.drb_percent, 1),
+            *[rn(getattr(r, c)) for c in ZC]]
+
+
+# temporadas con traspaso, una fila por equipo (para la ficha por franquicia)
+_multi = set(zip(s.loc[s['team'].astype(str).str.match(r'^\d ?TM$'), 'player_id'],
+                 s.loc[s['team'].astype(str).str.match(r'^\d ?TM$'), 'season']))
+g_sf = {k: v for k, v in ST[[(p, y) in _multi for p, y in zip(ST['player_id'], ST['season'])]].groupby('player_id')}
+CT = pd.read_pickle(OUT / 'careers_team.pkl').set_index('player_id')
+g_tr = {k: v for k, v in TR.groupby('pid')}
+
 keep_ids, written, total_kb = set(), 0, 0.0
 for pid in R['player_id']:
     keep_ids.add(pid)
@@ -279,15 +332,17 @@ for pid in R['player_id']:
     ss = g_s.get(pid)
     if ss is not None:
         ss = ss.sort_values('season')
-        d['s'] = [[int(r.season), str(r.team), r.lg, rn(r.g, 0), rn(r.mp, 0), int(bool(r.countable)),
-                   rn(r.PROD), rn(r.EFIC), rn(r.IMPACTO), rn(r.DEF),
-                   rn(r.pts_per_game, 1), rn(r.trb_per_game, 1), rn(r.ast_per_game, 1),
-                   rn(r.stl_per_game, 1), rn(r.blk_per_game, 1),
-                   rn(r.ts_percent, 3), rn(r.tsa, 1), rn(r.tov_percent, 1),
-                   rn(r.per, 1), rn(r.ws_48, 3), rn(r.bpm, 1),
-                   rn(r.dbpm, 1), rn(r.dws_48, 3), rn(r.stl_percent, 1), rn(r.blk_percent, 1), rn(r.drb_percent, 1),
-                   *[rn(getattr(r, c)) for c in ZC]]
-                  for r in ss.itertuples()]
+        d['s'] = [det_row(r) for r in ss.itertuples()]
+    if pid in g_sf:
+        d['sf'] = [det_row(r) for r in g_sf[pid].sort_values(['season', 'mp']).itertuples()]
+    if pid in g_tr:                                  # cálculo de cada paso por una franquicia
+        d['f'] = {}
+        for q in g_tr[pid].itertuples():
+            if q.player_id in CT.index:
+                c = CT.loc[q.player_id]
+                d['f'][q.fr] = {'c': {k: [rn(c[k + '_peak']), rn(c[k + '_prime']), rn(c[k + '_sustain_z']), rn(c[k + '_career'])]
+                                      for k in ['PROD', 'EFIC', 'IMPACTO', 'DEF']},
+                                'pq': [rn(q.Q_peak), rn(q.po_prior), rn(q.po_quality), rn(q.po_wp, 0), rn(q.po_ws_f, 1)]}
     if pid in C0.index:
         c = C0.loc[pid]
         d['c'] = {k: [rn(c[k + '_peak']), rn(c[k + '_prime']), rn(c[k + '_sustain_z']), rn(c[k + '_career'])]

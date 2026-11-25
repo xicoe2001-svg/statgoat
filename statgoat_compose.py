@@ -13,6 +13,7 @@ import pandas as pd
 from pathlib import Path
 
 from statgoat_pipeline import ts_added, careers
+from franchises import franchise
 
 ROOT = Path(__file__).resolve().parent
 BREF = ROOT / '_raw' / 'bref'
@@ -594,7 +595,61 @@ def main():
     R80.to_csv(OUT / 'statgoat_1980.csv', index=False)
     print('\n--- desde 1979-80 ---')
     print(R80.head(20)[cols].to_string(index=False, float_format=lambda x: f'{x:6.2f}'))
+
+    franchise_view(ps, allr, aw, eos, astar, fmv)
     return R
+
+
+def franchise_view(ps, allr, aw, eos, astar, fmv):
+    """El mismo índice para cada paso de un jugador por una franquicia: solo sus
+    temporadas, playoffs, anillos y premios con ese equipo. Si fue traspasado a mitad
+    de temporada, cuentan sus números en cada equipo (seasons_team.pkl); los premios
+    de esa temporada van al equipo con el que jugó más minutos. Cada anillo conserva
+    su crédito. Todos los pasos comparten escala: el mejor de la historia marca 100."""
+    st = pd.read_pickle(OUT / 'seasons_team.pkl')
+    st = st[st['fr'].ne('') & st['fr'].notna()].copy()
+    st['pid'] = st['player_id']
+    st['player_id'] = st['pid'] + '|' + st['fr']
+    st = st.sort_values('mp', ascending=False).drop_duplicates(['season', 'lg', 'player_id']).sort_index()
+    C = careers(st)
+    pst = ps.copy()
+    pst['fr'] = pst['team'].map(franchise)
+    pst = pst[pst['fr'].ne('')]
+    pst['player_id'] = pst['player_id'] + '|' + pst['fr']
+    C = playoff_career(pst, C, st)
+    # franquicia principal de cada temporada (más minutos) para los premios
+    main = (st.assign(w=st['mp'].fillna(st['g'] * 30).fillna(0))
+            .sort_values('w').groupby(['pid', 'season'])['fr'].last().to_dict())
+
+    def by_main(d):
+        d = d.copy()
+        f = [main.get((p, y), '') for p, y in zip(d['player_id'], d['season'])]
+        d['player_id'] = [f'{p}|{x}' for p, x in zip(d['player_id'], f)]
+        return d[[x != '' for x in f]]
+    ar = allr.copy()
+    ar['fr'] = ar['team'].map(franchise)
+    ring_fr = {(p, y): x for p, y, x in zip(ar['player_id'], ar['season'], ar['fr'])}
+    ar['player_id'] = ar['player_id'] + '|' + ar['fr']
+    fm = fmv.copy()
+    f = [ring_fr.get((p, y)) or main.get((p, y), '') for p, y in zip(fm['player_id'], fm['season'])]
+    fm['player_id'] = [f'{p}|{x}' for p, x in zip(fm['player_id'], f)]
+    fm = fm[[x != '' for x in f]]
+    R, _, _ = index(C, ar, by_main(aw), by_main(eos), by_main(astar), fm, tag=' por franquicia')
+    R['pid'] = R['player_id'].str.split('|').str[0]
+    R['fr'] = R['player_id'].str.split('|').str[1]
+    R['rank_fr'] = R.groupby('fr')['STATGOAT'].rank(ascending=False, method='first').astype(int)
+    # bonus y récords dentro de cada franquicia (totales con ese equipo)
+    tot_cols = ['pts_total', 'trb_total', 'ast_total', 'stl_total', 'blk_total', 'x3p_total']
+    RANK_PTS = {1: 3.0, 2: 2.4, 3: 1.8, 4: 1.2, 5: 0.6}
+    rk = pd.DataFrame({c: R.groupby('fr')[c].rank(ascending=False, method='min') for c in tot_cols}, index=R.index)
+    R['BONUS_TOTALES'] = rk.apply(lambda col: col.map(RANK_PTS)).fillna(0).max(axis=1)
+    R['_records'] = [','.join(f"{c.replace('_total', '')}:{int(rk.loc[i, c])}" for c in tot_cols if rk.loc[i, c] <= 5)
+                     for i in R.index]
+    R.to_csv(OUT / 'statgoat_team.csv', index=False)
+    C.to_pickle(OUT / 'careers_team.pkl')
+    top = R[R['rank_fr'] == 1].sort_values('STATGOAT', ascending=False)
+    print(f"\n--- por franquicia: {len(R)} pasos por {R['fr'].nunique()} franquicias ---")
+    print('  n.º 1 de cada una (las 12 primeras): ' + ' | '.join(f"{r.fr} {r.player} {r.STATGOAT:.1f}" for r in top.head(12).itertuples()))
 
 
 if __name__ == '__main__':

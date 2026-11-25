@@ -17,6 +17,7 @@ Si Basketball-Reference bloquea o falla, se conserva lo que ya hay en cache/ y
 verify_build.py decide si los datos siguen siendo lo bastante recientes.
 """
 import csv
+import html as HT
 import json
 import re
 import sys
@@ -44,6 +45,7 @@ PO_TOT = CACHE / 'playoffs_totals.csv'
 PO_ADV = CACHE / 'playoffs_advanced.csv'
 AW_EXTRA = CACHE / 'awards_extra.csv'
 EOS_EXTRA = CACHE / 'eos_extra.csv'
+POW_PATH = CACHE / 'pow.csv'               # Jugador de la semana, todas las temporadas
 RS_TOT = CACHE / 'rs_current_totals.csv'
 RS_ADV = CACHE / 'rs_current_advanced.csv'
 CHAMPS = ROOT / 'champions.csv'
@@ -277,6 +279,27 @@ def parse_awards(raw, season):
     return shares, teams
 
 
+def parse_pow(raw):
+    """Jugadores de la semana: /awards/pow.html lista cada temporada (2026-27),
+    cada semana (Oct 26) y su ganador o ganadores (uno por conferencia desde 2001-02)."""
+    raw = raw.replace('<!--', '').replace('-->', '')
+    mon = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec'
+    tok = re.compile(r'<h[1-4][^>]*>\s*(?:<[^>]+>\s*)*(\d{4})-(\d{2})\s*(?:<[^>]+>\s*)*</h[1-4]>'
+                     r'|<(?:strong|b)[^>]*>\s*((?:' + mon + r')\.? \d{1,2})\s*</(?:strong|b)>'
+                     r'|<a[^>]+href="/players/[a-z]/([^/".]+)\.html"[^>]*>([^<]+)</a>')
+    rows, season, week, n = [], None, None, 0
+    for m in tok.finditer(raw):
+        if m.group(1):
+            season, week = int(m.group(1)) + 1, None
+        elif m.group(3):
+            week, n = m.group(3), 0
+        elif m.group(4) and season and week and n < 2:
+            rows.append({'season': season, 'week': week, 'player_id': m.group(4),
+                         'player': HT.unescape(m.group(5)).strip()})
+            n += 1
+    return rows
+
+
 # ------------------------------------------------------------------ caché
 def load(path):
     return pd.read_csv(path) if path.exists() and path.stat().st_size > 0 else pd.DataFrame()
@@ -414,6 +437,25 @@ def main():
             upsert(AW_EXTRA, sh_all, ['season'])
         if tm_all:
             upsert(EOS_EXTRA, tm_all, ['season'])
+
+        # -------------------------------------------- 4. jugador de la semana
+        # Una sola página con todas las temporadas. Solo sirve para la previsión de
+        # Premios de la temporada en curso: si falla, se avisa y se sigue.
+        raw = cli.get('/awards/pow.html')
+        if raw is None:
+            mark('awards/pow', 'missing')
+        else:
+            rows = parse_pow(raw)
+            if len(rows) < 500:
+                mark('awards/pow', 'parse_error', len(rows))
+                print(f'  AVISO awards/pow: solo {len(rows)} filas leídas, no se toca la caché')
+            else:
+                pd.DataFrame(rows).to_csv(POW_PATH, index=False)
+                mark('awards/pow', 'ok', len(rows)); stats['ok'] += 1
+                d = pd.DataFrame(rows)
+                last = int(d['season'].max())
+                print(f'  jugador de la semana: {len(d)} premios en {d.season.nunique()} temporadas; '
+                      f'{last - 1}-{str(last)[-2:]}: {int((d.season == last).sum())} en {d[d.season == last].week.nunique()} semanas')
 
     except Blocked as e:
         print(f'\nDESCARGA DETENIDA: {e}. Se conserva la caché existente.')

@@ -146,6 +146,9 @@ tr.main{scroll-margin-top:58px}
 .evosvg .ep{cursor:pointer}
 .evosvg .ep:hover .ed{fill:var(--ball)}
 .trend{font-weight:600}.trend.up{color:#3E6B4A}.trend.down{color:var(--ball)}
+.teamsel{height:32px;padding:0 8px;font:600 13px Archivo,sans-serif;background:var(--line);color:var(--ink);border:1px solid var(--ink);max-width:100%}
+.teamsel.on{background:var(--key);color:#fff;border-color:var(--key)}
+.teamnote{flex-basis:100%;font-family:Newsreader;font-size:14px;color:var(--ink-soft)}
 .keyd{display:inline-flex;gap:3px;margin-left:8px;vertical-align:middle}
 .keyd i{display:block;width:9px;height:9px}
 .fbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 2px}
@@ -328,6 +331,8 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
   <input id="q" type="search" placeholder="Buscar jugador…" data-i18n-ph="search" autocomplete="off">
   <div class="filters" id="filters"></div>
   <div class="filters" id="posf"></div>
+  <select id="teamsel" class="teamsel"></select>
+  <span class="teamnote" id="teamnote" hidden></span>
   <span class="count" id="count"></span>
 </div>
 

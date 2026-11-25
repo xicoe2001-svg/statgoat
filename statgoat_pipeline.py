@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from statistics import NormalDist
+from franchises import franchise
 
 ROOT = Path(__file__).resolve().parent
 D = ROOT / '_raw'
@@ -131,6 +132,72 @@ def wmean(frame, weights):
 
 
 DIMS = ['PROD', 'EFIC', 'IMPACTO', 'DEF']
+DIM_W = {
+    'PROD': {'pts_per_game_z': .40, 'trb_per_game_z': .20, 'ast_per_game_z': .20,
+             'stl_per_game_z': .10, 'blk_per_game_z': .10},
+    'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
+    'IMPACTO': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
+    'DEF': {'dbpm_z': .40, 'dws_48_z': .30, 'stl_percent_z': .10,
+            'blk_percent_z': .10, 'drb_percent_z': .10},
+}
+ZCOLS = ['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game',
+         'blk_per_game', 'ts_percent', 'tsa', 'tov_neg', 'per', 'ws_48', 'bpm',
+         'obpm', 'dbpm', 'dws_48', 'stl_percent', 'blk_percent',
+         'drb_percent', 'usg_percent']
+PGC = ['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game',
+       'blk_per_game', 'tov_per_game', 'mp_per_game']
+TOTC = ['pts', 'trb', 'ast', 'stl', 'blk', 'x3p']
+
+
+def team_seasons(s, qual, adv_raw, pg_raw, tot_raw):
+    """Temporadas por equipo, para la vista por franquicia.
+
+    Si un jugador fue traspasado, su temporada se parte en una fila por equipo con
+    sus números en ese equipo. Cada fila se mide contra el mismo grupo de referencia
+    que la temporada entera (la media y la desviación de los cualificados de ese año),
+    así que su z significa lo mismo. Las demás temporadas son las de siempre."""
+    key = ['season', 'lg', 'player_id']
+    k2 = key + ['team']
+    a = adv_raw.copy()
+    agg = a['team'].astype(str).str.match(r'^\d TM$|^\dTM$|^TOT$')
+    multi = agg.groupby([a[c] for c in key]).transform('max').astype(bool)
+    sp = a[multi & ~agg].copy()
+    pg_ = pg_raw[k2 + [c for c in PGC if c in pg_raw.columns]].drop_duplicates(k2)
+    tt_ = tot_raw[k2 + TOTC].drop_duplicates(k2).rename(columns={c: c + '_tot' for c in TOTC})
+    sp = sp.merge(pg_, on=k2, how='left').merge(tt_, on=k2, how='left')
+    extra = s[key + ['season_g', 'running', 'frac']].drop_duplicates(key)
+    sp = sp.merge(extra, on=key, how='left')
+    sp['dws_48'] = np.where(sp['mp'] > 0, sp['dws'] / sp['mp'] * 48, np.nan)
+    sp['ows_48'] = np.where(sp['mp'] > 0, sp['ows'] / sp['mp'] * 48, np.nan)
+    sp['tov_neg'] = -sp['tov_percent']
+    # TS% de la liga y media/desviación de cada métrica: los de la temporada entera
+    ok = qual & s['ts_percent'].gt(0) & s['pts_per_game'].notna()
+    lg = (s[ok].assign(att=s['pts_per_game'] / s['ts_percent'])
+          .groupby(['season', 'lg']).agg(p=('pts_per_game', 'sum'), a=('att', 'sum')))
+    lg['lg_ts'] = lg['p'] / lg['a']
+    sp = sp.merge(lg[['lg_ts']], left_on=['season', 'lg'], right_index=True, how='left')
+    t = sp['ts_percent'].where(sp['ts_percent'] > 0)
+    sp['tsa'] = sp['pts_per_game'] * (1 - sp['lg_ts'] / t)
+    ref = s[qual].groupby(['season', 'lg'])
+    for c in ZCOLS:
+        st = ref[c].agg(['mean', 'std'])
+        j = sp[['season', 'lg']].merge(st, left_on=['season', 'lg'], right_index=True, how='left')
+        sp[c + '_z'] = np.clip((sp[c].values - j['mean'].values) / j['std'].replace(0, np.nan).values, -Z_CAP, Z_CAP)
+    for name, w in DIM_W.items():
+        val, cov = wmean(sp, w)
+        sp[name] = val
+        sp[name + '_cov'] = cov
+    aba = sp['lg'].eq('ABA')
+    for name in DIM_W:
+        sp.loc[aba, name] = sp.loc[aba, name] * ABA_DISCOUNT
+    sp['countable'] = (((sp['mp'] >= MIN_MP_SEASON) |
+                        (sp['mp'].isna() & (sp['g'] >= MIN_G_EARLY)))
+                       & ~sp['running'].fillna(False).astype(bool))
+    sk = s.set_index(key).index
+    split = sk.isin(sp.set_index(key).index)
+    st = pd.concat([s[~split], sp[[c for c in s.columns if c in sp.columns]]], ignore_index=True)
+    st['fr'] = st['team'].map(franchise)
+    return st
 
 
 def careers(s):
@@ -209,6 +276,7 @@ def careers(s):
 # ---------------------------------------------------------------- principal
 def build():
     adv, pg, tot, aw, eos, astar, tsum, tpg, tabb, career = load()
+    adv_raw, pg_raw, tot_raw = adv, pg, tot
     adv = dedupe_multiteam(adv)
     pg = dedupe_multiteam(pg)
     tot = dedupe_multiteam(tot)
@@ -253,22 +321,12 @@ def build():
     # Con el TS% a secas, un pívot que tira 5 veces al 65 % "valía" más que
     # alguien que tira 20 al 63 %.
     s['tsa'] = ts_added(s, 'pts_per_game', 'ts_percent', qual)
-    zcols = ['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game',
-             'blk_per_game', 'ts_percent', 'tsa', 'tov_neg', 'per', 'ws_48', 'bpm',
-             'obpm', 'dbpm', 'dws_48', 'stl_percent', 'blk_percent',
-             'drb_percent', 'usg_percent']
+    zcols = ZCOLS
     Z = season_z(s, zcols, qual)
     s = pd.concat([s.reset_index(drop=True), Z.reset_index(drop=True)], axis=1)
 
     # --------------------------------------------- dimensiones por temporada
-    dims = {
-        'PROD': {'pts_per_game_z': .40, 'trb_per_game_z': .20, 'ast_per_game_z': .20,
-                 'stl_per_game_z': .10, 'blk_per_game_z': .10},
-        'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
-        'IMPACTO': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
-        'DEF': {'dbpm_z': .40, 'dws_48_z': .30, 'stl_percent_z': .10,
-                'blk_percent_z': .10, 'drb_percent_z': .10},
-    }
+    dims = DIM_W
     for name, w in dims.items():
         val, cov = wmean(s, w)
         s[name] = val
@@ -285,13 +343,16 @@ def build():
                       & ~running)
 
     C = careers(s)
+    st = team_seasons(s, qual.reset_index(drop=True), adv_raw, pg_raw, tot_raw)
 
-    return s, C, (adv, aw, eos, astar, tabb, career, tpg)
+    return s, C, (adv, aw, eos, astar, tabb, career, tpg, st)
 
 
 if __name__ == '__main__':
     s, C, extra = build()
     s.to_pickle(OUT / 'seasons.pkl')
+    extra[-1].to_pickle(OUT / 'seasons_team.pkl')
+    print('temporadas por equipo:', len(extra[-1]), '| sin franquicia:', int(extra[-1]['fr'].eq('').sum()))
     C.to_pickle(OUT / 'careers_raw.pkl')
     print('player-seasons:', len(s), '| jugadores:', len(C))
     print(C.nlargest(15, 'IMPACTO_career')[['player', 'IMPACTO_career', 'PROD_career', 'seasons']].to_string())

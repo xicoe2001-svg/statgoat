@@ -162,6 +162,23 @@ check('og:image' in txt and 'twitter:card' in txt, 'vista previa de enlaces: eti
 jd = json.loads((ROOT / 'det' / 'jordami01.json').read_text()) if (ROOT / 'det' / 'jordami01.json').exists() else {}
 check(len(jd.get('ss', [])) == 13 and all(len(r) == 8 for r in jd.get('ss', [])),
       f"evolución: Jordan con {len(jd.get('ss', []))} temporadas medibles en su ficha")
+# ------------------------------------------------- por franquicia
+TR = read(ROOT / '_build' / 'statgoat_team.csv')
+TMD = ROOT / 'tm'
+ntm = len(list(TMD.glob('*.json'))) if TMD.exists() else 0
+check(len(TR) > 4000 and ntm == TR['fr'].nunique() and ntm >= 50,
+      f"por franquicia: {len(TR)} pasos, {ntm} archivos en tm/ para {TR['fr'].nunique()} franquicias")
+if len(TR):
+    t1 = TR[TR['rank_fr'] == 1].set_index('fr')['pid']
+    check(t1.get('CHI') == 'jordami01' and t1.get('BOS') in {'birdla01', 'russebi01'}
+          and t1.get('LAL') in {'abdulka01', 'bryanko01', 'johnsma02', 'onealsh01', 'westje01'},
+          f"por franquicia: n.º 1 plausibles (CHI {t1.get('CHI')}, BOS {t1.get('BOS')}, LAL {t1.get('LAL')})")
+    ka = TR[TR['pid'] == 'abdulka01'].set_index('fr')
+    check(set(ka.index) == {'LAL', 'MIL'} and int(ka.loc['LAL', 'seasons']) == 14 and int(ka.loc['MIL', 'seasons']) == 6,
+          'por franquicia: Kareem con 14 temporadas en los Lakers y 6 en los Bucks')
+wd = json.loads((ROOT / 'det' / 'chambwi01.json').read_text()) if (ROOT / 'det' / 'chambwi01.json').exists() else {}
+check(sorted(r[1] for r in wd.get('sf', []) if r[0] == 1965) == ['PHI', 'SFW'] and {'PHI', 'GSW', 'LAL'} <= set(wd.get('f', {})),
+      'por franquicia: la temporada 1964-65 de Wilt partida entre Warriors y 76ers')
 POW = ROOT / 'cache' / 'pow.csv'
 npw = len(pd.read_csv(POW)) if POW.exists() else 0
 check(npw > 1000, f'jugador de la semana: {npw} premios en caché')

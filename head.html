@@ -89,6 +89,13 @@ button:hover{background:var(--ink);color:var(--line)}
 button[aria-pressed=true]{background:var(--key);border-color:var(--key);color:#fff}
 button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 .share{margin-top:10px}
+.howto{margin:4px 0 14px}
+.welcome{position:fixed;inset:0;background:rgba(30,20,10,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.welcome[hidden]{display:none}
+.wbox{background:var(--line);max-width:460px;width:100%;max-height:90vh;overflow:auto;padding:26px 24px;border:1px solid var(--ink-soft)}
+.wbox h2{font-family:Archivo;font-size:20px;letter-spacing:.02em;margin-bottom:12px}
+.wbox p{font-family:Newsreader;font-size:16px;line-height:1.5;margin-bottom:10px}
+.wbox button{background:var(--key);border-color:var(--key);color:#fff;padding:9px 18px;font-size:13px;margin-top:6px}
 .tog{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:13px;color:var(--ink-soft)}
 .tog input{accent-color:var(--key);width:15px;height:15px}
 .live{border-left:1px solid var(--grain);padding-left:22px}
@@ -204,6 +211,16 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 <body>
 <div class="wrap">
 
+<div class="welcome" id="welcome" hidden>
+  <div class="wbox" role="dialog" aria-modal="true" aria-labelledby="wl_h">
+    <h2 id="wl_h" data-i18n="wl_h"></h2>
+    <p data-i18n="wl_1"></p>
+    <p data-i18n="wl_2"></p>
+    <p data-i18n="wl_3"></p>
+    <button type="button" id="wl_btn" data-i18n="wl_btn"></button>
+  </div>
+</div>
+
 <header>
   <h1>STATGOAT</h1>
   <div class="lang" role="group" aria-label="Idioma / Language">
@@ -211,6 +228,7 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
     <button type="button" data-lang="en" lang="en" aria-label="English">EN</button>
   </div>
   <p class="sub" data-i18n="sub">Índice compuesto de jugadores de BAA, NBA y ABA. Ninguna estadística se compara en bruto entre épocas: todo se convierte a desviaciones típicas dentro de su propia temporada. <b>El orden no lo deciden los datos, lo deciden los pesos.</b></p>
+  <button type="button" class="howto" id="howto" data-i18n="howto">Cómo funciona</button>
   <div class="stats-strip">
     <div><b id="n_players">—</b><span data-i18n="st_players">JUGADORES</span></div>
     <div><b id="n_years">1947</b><span data-i18n="st_years">TEMPORADAS</span></div>

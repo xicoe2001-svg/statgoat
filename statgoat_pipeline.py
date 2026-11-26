@@ -136,7 +136,7 @@ DIM_W = {
     'PROD': {'pts_per_game_z': .40, 'trb_per_game_z': .20, 'ast_per_game_z': .20,
              'stl_per_game_z': .10, 'blk_per_game_z': .10},
     'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
-    'IMPACTO': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
+    'IMPACTO': {'ws_48_z': .50, 'bpm_z': .50},   # sin PER desde 26-11-2026: repetía lo que ya mide Producción
     'DEF': {'dbpm_z': .40, 'dws_48_z': .30, 'stl_percent_z': .10,
             'blk_percent_z': .10, 'drb_percent_z': .10},
 }

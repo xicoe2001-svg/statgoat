@@ -159,6 +159,9 @@ if LV.get('live'):
 for f in ['og.png', 'favicon.svg', 'apple-touch-icon.png']:
     check((ROOT / f).exists(), f'vista previa de enlaces: {f}')
 check('og:image' in txt and 'twitter:card' in txt, 'vista previa de enlaces: etiquetas Open Graph en la web')
+cn = (ROOT / 'CNAME').read_text().strip() if (ROOT / 'CNAME').exists() else ''
+check(cn == 'statgoat.org' and 'content="https://statgoat.org/"' in txt,
+      'dominio propio: CNAME con statgoat.org y vista previa apuntando a https://statgoat.org/')
 jd = json.loads((ROOT / 'det' / 'jordami01.json').read_text()) if (ROOT / 'det' / 'jordami01.json').exists() else {}
 check(len(jd.get('ss', [])) == 13 and all(len(r) == 8 for r in jd.get('ss', [])),
       f"evolución: Jordan con {len(jd.get('ss', []))} temporadas medibles en su ficha")

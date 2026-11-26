@@ -159,6 +159,8 @@ if LV.get('live'):
 for f in ['og.png', 'favicon.svg', 'apple-touch-icon.png']:
     check((ROOT / f).exists(), f'vista previa de enlaces: {f}')
 check('og:image' in txt and 'twitter:card' in txt, 'vista previa de enlaces: etiquetas Open Graph en la web')
+check(all(k in txt for k in ['id="infobtn"', 'data-ip="how"', 'data-ip="eras"', 'data-ip="src"', 'data-i18n="ft_src"', 'https://www.basketball-reference.com/']),
+      'información: botón ?, páginas Cómo funciona / Épocas / Fuentes y atribución visible bajo la tabla')
 cn = (ROOT / 'CNAME').read_text().strip() if (ROOT / 'CNAME').exists() else ''
 check(cn == 'statgoat.org' and 'content="https://statgoat.org/"' in txt,
       'dominio propio: CNAME con statgoat.org y vista previa apuntando a https://statgoat.org/')

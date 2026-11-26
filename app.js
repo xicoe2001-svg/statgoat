@@ -16,6 +16,7 @@ let era=false, P=PALL;
 // Por franquicia: cada paso de un jugador por un equipo, con solo lo hecho allí (tm/<código>.json)
 const TMS=RAW.tms||{}, TFRM=RAW.tfr||{}, TC=new Map();
 let TEAM='', PT=null;
+let INFO=null, infoPushed=false;            // página de información abierta (how/eras/src)
 const loadTeam=fr=>{ if(!TC.has(fr)) TC.set(fr, fetch(`tm/${fr}.json`).then(r=>r.ok?r.json():null).then(j=>j?j.d:null).catch(()=>null)); return TC.get(fr); };
 const inTeam=r=>!TEAM||(','+(sg(r,'frs')||'')+',').includes(','+TEAM+',');
 
@@ -76,7 +77,10 @@ es:{
     finP:(v,n)=>`Bloque: ${v}. Se compara con las ${n} temporadas medibles y se lleva por percentil a la escala de los bloques estadísticos: quien no tiene nada queda en el centro de su grupo.`},
   posOne:{PG:'Base',SG:'Escolta',SF:'Alero',PF:'Ala-pívot',C:'Pívot'},posLab:'POSICIÓN',
   share:'Copiar enlace a esta vista',
-  howto:'Cómo funciona',
+  howto:'Cómo funciona',i_eras:'Épocas',i_src:'Fuentes',i_src2:'Fuentes y aviso legal',
+  i_back:'← Volver a la clasificación',i_backS:'Volver a la clasificación',
+  ft_src:'Datos de <a href="https://www.basketball-reference.com/" target="_blank" rel="noopener">Basketball-Reference</a>. STATGOAT no está afiliado con la NBA ni con Basketball-Reference.',
+  wl_more:'¿Quieres saber cómo se calcula todo y de dónde salen los datos? Está en el botón <b>?</b> de arriba a la derecha.',
   lg_priv:'<b>Privacidad.</b> Las visitas se cuentan de forma anónima y sin cookies (GoatCounter). La web solo guarda en tu navegador que ya viste la bienvenida.',
   evoT:'EVOLUCIÓN TEMPORADA A TEMPORADA', evoNote:'Nota de cada temporada con tus pesos, en la escala de Mejores temporadas (solo temporadas de 1.000+ minutos). Toca un punto para abrir esa temporada.', evoNone:'Sin temporadas medibles.',
   trend:d=>d===999?'nuevo':d>0?`▲${d} desde ayer`:d<0?`▼${-d} desde ayer`:'= que ayer',
@@ -111,7 +115,7 @@ es:{
   cr_po:`Estadísticas de playoffs de cada temporada (totales y avanzadas), campeones, Finals MVP y las votaciones de premios más recientes, descargadas directamente cada día. Playoffs hasta ${BI.playoff_max||'—'}.`,
   cr_sg_h:'Índice STATGOAT',
   cr_sg1:'La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, anillos según la aportación real en cada playoff y composición de los siete bloques.',
-  cr_sg2:'La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.',
+  cr_sg2:'La ponderación es una opinión formalizada, y por eso se puede cambiar con los pesos de la clasificación.',
   lg_attr:'<b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference.',
   lg_aff:'<b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference.',
   lg_war:'<b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.',
@@ -259,7 +263,10 @@ en:{
     finP:(v,n)=>`Block: ${v}. It is compared with the ${n} measurable seasons and mapped by percentile onto the scale of the stat blocks: having nothing leaves him in the middle of his group.`},
   posOne:{PG:'Point guard',SG:'Shooting guard',SF:'Small forward',PF:'Power forward',C:'Center'},posLab:'POSITION',
   share:'Copy link to this view',
-  howto:'How it works',
+  howto:'How it works',i_eras:'Eras',i_src:'Sources',i_src2:'Sources and legal',
+  i_back:'← Back to the rankings',i_backS:'Back to the rankings',
+  ft_src:'Data from <a href="https://www.basketball-reference.com/" target="_blank" rel="noopener">Basketball-Reference</a>. STATGOAT is not affiliated with the NBA or Basketball-Reference.',
+  wl_more:'Want to know how everything is calculated and where the data comes from? It is all under the <b>?</b> button at the top right.',
   lg_priv:'<b>Privacy.</b> Visits are counted anonymously and without cookies (GoatCounter). The site only stores in your browser that you have seen the welcome card.',
   evoT:'SEASON BY SEASON', evoNote:'Each season’s score with your weights, on the Best seasons scale (only seasons with 1,000+ minutes). Tap a point to open that season.', evoNone:'No measurable seasons.',
   trend:d=>d===999?'new':d>0?`▲${d} since yesterday`:d<0?`▼${-d} since yesterday`:'= since yesterday',
@@ -294,7 +301,7 @@ en:{
   cr_po:`Playoff stats for every season (totals and advanced), champions, Finals MVPs and the latest award voting, downloaded directly every day. Playoffs through ${BI.playoff_max||'—'}.`,
   cr_sg_h:'STATGOAT index',
   cr_sg1:'The transformation is our own: within-season z-scores, logarithmic tail compression, rings weighted by real contribution in each playoff run and the composition of the seven blocks.',
-  cr_sg2:'The weighting is a formalized opinion, which is why you can change it above.',
+  cr_sg2:'The weighting is a formalized opinion, which is why you can change it with the weights on the rankings page.',
   lg_attr:'<b>Attribution.</b> The original data keeps its source licenses. If you reuse this index, credit Basketball-Reference.',
   lg_aff:'<b>No affiliation.</b> STATGOAT is not affiliated with or endorsed by the NBA, the NBPA or Basketball-Reference.',
   lg_war:'<b>No warranty.</b> This is a historical analysis under one specific weighting. It is not a prediction, betting advice or settled truth.',
@@ -571,6 +578,7 @@ function applyStatic(){
   document.title=t.title;
   document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[el.dataset.i18n]; if(typeof v==='string') el.innerHTML=v;});
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t[el.dataset.i18nPh];});
+  document.querySelectorAll('[data-i18n-al]').forEach(el=>{el.setAttribute('aria-label',t[el.dataset.i18nAl]); el.title=t[el.dataset.i18nAl];});
   document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===LANG));
   $('#n_players').textContent=(era&&P80?P80:PALL).length.toLocaleString(loc(),{useGrouping:true});
   $('#n_years').textContent=`1947–${SMAX}`;
@@ -867,6 +875,7 @@ function stateURL(){
   set('pos', posF==='all'?null:posF);
   set('e', era?'80':null);
   set('tm', TEAM||null);
+  set('i', INFO||null);
   const op=mode==='players'&&openRk?scored[openRk-1]:null;
   set('p', op?get(op.p,'id'):null);
   const os=mode==='seasons'&&openS!=null?S[openS]:mode==='year'&&openY!=null?YROWS[openY]:null;
@@ -884,7 +893,7 @@ function readURL(){
   if(SFILTERS[sp.get('sf')]) sFilter=sp.get('sf');
   if(POSK.includes(sp.get('pos'))) posF=sp.get('pos');
   if(YRS[+sp.get('yr')]) YEAR=+sp.get('yr');
-  return {seasons:sp.get('t')==='s', year:sp.get('t')==='y', p:sp.get('p'), s:sp.get('s'), era:sp.get('e')==='80', tm:TMS[sp.get('tm')]?sp.get('tm'):''};
+  return {seasons:sp.get('t')==='s', year:sp.get('t')==='y', p:sp.get('p'), s:sp.get('s'), era:sp.get('e')==='80', tm:TMS[sp.get('tm')]?sp.get('tm'):'', i:sp.get('i')};
 }
 function openFromURL(st){
   if(st.p&&mode==='players'){
@@ -1345,21 +1354,49 @@ if(ST.year){ const m=(ST.s||'').match(/^(.+)-(\d{4})$/); if(m&&+m[2]===YEAR) PEN
 syncTeam();
 if(ST.tm) setTeam(ST.tm).then(()=>openFromURL(ST)); else openFromURL(ST);
 
-/* ---------- bienvenida: primera visita y enlace "Cómo funciona" ---------- */
+/* ---------- página de información (botón ?): cómo funciona, épocas y fuentes ---------- */
+const IKEYS=['how','eras','src'];
+function openInfo(k, fromURL){
+  const was=INFO;
+  INFO=IKEYS.includes(k)?k:'how';
+  $('#info').hidden=false; document.body.classList.add('infoopen');
+  document.querySelectorAll('.itabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.i===INFO));
+  document.querySelectorAll('#info [data-ip]').forEach(el=>el.hidden=el.dataset.ip!==INFO);
+  $('#info').scrollTop=0;
+  if(!was&&!fromURL){ try{history.pushState(null,'',stateURL()); infoPushed=true;}catch(e){syncURL();} }   // el "atrás" del móvil cierra la información
+  else syncURL();
+}
+function closeInfo(viaPop){
+  if(!INFO) return;
+  $('#info').hidden=true; document.body.classList.remove('infoopen'); INFO=null;
+  if(infoPushed&&!viaPop){ infoPushed=false; history.back(); }
+  else { infoPushed=false; syncURL(); }
+  $('#infobtn').focus({preventScroll:true});
+}
+$('#infobtn').onclick=()=>openInfo('how');
+document.querySelectorAll('.itabs button').forEach(b=>b.onclick=()=>openInfo(b.dataset.i));
+document.querySelectorAll('footer [data-open]').forEach(b=>b.onclick=()=>openInfo(b.dataset.open));
+$('#iclose').onclick=()=>closeInfo();
+$('#iback').onclick=()=>closeInfo();
+window.addEventListener('popstate',()=>{ if(INFO) closeInfo(true); });
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeInfo();});
+if(ST.i) openInfo(ST.i,true);
+
+/* ---------- bienvenida: primera visita ---------- */
 function openWelcome(){ $('#welcome').hidden=false; $('#wl_btn').focus(); }
 function closeWelcome(){
   if($('#welcome').hidden) return;
   $('#welcome').hidden=true;
   try{localStorage.setItem('statgoat_welcome','1');}catch(e){}
 }
-$('#howto').onclick=openWelcome;
+$('#wl_more').onclick=()=>{ closeWelcome(); openInfo('how'); };
 $('#wl_btn').onclick=closeWelcome;
 $('#welcome').addEventListener('click',e=>{if(e.target.id==='welcome') closeWelcome();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeWelcome();});
 // Si la dirección ya abre una vista concreta, no tapar la tabla; si es primera visita, mostrar la tarjeta
 (function(){
   const sp=URL0;
-  const linked=['w','b','t','f','sf','pos','p','s','e','tm'].some(k=>sp.has(k));
+  const linked=['w','b','t','f','sf','pos','p','s','e','tm','i'].some(k=>sp.has(k));
   let seen=false; try{seen=localStorage.getItem('statgoat_welcome')==='1';}catch(e){seen=true;}
   if(!linked && !seen) openWelcome();
 })();

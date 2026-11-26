@@ -2,7 +2,7 @@
 
 Índice compuesto de valor histórico de jugadores de BAA, NBA y ABA. 2.908 jugadores, 1947–2026.
 
-**Web:** https://xicoe2001-svg.github.io/statgoat/
+**Web:** https://statgoat.org/
 
 La página es un único HTML estático. Todo el cálculo (pesos ajustables, buscador, fichas) pasa en el navegador: no hay servidor ni base de datos.
 

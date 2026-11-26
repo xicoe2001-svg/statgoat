@@ -36,7 +36,7 @@ CACHE = ROOT / 'cache'
 CACHE.mkdir(exist_ok=True)
 
 BASE = 'https://www.basketball-reference.com'
-UA = 'Mozilla/5.0 (compatible; STATGOAT/1.0; +https://xicoe2001-svg.github.io/statgoat/)'
+UA = 'Mozilla/5.0 (compatible; STATGOAT/1.0; +https://statgoat.org/)'
 DELAY = 4.0             # segundos entre peticiones: 15/min, por debajo de su límite de 20/min
 MAX_REQUESTS = 230      # tope por ejecución (la primera descarga completa necesita ~190)
 LOG_PATH = CACHE / 'fetch_log.json'

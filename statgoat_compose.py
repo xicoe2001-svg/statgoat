@@ -30,7 +30,7 @@ PEAK_MIN = 4000         # se mide a cada uno por sus mejores 4.000 minutos de pl
 PO_SUBDIMS = {
     'PROD': {'pts_pg_z': .40, 'trb_pg_z': .20, 'ast_pg_z': .20, 'stl_pg_z': .10, 'blk_pg_z': .10},
     'EFIC': {'tsa_z': .70, 'tov_neg_z': .30},
-    'IMP': {'per_z': .30, 'ws_48_z': .35, 'bpm_z': .35},
+    'IMP': {'ws_48_z': .50, 'bpm_z': .50},
 }
 PO_DIM_W = {'PROD': .30, 'EFIC': .15, 'IMP': .55}
 

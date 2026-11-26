@@ -51,7 +51,7 @@ es:{
   sx:{hint:'Toca un bloque para ver de dónde sale. A la derecha, los puntos que aporta con tus pesos: sumados dan la nota.',
     cols:['Métrica','Valor','z frente a su liga','Peso','Aporta'],
     m:{PROD:['Puntos','Rebotes','Asistencias','Robos','Tapones'],EFIC:['Puntos añadidos por eficiencia','Pérdidas (TOV%)'],
-       IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','Robo %','Tapón %','Rebote def. %']},
+       IMPACTO:['WS/48','BPM'],DEF:['DBPM','DWS/48','Robo %','Tapón %','Rebote def. %']},
     zNote:'El z es cuántas desviaciones típicas está por encima (o por debajo) de la media de los jugadores cualificados de su liga ese mismo año.',
     season:(v,aba)=>`Valor de la temporada = suma de lo que aporta cada métrica${aba?', × 0,90 por ser ABA':''}: ${v}.`,
     noFmvp:'no existía hasta 1969',
@@ -122,7 +122,7 @@ es:{
   blocks:{PROD:'Producción',EFIC:'Eficiencia',IMPACTO:'Impacto',DEF:'Defensa',PLAYOFFS:'Playoffs',TITULOS:'Títulos',PREMIOS:'Premios'},
   tips:{PROD:'Pts, reb, as, robos y tapones por partido en z-score de su temporada',
     EFIC:'Puntos añadidos por anotar por encima del TS% de su liga (eficiencia × volumen) y control de pérdidas',
-    IMPACTO:'PER, Win Shares por 48 y Box Plus/Minus',
+    IMPACTO:'Win Shares por 48 minutos y Box Plus/Minus',
     DEF:'DBPM, DWS/48, %robo, %tapón, %rebote defensivo, All-Defensivo y DPOY',
     PLAYOFFS:'Nivel en sus mejores 4.000 minutos de playoffs frente a los demás jugadores de esos playoffs, y aportación acumulada',
     TITULOS:'Anillos según la aportación real en cada carrera al título, y Finals MVP',
@@ -148,7 +148,7 @@ es:{
     career:(pk,pr,su,ca)=>`Carrera = 40 % media de sus 3 mejores temporadas (${pk}) + 40 % media de sus 7 mejores (${pr}) + 20 % acumulado, llevado a la misma escala (${su}) = ${ca}. Después se pasa a la escala del índice.`,
     seasonsNote:n=>`Sus ${n} temporadas computables (1.000+ minutos; antes de 1952, por partidos), ordenadas por este bloque. Las 3 primeras en negrita. Si tiene menos de 7, las que faltan cuentan como 0.`,
     value:'Valor',season:'Temp.',team:'Equipo',
-    cols:{PROD:['PTS','REB','AST','ROB','TAP'],EFIC:['TS%','Pts añad.','Pérd. %'],IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','Rob. %','Tap. %','Reb. d. %']},
+    cols:{PROD:['PTS','REB','AST','ROB','TAP'],EFIC:['TS%','Pts añad.','Pérd. %'],IMPACTO:['WS/48','BPM'],DEF:['DBPM','DWS/48','Rob. %','Tap. %','Reb. d. %']},
     defRec:(a1,a2,dw,dv)=>`El 25 % del bloque es reconocimiento: All-Defense (${a1} en el primer equipo, ${a2} en el segundo) y votos al DPOY (${dw} ${dw===1?'ganado':'ganados'}${dv?', votado '+dv+' años':''}). El 75 %, estas estadísticas.`,
     poSum:(q,pr,fin,wp,ws)=>`Nivel en sus mejores ${wp} minutos de playoffs: ${q}. Previsión por su liga regular: ${pr}. Nivel que cuenta, más cerca del real cuanto más jugó: ${fin} (80 % del bloque). Win Shares acumuladas en playoffs: ${ws} (20 %).`,
     poCols:['Año','Equipo','PJ','MIN','PTS','REB','AST','BPM','WS','Nivel'],poMark:'En negrita, las eliminatorias que entran en sus mejores 4.000 minutos.',
@@ -169,7 +169,7 @@ es:{
 <h3>LOS SIETE BLOQUES</h3><dl class="gl">${glossBlocks('en la ponderación base')}</dl>
 <h3>LAS MÉTRICAS QUE HAY DENTRO</h3><dl class="gl">
 <dt>z-score</dt><dd>Cuántas desviaciones típicas por encima o por debajo está el jugador respecto a la media de los jugadores cualificados <b>de esa misma temporada</b>. 0 es un jugador medio de su año; +2 significa mejor que el 97,7% de sus contemporáneos. Es el mecanismo que permite comparar 1962 con ${SMAX}. Se recorta a ±4.</dd>
-<dt>PER</dt><dd>Player Efficiency Rating. Resume toda la producción de caja por minuto en un número, ajustado al ritmo y calibrado para que la media de la liga sea siempre 15. No ve defensa más allá de robos y tapones.</dd>
+<dt>PER</dt><dd>Player Efficiency Rating. Resume toda la producción de caja por minuto en un número, ajustado al ritmo y calibrado para que la media de la liga sea siempre 15. No ve defensa más allá de robos y tapones. <b>No entra en la nota</b>: es casi producción por minuto y repetía lo que ya mide Producción. Se muestra solo como referencia.</dd>
 <dt>TS%</dt><dd>True Shooting. Porcentaje de acierto que pone triples, dobles y tiros libres en la misma escala: <code>PTS / (2 × (TCI + 0,44 × TLI))</code>.</dd>
 <dt>USG%</dt><dd>Porcentaje de las jugadas de su equipo que termina el jugador (tiro, falta recibida o pérdida) mientras está en pista. Mide cuánto ataque le pasa por las manos, no lo bien que lo resuelve.</dd>
 <dt>TOV%</dt><dd>Pérdidas por cada 100 jugadas usadas. Entra en el índice con signo negativo: menos es mejor.</dd>
@@ -184,7 +184,7 @@ es:{
 <dt>Puntuación</dt><dd>Suma de los siete bloques por sus pesos, reescalada de 0 a 100 dentro del grupo: el primero marca 100. Si activas el bonus por totales, la escala pasa a 0-97 más hasta 3 puntos de bonus. Es una escala relativa: dice quién está por delante y por cuánto, no un valor absoluto.</dd>
 <dt>Carrera</dt><dd>Cada bloque se resume como <code>40% media de las 3 mejores temporadas + 40% media de las 7 mejores + 20% acumulado</code>. Antes de sumarlo, el acumulado se pasa a la misma escala que el pico a partir de su percentil histórico, para que cada porcentaje pese exactamente lo que dice: la longevidad cuenta un 20%, no más. Si un jugador tiene menos de 3 o de 7 temporadas computables, las que le faltan cuentan como 0 (un jugador medio de la liga): tres temporadas buenas no son un prime de siete. Prioriza el rendimiento por partido: nadie sube por acumular temporadas mediocres. Solo cuentan las temporadas de 1.000+ minutos.</dd>
 <dt>Puntos añadidos por eficiencia</dt><dd>Base del bloque de Eficiencia, en liga regular y en playoffs: <code>(TS% propio − TS% de su liga) × intentos</code>, o sea, cuántos puntos por partido suma un jugador por anotar mejor que la media de su liga ese año. Mide eficiencia y volumen a la vez: un pívot que tira 5 veces al 65% aporta menos que un anotador que tira 20 al 63%. Se completa con el control de pérdidas (30%).</dd>
-<dt>Bloque de Playoffs</dt><dd>Cada temporada de playoffs se mide contra los demás jugadores de esos mismos playoffs: producción, eficiencia (puntos añadidos por eficiencia y pérdidas) e impacto (PER, WS/48 y BPM). La nota combina dos cosas: el nivel en sus mejores 4.000 minutos de playoffs (80%), igual que en liga regular cuentan las mejores temporadas, y las Win Shares acumuladas en playoffs (20%), igual que el acumulado en liga regular.</dd>
+<dt>Bloque de Playoffs</dt><dd>Cada temporada de playoffs se mide contra los demás jugadores de esos mismos playoffs: producción, eficiencia (puntos añadidos por eficiencia y pérdidas) e impacto (WS/48 y BPM). La nota combina dos cosas: el nivel en sus mejores 4.000 minutos de playoffs (80%), igual que en liga regular cuentan las mejores temporadas, y las Win Shares acumuladas en playoffs (20%), igual que el acumulado en liga regular.</dd>
 <dt>Plus de playoffs</dt><dd>Si un jugador crece o se encoge en playoffs. Cada postemporada se compara con lo que cabía esperar de su propia liga regular de ese mismo año. +0,30 es crecer mucho (Kawhi, Hakeem, LeBron); por debajo de −0,10, baja. Con pocos minutos se acerca a 0. Se muestra en la ficha pero no suma ni resta: el nivel en playoffs ya recoge lo que rindió de verdad, y contar aparte la diferencia con lo esperado restaba nota a quien hacía una gran liga regular y premiaba a quien partía de una floja.</dd>
 <dt>Pocos minutos en playoffs</dt><dd>Una sola eliminatoria es una muestra pequeña. Por eso, cuantos menos minutos de playoffs tiene un jugador, más se acerca su nota a lo que predice su carrera en liga regular; con muchos minutos manda lo que hizo de verdad. Quien nunca jugó playoffs se queda en esa previsión de nivel y sin volumen acumulado.</dd>
 <dt>Crédito de anillo</dt><dd>Un anillo no vale igual para todos. Cada jugador se lleva la parte de las Win Shares de su equipo en esos playoffs que generó él: el mejor jugador de un campeón suele aportar entre un 20% y un 35%; un suplente, casi nada. Sin esto, un suplente con seis anillos superaría a Jerry West. Quien estaba en la plantilla pero no jugó esos playoffs se lleva un crédito mínimo; quien fue traspasado antes, ninguno.</dd>
@@ -210,6 +210,7 @@ es:{
 <dt>La defensa favorece a los pívots</dt><dd>DBPM, tapones y rebote defensivo pesan a favor de los interiores: a igual reconocimiento defensivo, un pívot sale unas 0,8 desviaciones por encima. Corregirlo por posición corregía de más, así que no se ajusta. Si te parece injusto, baja el peso de Defensa.</dd>
 <dt>El pico pesa mucho</dt><dd>El 40 % de cada bloque son sus tres mejores temporadas. Un jugador con pocos años brillantes puede quedar por encima de otro con una carrera larga y regular. En la vista por equipo se nota: Walton es el n.º 1 de Portland con 4 temporadas.</dd>
 <dt>El contexto del equipo</dt><dd>Los anillos, los playoffs y parte de los premios dependen de los compañeros. Un gran jugador en un mal equipo suma menos en Títulos y Playoffs. Por equipo, Nash es 5.º en Phoenix pese a sus 2 MVP, e Isiah Thomas queda 2.º en Detroit detrás de Bob Lanier.</dd>
+<dt>Bloques que se solapan</dt><dd>Producción, Eficiencia, Impacto y la parte estadística de Defensa salen todos del acta. Para no contar dos veces lo mismo, Impacto no usa el PER, que es casi producción por minuto. Aun así, un jugador con grandes números puntúa en más de un bloque. Si te parece demasiado, baja Impacto o Producción.</dd>
 <dt>Ligas pequeñas</dt><dd>En las primeras décadas había pocos equipos. El z-score mide cuánto dominaba un jugador a sus rivales, no lo buena que era la liga; no hay forma objetiva de corregirlo.</dd>
 <dt>Pocos minutos</dt><dd>Solo puntúan las temporadas de 1.000+ minutos, y en la temporada en curso la parte proporcional. Por eso en un año o en un equipo no sale la plantilla entera, y al principio de temporada los números tienen ruido.</dd>
 </dl>`
@@ -237,7 +238,7 @@ en:{
   sx:{hint:'Tap a block to see where it comes from. On the right, the points it adds with your weights: together they make the score.',
     cols:['Metric','Value','z vs his league','Weight','Adds'],
     m:{PROD:['Points','Rebounds','Assists','Steals','Blocks'],EFIC:['Points added by efficiency','Turnovers (TOV%)'],
-       IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','Steal %','Block %','Def. rebound %']},
+       IMPACTO:['WS/48','BPM'],DEF:['DBPM','DWS/48','Steal %','Block %','Def. rebound %']},
     zNote:'The z is how many standard deviations above (or below) the average of qualified players in his league that same year.',
     season:(v,aba)=>`Season value = sum of what each metric adds${aba?', × 0.90 as an ABA season':''}: ${v}.`,
     noFmvp:'didn’t exist until 1969',
@@ -308,7 +309,7 @@ en:{
   blocks:{PROD:'Production',EFIC:'Efficiency',IMPACTO:'Impact',DEF:'Defense',PLAYOFFS:'Playoffs',TITULOS:'Titles',PREMIOS:'Awards'},
   tips:{PROD:'Points, rebounds, assists, steals and blocks per game, as a z-score within their season',
     EFIC:'Points added by scoring above his league’s True Shooting (efficiency × volume), plus ball security',
-    IMPACTO:'PER, Win Shares per 48 and Box Plus/Minus',
+    IMPACTO:'Win Shares per 48 minutes and Box Plus/Minus',
     DEF:'DBPM, DWS/48, steal %, block %, defensive rebound %, All-Defensive teams and DPOY votes',
     PLAYOFFS:'Level over his best 4,000 playoff minutes against the other players in those playoffs, and total contribution',
     TITULOS:'Rings weighted by real contribution to each title run, plus Finals MVPs',
@@ -334,7 +335,7 @@ en:{
     career:(pk,pr,su,ca)=>`Career = 40% average of his 3 best seasons (${pk}) + 40% average of his 7 best (${pr}) + 20% cumulative, put on the same scale (${su}) = ${ca}. Then it’s put on the index scale.`,
     seasonsNote:n=>`His ${n} countable seasons (1,000+ minutes; before 1952, by games), sorted by this block. Top 3 in bold. If he has fewer than 7, the missing ones count as 0.`,
     value:'Value',season:'Season',team:'Team',
-    cols:{PROD:['PTS','REB','AST','STL','BLK'],EFIC:['TS%','Pts added','TOV%'],IMPACTO:['PER','WS/48','BPM'],DEF:['DBPM','DWS/48','STL%','BLK%','DRB%']},
+    cols:{PROD:['PTS','REB','AST','STL','BLK'],EFIC:['TS%','Pts added','TOV%'],IMPACTO:['WS/48','BPM'],DEF:['DBPM','DWS/48','STL%','BLK%','DRB%']},
     defRec:(a1,a2,dw,dv)=>`25% of the block is recognition: All-Defense (${a1} first team, ${a2} second team) and DPOY votes (${dw} won${dv?', received votes in '+dv+' seasons':''}). The other 75%, these stats.`,
     poSum:(q,pr,fin,wp,ws)=>`Level over his best ${wp} playoff minutes: ${q}. Prediction from his regular season: ${pr}. Level that counts, closer to the real one the more he played: ${fin} (80% of the block). Total playoff Win Shares: ${ws} (20%).`,
     poCols:['Year','Team','G','MIN','PTS','REB','AST','BPM','WS','Level'],poMark:'In bold, the runs that make up his best 4,000 minutes.',
@@ -355,7 +356,7 @@ en:{
 <h3>THE SEVEN BLOCKS</h3><dl class="gl">${glossBlocks('in the default weighting')}</dl>
 <h3>THE METRICS INSIDE</h3><dl class="gl">
 <dt>z-score</dt><dd>How many standard deviations above or below the average of qualified players <b>from that same season</b> a player is. 0 is an average player of his year; +2 means better than 97.7% of his peers. This is what makes 1962 comparable with ${SMAX}. Capped at ±4.</dd>
-<dt>PER</dt><dd>Player Efficiency Rating. Sums up all box-score production per minute in one number, pace-adjusted and calibrated so the league average is always 15. It sees no defense beyond steals and blocks.</dd>
+<dt>PER</dt><dd>Player Efficiency Rating. Sums up all box-score production per minute in one number, pace-adjusted and calibrated so the league average is always 15. It sees no defense beyond steals and blocks. <b>It doesn’t count towards the score</b>: it is almost production per minute and repeated what Production already measures. It is shown for reference only.</dd>
 <dt>TS%</dt><dd>True Shooting. A shooting percentage that puts threes, twos and free throws on the same scale: <code>PTS / (2 × (FGA + 0.44 × FTA))</code>.</dd>
 <dt>USG%</dt><dd>Share of his team’s plays a player finishes (shot, drawn foul or turnover) while on the floor. It measures how much offense runs through him, not how well he finishes it.</dd>
 <dt>TOV%</dt><dd>Turnovers per 100 plays used. It enters the index with a negative sign: lower is better.</dd>
@@ -370,7 +371,7 @@ en:{
 <dt>Score</dt><dd>The sum of the seven blocks times their weights, rescaled from 0 to 100 within the group: the leader scores 100. If you switch on the totals bonus, the scale becomes 0-97 plus up to 3 bonus points. It’s a relative scale: it tells you who’s ahead and by how much, not an absolute value.</dd>
 <dt>Career</dt><dd>Each block is summarized as <code>40% average of the 3 best seasons + 40% average of the 7 best + 20% cumulative</code>. Before it’s added, the cumulative part is converted to the same scale as the peak through its all-time percentile, so each percentage weighs exactly what it says: longevity counts for 20%, no more. If a player has fewer than 3 or 7 qualifying seasons, the missing ones count as 0 (a league-average player): three good seasons are not a seven-year prime. Per-game performance comes first: nobody climbs by piling up mediocre seasons. Only seasons with 1,000+ minutes count.</dd>
 <dt>Points added by efficiency</dt><dd>The core of the Efficiency block, in the regular season and the playoffs: <code>(his TS% − his league’s TS%) × attempts</code>, i.e. how many points per game a player adds by scoring better than his league’s average that year. It captures efficiency and volume together: a center shooting 5 times at 65% adds less than a scorer shooting 20 times at 63%. Ball security (30%) completes the block.</dd>
-<dt>Playoffs block</dt><dd>Each postseason is measured against the other players in those same playoffs: production, efficiency (points added by efficiency and turnovers) and impact (PER, WS/48 and BPM). The mark combines two things: level over his best 4,000 playoff minutes (80%), just as the regular season counts his best seasons, and total playoff Win Shares (20%), just like the regular-season cumulative part.</dd>
+<dt>Playoffs block</dt><dd>Each postseason is measured against the other players in those same playoffs: production, efficiency (points added by efficiency and turnovers) and impact (WS/48 and BPM). The mark combines two things: level over his best 4,000 playoff minutes (80%), just as the regular season counts his best seasons, and total playoff Win Shares (20%), just like the regular-season cumulative part.</dd>
 <dt>Playoff plus</dt><dd>Whether a player rises or shrinks in the playoffs. Each postseason is compared with what his own regular season that same year predicted. +0.30 means rising a lot (Kawhi, Hakeem, LeBron); below −0.10, he drops. With few minutes it stays near 0. It’s shown on the player card but doesn’t add or subtract: playoff level already reflects what he really did, and counting the gap to expectations on top of it took points away from players with a great regular season and rewarded those starting from a weak one.</dd>
 <dt>Few playoff minutes</dt><dd>A single series is a small sample. So the fewer playoff minutes a player has, the closer his mark sits to what his regular-season career predicts; with plenty of minutes, what he actually did takes over. Players who never reached the playoffs stay at that predicted level, with no accumulated volume.</dd>
 <dt>Ring credit</dt><dd>Not every ring is worth the same. Each player gets the share of his team’s Win Shares in that postseason that he produced: a champion’s best player usually accounts for 20% to 35%; a bench player, almost nothing. Without this, a bench player with six rings would outrank Jerry West. A player on the roster who didn’t play in those playoffs gets a minimal credit; one traded away earlier, none.</dd>
@@ -396,6 +397,7 @@ en:{
 <dt>Defense favors centers</dt><dd>DBPM, blocks and defensive rebounding lean towards big men: with the same defensive recognition, a center comes out about 0.8 standard deviations higher. Correcting by position over-corrected, so it isn’t adjusted. If it looks unfair to you, lower the Defense weight.</dd>
 <dt>The peak weighs a lot</dt><dd>40% of each block is a player’s three best seasons. A player with a few brilliant years can rank above one with a long, steady career. It shows in the team view: Walton is Portland’s No. 1 with 4 seasons.</dd>
 <dt>Team context</dt><dd>Rings, playoffs and some awards depend on teammates. A great player on a bad team adds less in Titles and Playoffs. By team, Nash is 5th in Phoenix despite his 2 MVPs, and Isiah Thomas is 2nd in Detroit behind Bob Lanier.</dd>
+<dt>Overlapping blocks</dt><dd>Production, Efficiency, Impact and the statistical part of Defense all come from the box score. To avoid counting the same thing twice, Impact doesn’t use PER, which is almost production per minute. Even so, a player with big numbers scores in more than one block. If that seems too much, lower Impact or Production.</dd>
 <dt>Small leagues</dt><dd>In the early decades there were few teams. The z-score measures how much a player dominated his rivals, not how good the league was; there is no objective way to correct it.</dd>
 <dt>Few minutes</dt><dd>Only seasons with 1,000+ minutes score, and the pro-rated share in the current season. That’s why a year or a team doesn’t show the whole roster, and early in a season the numbers are noisy.</dd>
 </dl>`
@@ -1024,7 +1026,7 @@ function fillS(id,y,k,det){
 }
 // métricas de cada bloque en una temporada: [columna del valor, formato, columna del z, peso]
 const SMET={PROD:[[10,1,26,.40],[11,1,27,.20],[12,1,28,.20],[13,1,29,.10],[14,1,30,.10]],
-  EFIC:[[16,'s',31,.70],[17,1,32,.30]], IMPACTO:[[18,1,33,.30],[19,3,34,.35],[20,1,35,.35]],
+  EFIC:[[16,'s',31,.70],[17,1,32,.30]], IMPACTO:[[19,3,34,.50],[20,1,35,.50]],
   DEF:[[21,1,36,.40],[22,3,37,.30],[23,1,38,.10],[24,1,39,.10],[25,1,40,.10]]};
 function spanel(r,k,det){
   const t=T(), d=t.card.dx, e=t.sx, y=sg(r,'y'), lg=sg(r,'lg'), v=sg(r,k), n=SN.toLocaleString(loc());
@@ -1194,7 +1196,7 @@ function xpanel(p,k,det){
     const ss=(det.s||[]).filter(r=>r[5]&&r[bi]!=null).sort((a,b)=>b[bi]-a[bi]);
     const stat={PROD:r=>[nf(r[10]),nf(r[11]),nf(r[12]),nf(r[13]),nf(r[14])],
       EFIC:r=>[pf(r[15]),r[16]==null?'—':(r[16]>=0?'+':'')+nf(r[16]),nf(r[17])],
-      IMPACTO:r=>[nf(r[18]),r[19]==null?'—':r[19].toFixed(3),nf(r[20])],
+      IMPACTO:r=>[r[19]==null?'—':r[19].toFixed(3),nf(r[20])],
       DEF:r=>[nf(r[21]),r[22]==null?'—':r[22].toFixed(3),nf(r[23]),nf(r[24]),nf(r[25])]}[k];
     const cc=(det.c||{})[k]||[];
     let h=rk+`<p class="pnote">${d.career(zf(cc[0]),zf(cc[1]),zf(cc[2]),zf(cc[3]))}</p>`;

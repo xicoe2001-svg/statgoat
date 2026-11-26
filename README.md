@@ -101,7 +101,7 @@ El bonus por totales de carrera es opcional y está desactivado por defecto. Da 
 
 **Eficiencia:** puntos añadidos por eficiencia, `(TS% propio − TS% de su liga) × intentos` (70 %), y control de pérdidas (30 %). Mide eficiencia y volumen a la vez; se usa igual en liga regular y en playoffs.
 
-El glosario completo está en la propia página.
+El glosario completo, la infografía de épocas y las fuentes están en el botón **?** de arriba a la derecha (o en `?i=how`, `?i=eras` y `?i=src`). Debajo de la tabla queda siempre una línea con la atribución a Basketball-Reference.
 
 **Playoffs:** cada postemporada se mide en z-score contra los jugadores de esa misma postemporada (producción, eficiencia e impacto). El bloque combina el nivel en sus mejores 4.000 minutos de playoffs (80 %) y el volumen de Win Shares (20 %). Con pocos minutos de playoffs, el nivel se acerca a lo que predice su temporada regular. El plus de playoffs —si crece o se encoge frente a su liga regular de ese mismo año— se muestra en la ficha pero no puntúa: el nivel ya lo recoge, y sumarlo aparte castigaba a quien hacía una gran liga regular.
 

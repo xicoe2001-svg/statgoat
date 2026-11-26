@@ -44,8 +44,10 @@ h1,h2,h3,h4,.num,button,label,th,dt,.mono{font-family:Archivo,"Helvetica Neue",s
 a{color:var(--key)}
 
 header{position:relative;border-bottom:3px solid var(--ink);padding-bottom:16px;margin-bottom:22px}
-h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacing:-.03em;margin:0;padding-right:96px}
-.lang{position:absolute;top:2px;right:0;display:flex;border:1px solid var(--ink)}
+h1{font-weight:800;font-size:clamp(40px,8.5vw,80px);line-height:.9;letter-spacing:-.03em;margin:0;padding-right:136px}
+.hbtns{position:absolute;top:2px;right:0;display:flex;gap:6px}
+.lang{display:flex;border:1px solid var(--ink)}
+.ibtn{width:31px;padding:0;border:1px solid var(--ink);font-size:15px;font-weight:800;line-height:1}
 .lang button{border:0;padding:6px 10px;font-size:12px;letter-spacing:.06em}
 .lang button+button{border-left:1px solid var(--ink)}
 .lang button[aria-pressed=true]{background:var(--ink);color:var(--line)}
@@ -105,7 +107,6 @@ button:hover{background:var(--ink);color:var(--line)}
 button[aria-pressed=true]{background:var(--key);border-color:var(--key);color:#fff}
 button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 .share{margin-top:10px}
-.howto{margin:4px 0 14px}
 .welcome{position:fixed;inset:0;background:rgba(30,20,10,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
 .welcome[hidden]{display:none}
 .wbox{background:var(--line);max-width:460px;width:100%;max-height:90vh;overflow:auto;padding:26px 24px;border:1px solid var(--ink-soft)}
@@ -273,11 +274,80 @@ table.seas td:first-child{font-family:Archivo;font-weight:600;font-size:11.5px}
 .legal p{margin:0 0 8px} .legal p:last-child{margin:0} .legal b{color:var(--ink);font-weight:600}
 footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
   font-size:12.5px;color:var(--ink-soft)}
+footer p{margin:0 0 6px}
+footer .flinks button{border:0;padding:0;background:none;color:var(--key);font-family:Newsreader;font-size:13px;
+  font-weight:400;letter-spacing:0;text-decoration:underline}
+footer .flinks button:hover{background:none;color:var(--ink)}
+/* ---------- página de información (botón ?) ---------- */
+.info{position:fixed;inset:0;z-index:80;background:var(--maple);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.info[hidden]{display:none}
+body.infoopen{overflow:hidden}
+.ibar{position:sticky;top:0;z-index:2;background:var(--maple);border-bottom:2px solid var(--ink)}
+.ibar .in{max-width:1120px;margin:0 auto;padding:10px 20px 0;display:flex;align-items:flex-end;gap:8px}
+.itabs{display:flex;flex:1;min-width:0}
+.itabs button{border:0;border-bottom:4px solid transparent;background:none;padding:10px 14px 8px;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+.itabs button:hover{background:none;color:var(--ink)}
+.itabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ball);background:none}
+.iclose{align-self:center;margin-bottom:6px;font-size:15px;padding:5px 10px;line-height:1}
+.ibody{max-width:1120px;margin:0 auto;padding:26px 20px 70px}
+.info .infograph,.info #glosario,.info .credits{margin:0;border-top:0;padding-top:0}
+.iback{margin-top:30px;font-size:12.5px;padding:8px 14px}
+@media(max-width:640px){.ibar .in{padding:4px 12px 0}.itabs button{padding:10px 8px 8px;font-size:11.5px;letter-spacing:.02em}.ibody{padding:20px 16px 60px}}
+.wbox .wmore{display:block;margin-top:14px;padding:0;border:0;background:none;color:var(--key);font-family:Newsreader;
+  font-size:14.5px;font-weight:400;letter-spacing:0;text-align:left;text-decoration:underline}
+.wbox .wmore:hover{background:none;color:var(--ink)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+<div class="info" id="info" hidden role="dialog" aria-modal="true" aria-labelledby="itab_how">
+  <div class="ibar"><div class="in">
+    <div class="itabs" role="group"><button type="button" id="itab_how" data-i="how" data-i18n="howto">Cómo funciona</button><button type="button" data-i="eras" data-i18n="i_eras">Épocas</button><button type="button" data-i="src" data-i18n="i_src">Fuentes</button></div>
+    <button type="button" class="iclose" id="iclose" data-i18n-al="i_backS" aria-label="Volver">✕</button>
+  </div></div>
+  <div class="ibody">
+    <section class="infograph" data-ip="eras" hidden>
+      <h2 data-i18n="info_h">Qué datos existían en cada época</h2>
+      <p class="info-sub" data-i18n="info_sub"></p>
+      <div class="eras">
+        <div class="era"><span class="year">1946-47</span><span class="metrics" data-i18n="e1m"></span><span class="note" data-i18n="e1n"></span></div>
+        <div class="era"><span class="year">1950-51</span><span class="metrics" data-i18n="e2m"></span><span class="note" data-i18n="e2n"></span></div>
+        <div class="era"><span class="year">1951-52</span><span class="metrics" data-i18n="e3m"></span><span class="note" data-i18n="e3n"></span></div>
+        <div class="era"><span class="year">1973-74</span><span class="metrics" data-i18n="e4m"></span><span class="note" data-i18n="e4n"></span></div>
+        <div class="era"><span class="year">1977-78</span><span class="metrics" data-i18n="e5m"></span><span class="note" data-i18n="e5n"></span></div>
+        <div class="era"><span class="year">1979-80</span><span class="metrics" data-i18n="e6m"></span><span class="note" data-i18n="e6n"></span></div>
+      </div>
+      <p class="info-sub" style="margin-top:12px" data-i18n="info_note"></p>
+    </section>
+
+    <section id="glosario" data-ip="how"></section>
+
+    <section class="credits" data-ip="src" hidden>
+      <h2 data-i18n="cr_h">Fuentes y atribución</h2>
+      <div class="cgrid">
+        <article><h4 data-i18n="cr_br_h">Basketball-Reference · temporada regular</h4>
+          <p data-i18n="cr_br"></p>
+          <p><a href="https://github.com/sumitrodatta/bball-reference-datasets" target="_blank" rel="noopener">github.com/sumitrodatta/bball-reference-datasets</a></p></article>
+        <article><h4 data-i18n="cr_po_h">Basketball-Reference · playoffs y premios</h4>
+          <p data-i18n="cr_po"></p>
+          <p><a href="https://www.basketball-reference.com/playoffs/" target="_blank" rel="noopener">basketball-reference.com</a></p></article>
+        <article><h4 data-i18n="cr_sg_h">Índice STATGOAT</h4>
+          <p data-i18n="cr_sg1">La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, ponderación de anillos por rol real y composición de los siete bloques.</p>
+          <p data-i18n="cr_sg2">La ponderación es una opinión formalizada, y por eso se puede cambiar con los pesos de la clasificación.</p></article>
+      </div>
+      <div class="legal">
+        <p data-i18n="lg_attr"><b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference.</p>
+        <p data-i18n="lg_aff"><b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference.</p>
+        <p data-i18n="lg_priv"></p>
+        <p data-i18n="lg_war"><b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.</p>
+      </div>
+    </section>
+    <button type="button" class="iback" id="iback" data-i18n="i_back">← Volver a la clasificación</button>
+  </div>
+</div>
 
 <div class="welcome" id="welcome" hidden>
   <div class="wbox" role="dialog" aria-modal="true" aria-labelledby="wl_h">
@@ -286,17 +356,20 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
     <p data-i18n="wl_2"></p>
     <p data-i18n="wl_3"></p>
     <button type="button" id="wl_btn" data-i18n="wl_btn"></button>
+    <button type="button" class="wmore" id="wl_more" data-i18n="wl_more"></button>
   </div>
 </div>
 
 <header>
   <h1>STATGOAT</h1>
-  <div class="lang" role="group" aria-label="Idioma / Language">
-    <button type="button" data-lang="es" lang="es" aria-label="Español">ES</button>
-    <button type="button" data-lang="en" lang="en" aria-label="English">EN</button>
+  <div class="hbtns">
+    <button type="button" class="ibtn" id="infobtn" data-i18n-al="howto" aria-label="Cómo funciona">?</button>
+    <div class="lang" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="es" lang="es" aria-label="Español">ES</button>
+      <button type="button" data-lang="en" lang="en" aria-label="English">EN</button>
+    </div>
   </div>
   <p class="sub" data-i18n="sub">Índice compuesto de jugadores de BAA, NBA y ABA. Ninguna estadística se compara en bruto entre épocas: todo se convierte a desviaciones típicas dentro de su propia temporada. <b>El orden no lo deciden los datos, lo deciden los pesos.</b></p>
-  <button type="button" class="howto" id="howto" data-i18n="howto">Cómo funciona</button>
   <div class="stats-strip">
     <div><b id="n_players">—</b><span data-i18n="st_players">JUGADORES</span></div>
     <div><b id="n_years">1947</b><span data-i18n="st_years">TEMPORADAS</span></div>
@@ -343,44 +416,11 @@ footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--grain);
 </table>
 <button id="more" hidden></button>
 
-<section class="infograph">
-  <h2 data-i18n="info_h">Qué datos existían en cada época</h2>
-  <p class="info-sub" data-i18n="info_sub"></p>
-  <div class="eras">
-    <div class="era"><span class="year">1946-47</span><span class="metrics" data-i18n="e1m"></span><span class="note" data-i18n="e1n"></span></div>
-    <div class="era"><span class="year">1950-51</span><span class="metrics" data-i18n="e2m"></span><span class="note" data-i18n="e2n"></span></div>
-    <div class="era"><span class="year">1951-52</span><span class="metrics" data-i18n="e3m"></span><span class="note" data-i18n="e3n"></span></div>
-    <div class="era"><span class="year">1973-74</span><span class="metrics" data-i18n="e4m"></span><span class="note" data-i18n="e4n"></span></div>
-    <div class="era"><span class="year">1977-78</span><span class="metrics" data-i18n="e5m"></span><span class="note" data-i18n="e5n"></span></div>
-    <div class="era"><span class="year">1979-80</span><span class="metrics" data-i18n="e6m"></span><span class="note" data-i18n="e6n"></span></div>
-  </div>
-  <p class="info-sub" style="margin-top:12px" data-i18n="info_note"></p>
-</section>
-
-<section id="glosario"></section>
-
-<section class="credits">
-  <h2 data-i18n="cr_h">Fuentes y atribución</h2>
-  <div class="cgrid">
-    <article><h4 data-i18n="cr_br_h">Basketball-Reference · temporada regular</h4>
-      <p data-i18n="cr_br"></p>
-      <p><a href="https://github.com/sumitrodatta/bball-reference-datasets" target="_blank" rel="noopener">github.com/sumitrodatta/bball-reference-datasets</a></p></article>
-    <article><h4 data-i18n="cr_po_h">Basketball-Reference · playoffs y premios</h4>
-      <p data-i18n="cr_po"></p>
-      <p><a href="https://www.basketball-reference.com/playoffs/" target="_blank" rel="noopener">basketball-reference.com</a></p></article>
-    <article><h4 data-i18n="cr_sg_h">Índice STATGOAT</h4>
-      <p data-i18n="cr_sg1">La transformación es propia: z-scores intra-temporada, compresión logarítmica de colas, ponderación de anillos por rol real y composición de los siete bloques.</p>
-      <p data-i18n="cr_sg2">La ponderación es una opinión formalizada, y por eso se puede cambiar arriba.</p></article>
-  </div>
-  <div class="legal">
-    <p data-i18n="lg_attr"><b>Atribución.</b> Los datos originales conservan sus licencias de origen. Si reutilizas este índice, cita Basketball-Reference.</p>
-    <p data-i18n="lg_aff"><b>Sin afiliación.</b> STATGOAT no está afiliado ni respaldado por la NBA, la NBPA ni Basketball-Reference.</p>
-    <p data-i18n="lg_priv"></p>
-    <p data-i18n="lg_war"><b>Sin garantía.</b> Esto es un análisis histórico bajo una ponderación concreta. No es una predicción, ni una recomendación de apuestas, ni una verdad establecida.</p>
-  </div>
-</section>
-
-<footer><p id="ts"></p></footer>
+<footer>
+  <p class="fsrc" data-i18n="ft_src"></p>
+  <p class="flinks"><button type="button" data-open="how" data-i18n="howto">Cómo funciona</button> · <button type="button" data-open="eras" data-i18n="i_eras">Épocas</button> · <button type="button" data-open="src" data-i18n="i_src2">Fuentes y aviso legal</button></p>
+  <p id="ts"></p>
+</footer>
 </div>
 <script>
 const RAW=__DATA__;
